@@ -82,13 +82,13 @@ export default function RegisterPage() {
       </div>
 
       {/* ================= RIGHT REGISTER FORM ================= */}
-      <div className="flex w-full lg:w-1/2  justify-center px-6 py-16">
+      <div className="flex w-full lg:w-1/2  justify-center  py-16">
 
         {/* Glass Card */}
         <div
           className="
             w-full max-w-md
-            p-8 rounded-2xl
+            p-4 rounded-2xl
           "
         >
 

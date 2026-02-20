@@ -21,11 +21,8 @@ export default function TopNavbar({ isLoggedIn }) {
 ">
       <div className="mx-auto flex h-12 max-w-7xl items-center justify-end px-6 text-sm text-white">
         <nav className="flex items-center gap-6">
-          <Link href="/quick-order" className="hover:underline">
-            Quick Order
-          </Link>
+    
 
-          <Divider />
 
           <Link href="/about-us" className="hover:underline hidden md:block">
             About Us

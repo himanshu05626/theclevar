@@ -33,7 +33,7 @@ const brands = [
 
 export default async function Page() {
   const skus = [
-    "SHIRT1","SHIRT"
+    "SHIRT1","SHIRT2"
 
  
 

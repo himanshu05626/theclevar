@@ -3,365 +3,349 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import StatusChip from "@/app/admin/UI/common/StatusChip";
+import { Accordion } from "./Accordion";
 
-const POLL_INTERVAL = 5000; // 5 sec
-const MAX_POLL_TIME = 30000; // 30 sec
+const POLL_INTERVAL = 5000;
+const MAX_POLL_TIME = 30000;
 
 export default function OrderDetailsPage() {
-    const { orderId } = useParams();
-    const router = useRouter();
-    const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [isPolling, setIsPolling] = useState(false);
-    const [elapsed, setElapsed] = useState(0);
+  const { orderId } = useParams();
+  const router = useRouter();
 
-    const intervalRef = useRef(null);
-    const timeoutRef = useRef(null);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isPolling, setIsPolling] = useState(false);
 
-    useEffect(() => {
-        console.log('data', data)
-    }, [data])
+  const intervalRef = useRef(null);
+  const timeoutRef = useRef(null);
 
-    /* =========================
-       FETCH ORDER STATUS
-    ========================= */
-    const fetchStatus = async () => {
-        try {
-            const res = await fetch("/api/paypal/verify-order", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ orderId }),
-            });
+  /* ================= FETCH ================= */
+  const fetchStatus = async () => {
+    try {
+      const res = await fetch("/api/paypal/verify-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId }),
+      });
 
-            const json = await res.json();
-            setData(json);
-            setLoading(false);
+      const json = await res.json();
+      setData(json);
+      setLoading(false);
 
-            // Stop polling on final states
-            if (
-                json?.order?.status === "PAID" ||
-                json?.order?.status === "PAYMENT_FAILED" ||
-                json?.paypal?.status === "COMPLETED"
-            ) {
-                stopPolling();
-            }
-        } catch (err) {
-            console.error("Verify failed:", err);
-            setLoading(false);
-        }
-    };
-
-    /* =========================
-       START POLLING
-    ========================= */
-    const startPolling = () => {
-        if (isPolling) return;
-
-        setIsPolling(true);
-        setElapsed(0);
-
-        intervalRef.current = setInterval(() => {
-            fetchStatus();
-            setElapsed((prev) => prev + POLL_INTERVAL);
-        }, POLL_INTERVAL);
-
-        timeoutRef.current = setTimeout(stopPolling, MAX_POLL_TIME);
-    };
-
-    /* =========================
-       STOP POLLING
-    ========================= */
-    const stopPolling = () => {
-        setIsPolling(false);
-        clearInterval(intervalRef.current);
-        clearTimeout(timeoutRef.current);
-    };
-
-    /* =========================
-       INITIAL LOAD
-    ========================= */
-    useEffect(() => {
-        fetchStatus();
-        return () => stopPolling();
-    }, [orderId]);
-
-    /* =========================
-       START POLLING IF PENDING
-    ========================= */
-    useEffect(() => {
-        if (data?.paypal?.status === "PENDING") {
-            startPolling();
-        }
-    }, [data?.paypal?.status]);
-
-    /* =========================
-       LOADING STATE
-    ========================= */
-    if (loading) {
-        return (
-            <div className="mx-auto mt-4 md:mt-4 p-4  pt-0 max-w-6xl space-y-6 animate-pulse">
-
-                {/* ================= HEADER ================= */}
-                  <p className=" flex text-md text-gray-600">
-                    <div
-                        className="cursor-pointer"
-                        onClick={() => router.back()}
-                    >   Orders</div>
-                    <span className="mx-1 text-[#0172BC]">{">"}</span>
-                    <span className="font-medium text-[#0172BC]"> Order Details</span>
-                </p>
-
-                {/* ================= ORDER META ================= */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 border border-gray-200 rounded p-4">
-                    {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="space-y-2">
-                            <div className="h-3 w-24 bg-gray-200 rounded" />
-                            <div className="h-4 w-32 bg-gray-300 rounded" />
-                        </div>
-                    ))}
-                </div>
-
-                {/* ================= ADDRESSES + SUMMARY ================= */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border border-gray-200 rounded p-6">
-
-                    {/* Shipping */}
-                    <div className="space-y-3">
-                        <div className="h-4 w-36 bg-gray-300 rounded" />
-                        {[1, 2, 3, 4, 5].map((i) => (
-                            <div key={i} className="h-3 w-full bg-gray-200 rounded" />
-                        ))}
-                    </div>
-
-                    {/* Billing */}
-                    <div className="space-y-3">
-                        <div className="h-4 w-36 bg-gray-300 rounded" />
-                        {[1, 2, 3, 4, 5].map((i) => (
-                            <div key={i} className="h-3 w-full bg-gray-200 rounded" />
-                        ))}
-                    </div>
-
-                    {/* Order Summary */}
-                    <div className="space-y-4">
-                        <div className="h-4 w-40 bg-gray-300 rounded" />
-                        {[1, 2, 3].map((i) => (
-                            <div key={i} className="flex justify-between">
-                                <div className="h-3 w-24 bg-gray-200 rounded" />
-                                <div className="h-3 w-16 bg-gray-200 rounded" />
-                            </div>
-                        ))}
-                        <div className="flex justify-between pt-3 border-t border-gray-200">
-                            <div className="h-4 w-28 bg-gray-300 rounded" />
-                            <div className="h-4 w-20 bg-gray-300 rounded" />
-                        </div>
-                    </div>
-                </div>
-
-                {/* ================= ORDER ITEMS ================= */}
-                <div className="border border-gray-200 rounded ">
-                    {[1, 2].map((i) => (
-                        <div key={i} className="flex justify-between p-4 border-b border-dashed border-gray-200">
-                            <div className="space-y-2">
-                                <div className="h-4 w-40 bg-gray-300 rounded" />
-                                <div className="h-3 w-28 bg-gray-200 rounded" />
-                            </div>
-                            <div className="space-y-2 text-right">
-                                <div className="h-3 w-16 bg-gray-200 rounded ml-auto" />
-                                <div className="h-4 w-20 bg-gray-300 rounded ml-auto" />
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* ================= PAYPAL INFO ================= */}
-                <div className="border border-gray-200 rounded p-4 space-y-2">
-                    <div className="h-3 w-64 bg-gray-200 rounded" />
-                    <div className="h-3 w-72 bg-gray-200 rounded" />
-                    <div className="h-3 w-40 bg-gray-300 rounded" />
-                </div>
-
-            </div>
-        );
+      if (
+        json?.order?.status === "PAID" ||
+        json?.order?.status === "PAYMENT_FAILED" ||
+        json?.paypal?.status === "COMPLETED"
+      ) {
+        stopPolling();
+      }
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
     }
+  };
 
-    const { order, items, paypal } = data || {};
-    const isPending = paypal?.status === "PENDING";
-    console.log('orderorder', items)
-    const billingAddress = order?.billing_address || "";
-    const billingLines = billingAddress
-        .split("\n")
-        .map((l) => l.trim())
-        .filter(Boolean);
+  const startPolling = () => {
+    if (isPolling) return;
 
-    const shippingAddress = order?.shipping_address || "";
-    const shippingLines = shippingAddress
-        .split("\n")
-        .map((l) => l.trim())
-        .filter(Boolean);
+    setIsPolling(true);
 
-  return (
-  <div className="mx-auto max-w-6xl space-y-6 bg-[#0f0f0f] p-6 text-white">
+    intervalRef.current = setInterval(fetchStatus, POLL_INTERVAL);
+    timeoutRef.current = setTimeout(stopPolling, MAX_POLL_TIME);
+  };
 
-    {/* ================= HEADER ================= */}
-    <div className="flex items-center justify-between">
-      <div>
-        <div
-          className="cursor-pointer text-sm text-gray-400 hover:text-[#38bdf8]"
-          onClick={() => router.back()}
-        >
-          ← Back to Orders
+  const stopPolling = () => {
+    setIsPolling(false);
+    clearInterval(intervalRef.current);
+    clearTimeout(timeoutRef.current);
+  };
+
+  useEffect(() => {
+    fetchStatus();
+    return () => stopPolling();
+  }, [orderId]);
+
+  useEffect(() => {
+    if (data?.paypal?.status === "PENDING") {
+      startPolling();
+    }
+  }, [data?.paypal?.status]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0f0f0f] text-white px-4 md:px-8 py-6 space-y-6">
+
+      {/* ================= HERO ================= */}
+      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#151515] p-6">
+
+        {/* Glow */}
+        <div className="absolute -top-20 -right-20 h-60 w-60 bg-[#38bdf8]/20 blur-3xl" />
+        <div className="absolute -bottom-20 -left-20 h-60 w-60 bg-[#a78bfa]/20 blur-3xl" />
+
+        <div className="relative z-10 flex justify-between items-center">
+
+          <div className="space-y-3">
+            <div className="h-3 w-28 rounded bg-white/10 shimmer" />
+            <div className="h-5 w-56 rounded bg-white/10 shimmer" />
+            <div className="h-3 w-40 rounded bg-white/10 shimmer" />
+          </div>
+
+          <div className="text-right space-y-2">
+            <div className="h-6 w-16 rounded-full bg-[#22c55e]/20 shimmer" />
+            <div className="h-4 w-20 rounded bg-white/10 shimmer" />
+          </div>
+
         </div>
-
-        <h1 className="mt-1 text-xl font-semibold">
-          Order #{order?.order_number}
-        </h1>
       </div>
 
-      <StatusChip value={order?.status} />
-    </div>
+      {/* ================= MAIN GRID ================= */}
+      <div className="grid lg:grid-cols-3 gap-6">
 
-    {/* ================= META CARD ================= */}
-    <div className="grid gap-4 rounded-xl border border-white/10 bg-[#1a1a1a] p-5 text-sm md:grid-cols-4">
-      <Meta label="Order Placed">
-        {new Date(order?.created_at).toLocaleString()}
-      </Meta>
+        {/* ================= ITEMS ================= */}
+        <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-[#151515]">
 
-      <Meta label="Payment Mode">
-        {order?.is_paypal ? "PayPal" : "Purchase Order"}
-      </Meta>
-
-      <Meta label="Shipping">
-        ${order?.shipping_amount}
-      </Meta>
-
-      <Meta label="Tax">
-        ${order?.tax_amount}
-      </Meta>
-    </div>
-
-    {/* ================= ADDRESSES + SUMMARY ================= */}
-    <div className="grid gap-6 md:grid-cols-3">
-
-      {/* SHIPPING */}
-      <Card title="Shipping Address">
-        {shippingLines.map((line, i) => (
-          <p key={i} className={i === 0 ? "font-medium" : "text-gray-400"}>
-            {line}
-          </p>
-        ))}
-      </Card>
-
-      {/* BILLING */}
-      <Card title="Billing Address">
-        {billingLines.map((line, i) => (
-          <p key={i} className={i === 0 ? "font-medium" : "text-gray-400"}>
-            {line}
-          </p>
-        ))}
-      </Card>
-
-      {/* SUMMARY */}
-      <Card title="Order Summary">
-        <SummaryRow label="Sub Total" value={order?.sub_total} />
-        <SummaryRow label="Shipping" value={order?.shipping_amount} />
-        <SummaryRow label="GST" value={order?.tax_amount} />
-
-        <div className="my-3 border-t border-white/10" />
-
-        <div className="flex justify-between font-semibold text-[#38bdf8]">
-          <span>Grand Total</span>
-          <span>${order?.total}</span>
-        </div>
-      </Card>
-    </div>
-
-    {/* ================= ITEMS ================= */}
-    <div className="rounded-xl border border-white/10 bg-[#1a1a1a]">
-      {items?.map((item) => (
-        <div
-          key={item.id}
-          className="flex flex-col gap-4 border-b border-white/10 p-4 last:border-none md:flex-row md:justify-between"
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded border border-white/10 bg-[#111827]">
-              <Image
-                src={item.product?.images?.[0]?.image_url || "/images/not-found.png"}
-                alt={item.product_title}
-                width={40}
-                height={40}
-                className="object-cover"
-              />
-            </div>
-
-            <div>
-              <p className="font-medium">{item.product_title}</p>
-              <p className="text-xs text-gray-400">SKU: {item.sku}</p>
-            </div>
+          <div className="p-4 border-b border-white/10">
+            <div className="h-4 w-24 bg-white/10 rounded shimmer" />
           </div>
 
-          <div className="text-right text-sm">
-            <p className="text-gray-400">QTY: {item.quantity}</p>
-            <p className="font-semibold text-[#38bdf8]">
-              ${item.line_total}
-            </p>
+          {[1, 2].map((i) => (
+            <div key={i} className="flex justify-between items-center p-4 border-b border-white/5">
+
+              <div className="flex gap-3 items-center">
+                <div className="h-14 w-14 rounded-lg bg-white/10 shimmer" />
+
+                <div className="space-y-2">
+                  <div className="h-4 w-40 bg-white/10 rounded shimmer" />
+                  <div className="h-3 w-24 bg-white/10 rounded shimmer" />
+                </div>
+              </div>
+
+              <div className="h-4 w-16 bg-white/10 rounded shimmer" />
+            </div>
+          ))}
+        </div>
+
+        {/* ================= SUMMARY ================= */}
+        <div className="rounded-2xl border border-white/10 bg-[#151515] p-5 space-y-4">
+
+          <div className="h-4 w-32 bg-white/10 rounded shimmer" />
+
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex justify-between">
+              <div className="h-3 w-24 bg-white/10 rounded shimmer" />
+              <div className="h-3 w-16 bg-white/10 rounded shimmer" />
+            </div>
+          ))}
+
+          <div className="border-t border-white/10 pt-3 flex justify-between">
+            <div className="h-4 w-24 bg-white/10 rounded shimmer" />
+            <div className="h-4 w-20 bg-[#38bdf8]/20 rounded shimmer" />
           </div>
         </div>
-      ))}
-    </div>
+      </div>
 
-    {/* ================= PAYPAL ================= */}
-    <Card title="PayPal Transactions">
-      {paypal?.length ? (
-        paypal.map((tx) => (
-          <div
-            key={tx.id}
-            className="mb-3 rounded-lg border border-white/10 bg-[#111827] p-4 text-sm"
+      {/* ================= ACCORDION (ADDRESS) ================= */}
+      <div className="space-y-4">
+
+        {[1, 2].map((i) => (
+          <div key={i} className="rounded-2xl border border-white/10 bg-[#151515] p-4">
+            <div className="flex justify-between items-center">
+              <div className="h-4 w-32 bg-white/10 rounded shimmer" />
+              <div className="h-4 w-4 bg-white/10 rounded shimmer" />
+            </div>
+          </div>
+        ))}
+
+      </div>
+
+    </div>
+    );
+  }
+
+  const { order, items, paypal } = data || {};
+
+  const billingLines = (order?.billing_address || "")
+    .split("\n")
+    .filter(Boolean);
+
+  const shippingLines = (order?.shipping_address || "")
+    .split("\n")
+    .filter(Boolean);
+
+  return (
+    <div className="min-h-screen bg-[#0f0f0f] text-white px-4 md:px-8 py-6 space-y-6">
+
+      {/* ================= HERO ================= */}
+      {/* ================= HERO ================= */}
+      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#151515] p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+        {/* 🔥 Glow Background */}
+        <div className="pointer-events-none absolute -top-20 -right-20 h-60 w-60 rounded-full bg-[#38bdf8]/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-[#a78bfa]/20 blur-3xl" />
+
+        {/* Content */}
+        <div className="relative z-10">
+          <p
+            onClick={() => router.back()}
+            className="text-sm text-gray-400 cursor-pointer hover:text-white"
           >
-            <div className="grid grid-cols-2 gap-3">
-              <Meta label="Transaction ID">{tx.providerTxnId}</Meta>
-              <Meta label="Amount">
-                {tx.amount} {tx.currency}
-              </Meta>
-              <Meta label="Date">
-                {new Date(tx.createdAt).toLocaleString()}
-              </Meta>
-              <Meta label="Status">{tx.status}</Meta>
+            ← Back to Orders
+          </p>
+
+          <h1 className="text-xl md:text-2xl font-bold mt-1">
+            Order #{order?.order_number}
+          </h1>
+
+          <p className="text-gray-400 text-sm">
+            {new Date(order?.created_at).toLocaleString()}
+          </p>
+        </div>
+
+        <div className="relative z-10 text-right">
+          <StatusChip value={order?.status} />
+
+          <p className="text-xs text-gray-400 mt-2">Total</p>
+          <p className="text-2xl font-bold text-[#38bdf8]">
+            ₹{order?.total}
+          </p>
+        </div>
+      </div>
+
+      {/* ================= MAIN GRID ================= */}
+      <div className="grid lg:grid-cols-3 gap-6">
+
+        {/* ================= LEFT ================= */}
+        <div className="lg:col-span-2 space-y-6">
+
+          {/* ITEMS */}
+          <div className="rounded-2xl border border-white/10 bg-[#151515]">
+            <h3 className="p-4 border-b border-white/10 font-semibold">
+              Items
+            </h3>
+
+            {items?.map((item) => (
+              <div
+                key={item.id}
+                className="flex items-center justify-between p-4 border-b border-white/5 last:border-none"
+              >
+                <div className="flex gap-3">
+                  <div className="h-14 w-14 rounded-lg overflow-hidden bg-[#111]">
+                    <Image
+                      src={
+                        item.product?.images?.[0]?.image_url ||
+                        "/images/not-found.png"
+                      }
+                      alt=""
+                      width={56}
+                      height={56}
+                      className="object-cover"
+                    />
+                  </div>
+
+                  <div>
+                    <p className="font-medium">{item.product_title}</p>
+                    <p className="text-xs text-gray-400">
+                      Qty: {item.quantity}
+                    </p>
+                  </div>
+                </div>
+
+                <p className="font-semibold text-[#38bdf8]">
+                  ₹{item.line_total}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* ADDRESSES */}
+
+        </div>
+
+        {/* ================= RIGHT (STICKY SUMMARY) ================= */}
+        <div className="space-y-6">
+
+          <div className="rounded-2xl border border-white/10 bg-[#151515] p-5 ">
+
+            <h3 className="font-semibold mb-4">Order Summary</h3>
+
+            <SummaryRow label="Subtotal" value={order?.sub_total} />
+            <SummaryRow label="Shipping" value={order?.shipping_amount} />
+            <SummaryRow label="GST" value={order?.tax_amount} />
+
+            <div className="border-t border-white/10 my-3" />
+
+            <div className="flex justify-between font-bold text-lg text-[#38bdf8]">
+              <span>Total</span>
+              <span>₹{order?.total}</span>
             </div>
           </div>
-        ))
-      ) : (
-        <p className="text-gray-400">No PayPal transactions found.</p>
-      )}
-    </Card>
+          
 
-  </div>
-);
+          {/* PAYMENTS */}
+          <Card title="Payments">
+            {paypal?.length ? (
+              paypal.map((tx) => (
+                <div key={tx.id} className="mb-3 text-sm">
+                  <p className="text-gray-400">{tx.providerTxnId}</p>
+                  <p className="text-[#38bdf8] font-semibold">
+                    ₹{tx.amount}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {new Date(tx.createdAt).toLocaleString()}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-400 text-sm">
+                No transactions
+              </p>
+            )}
+          </Card>
+          <div className="space-y-4">
 
+            <Accordion title="Shipping Address" >
+              {shippingLines.map((l, i) => (
+                <p key={i} className="text-sm text-gray-300">{l}</p>
+              ))}
+            </Accordion>
+
+            <Accordion title="Billing Address">
+              {billingLines.map((l, i) => (
+                <p key={i} className="text-sm text-gray-300">{l}</p>
+              ))}
+
+              {order?.gst_number && (
+                <p className="mt-3 text-xs text-[#38bdf8]">
+                  GST: {order.gst_number}
+                </p>
+              )}
+            </Accordion>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
 }
+
+/* ================= COMPONENTS ================= */
+
 function Card({ title, children }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-[#1a1a1a] p-5 text-sm">
+    <div className="rounded-2xl border border-white/10 bg-[#151515] p-5">
       <h4 className="mb-3 font-semibold">{title}</h4>
       {children}
     </div>
   );
 }
 
-function Meta({ label, children }) {
-  return (
-    <div>
-      <p className="text-xs text-gray-400">{label}</p>
-      <p className="font-medium">{children}</p>
-    </div>
-  );
-}
-
 function SummaryRow({ label, value }) {
   return (
-    <div className="flex justify-between text-gray-300">
+    <div className="flex justify-between text-sm text-gray-300 mb-2">
       <span>{label}</span>
-      <span>${value}</span>
+      <span>₹{value}</span>
     </div>
   );
 }

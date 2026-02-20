@@ -30,7 +30,6 @@ export default function Error({ error }) {
   useEffect(() => {
     console.error("App Error:", error);
 
-    // 🔐 Session expired → redirect
     if (errorType === "AUTH" && !redirected.current) {
       redirected.current = true;
       router.replace("/login");
@@ -38,54 +37,102 @@ export default function Error({ error }) {
   }, [error, errorType, router]);
 
   const handleRefresh = () => {
-    window.location.reload(); // HARD refresh
+    window.location.reload();
   };
 
-  // 🧾 UI messages
   const messages = {
     AUTH: {
       title: "Session Expired",
       description:
-        "Your session has expired for security reasons. Please log in again.",
+        "Your session has expired. Please log in again.",
     },
     NETWORK: {
       title: "Network Error",
       description:
-        "We’re having trouble connecting to the server. Please check your internet connection.",
+        "Unable to connect. Check your internet and try again.",
     },
     SERVER: {
-      title: "Server Error",
+      title: "Something went wrong",
       description:
-        "Something went wrong on our side. Please refresh the page or try again later.",
+        "We’re fixing this. Try refreshing the page.",
     },
   };
 
   const { title, description } = messages[errorType];
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4 text-center">
-      <h2 className="text-2xl font-semibold text-gray-800">{title}</h2>
+    <div className="
+       flex items-center justify-center 
+      bg-[#0f0f0f] px-4 
+    ">
 
-      <p className="mt-2 max-w-md text-sm text-gray-600">
-        {description}
-      </p>
+      <div className="
+        w-full max-w-md
+        rounded-2xl
+        mt-10
+        bg-[#1a1a1a]
+        border border-white/10
+        shadow-[0_10px_40px_rgba(0,0,0,0.9)]
+        p-8 text-center
+      ">
 
-      <div className="mt-6 flex gap-4">
-        {errorType !== "AUTH" && (
+        {/* ICON */}
+        <div className="
+          mx-auto mb-5 flex h-14 w-14 items-center justify-center
+          rounded-full
+          bg-[#0ea5e9]/10
+          border border-[#38bdf8]/20
+        ">
+          <span className="text-2xl">⚠</span>
+        </div>
+
+        {/* TITLE */}
+        <h2 className="text-xl font-semibold text-white">
+          {title}
+        </h2>
+
+        {/* DESCRIPTION */}
+        <p className="mt-2 text-sm text-[#9ca3af]">
+          {description}
+        </p>
+
+        {/* ACTIONS */}
+        <div className="mt-6 flex gap-3">
+
+          {errorType !== "AUTH" && (
+            <button
+              onClick={() => router.back()}
+              className="
+                flex-1 h-11 rounded-xl
+                border border-white/10
+                text-sm font-medium text-[#d1d5db]
+                hover:bg-white/5
+                transition
+              "
+            >
+              Go Back
+            </button>
+          )}
+
           <button
-            onClick={() => router.back()}
-            className="rounded border px-6 py-2"
-          >
-            Go back
-          </button>
-        )}
+            onClick={handleRefresh}
+            className="
+              flex-1 h-11 rounded-xl
+              text-sm font-semibold text-white
 
-        <button
-          onClick={handleRefresh}
-          className="rounded bg-black px-6 py-2 text-white"
-        >
-          Refresh Page
-        </button>
+              bg-[#0ea5e9]
+              hover:bg-[#38bdf8]
+
+              shadow-[0_0_20px_rgba(14,165,233,0.35)]
+              transition-all duration-200
+              hover:scale-[1.02]
+            "
+          >
+            Refresh
+          </button>
+
+        </div>
+
       </div>
     </div>
   );

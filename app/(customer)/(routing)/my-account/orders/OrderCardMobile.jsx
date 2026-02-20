@@ -1,113 +1,114 @@
-import { Suspense } from "react";
-import OrderItems from "./OrderItems";
+"use client";
+
 import Link from "next/link";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
 export default function OrderCardMobile({ order }) {
-    return (
-  <div className="overflow-hidden rounded-xl border border-white/10 bg-[#1a1a1a] shadow-[0_10px_30px_rgba(0,0,0,0.6)] transition hover:shadow-[0_10px_40px_rgba(0,0,0,0.9)]">
+  const total = parseFloat(order?.total);
+const statusMap = {
+  delivered: {
+    text: "text-emerald-300",
+    bg: "bg-emerald-500/15",
+    border: "border-emerald-500/30",
+    dot: "bg-emerald-400",
+    label: "Delivered",
+  },
+  created: {
+    text: "text-blue-300",
+    bg: "bg-blue-500/15",
+    border: "border-blue-500/30",
+    dot: "bg-blue-400",
+    label: "Created",
+  },
+  pending: {
+    text: "text-yellow-300",
+    bg: "bg-yellow-500/15",
+    border: "border-yellow-500/30",
+    dot: "bg-yellow-400",
+    label: "Pending",
+  },
+  cancelled: {
+    text: "text-red-300",
+    bg: "bg-red-500/15",
+    border: "border-red-500/30",
+    dot: "bg-red-400",
+    label: "Cancelled",
+  },
+  paid: {
+    text: "text-green-300",
+    bg: "bg-green-500/15",
+    border: "border-green-500/30",
+    dot: "bg-green-400",
+    label: "Paid",
+  },
+};
 
-    {/* HEADER */}
-    <div className="grid grid-cols-2 gap-x-2 gap-y-2 bg-[#111827] px-3 py-3 text-xs sm:px-4 sm:text-sm md:grid-cols-4">
+  const status =
+    statusMap[order?.status?.toLowerCase()] || {
+      text: "text-gray-400",
+      bg: "bg-gray-500/15",
+      border: "border-gray-500/30",
+      dot: "bg-gray-400",
+      label: order?.status || "Unknown",
+    };
 
-      <div>
-        <div className="text-gray-400">Order ID</div>
-        <div className="font-medium">#{order.order_number}</div>
-      </div>
+  return (
+    <Link
+      href={`/order/${order.id}`}
+      className="block group active:scale-[0.98] transition"
+    >
+      <div className="relative overflow-hidden  border border-white/10 bg-[#0f0f0f] px-4 py-3 shadow-sm">
 
-      <div className="text-right">
-        <div className="text-gray-400">Placed</div>
-        <div className="font-medium">
-          {new Date(order.created_at).toLocaleDateString()}
-        </div>
-      </div>
+        {/* 🔥 subtle glow */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-gradient-to-r from-[#0ea5e9]/10 via-transparent to-[#38bdf8]/10" />
 
-      <div>
-        <div className="text-gray-400">Ship to</div>
-        <div className="font-medium">
-          {order.shipping_address?.split(" ").slice(0, 2).join(" ") + "..."}
-        </div>
-      </div>
+        <div className="relative flex items-center justify-between">
 
-      <div className="text-right">
-        <div className="text-gray-400">Status</div>
-        <span className="inline-block rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] sm:text-xs font-medium">
-          {order.status}
-        </span>
-      </div>
-    </div>
+          {/* LEFT */}
+          <div className="flex flex-col gap-1.5">
 
-    {/* ITEMS */}
-    <div>
-      <Suspense
-        fallback={
-          <div className="space-y-2 p-3 sm:p-4">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between border-b border-white/10 pb-2 last:border-0"
-              >
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="h-8 w-8 sm:h-10 sm:w-10 animate-pulse rounded border border-white/10 bg-[#111827]" />
+            {/* Order ID */}
+            <div className="text-sm font-semibold text-white tracking-wide">
+              #{order?.order_number || "—"}
+            </div>
 
-                  <div className="space-y-1">
-                    <div className="h-3 w-40 sm:w-56 animate-pulse rounded bg-[#111827]" />
-                    <div className="h-2.5 w-20 sm:w-24 animate-pulse rounded bg-[#111827]" />
-                  </div>
-                </div>
+            {/* Date */}
+            <div className="text-[11px] text-gray-500">
+              {order?.created_at
+                ? new Date(order.created_at).toLocaleDateString()
+                : "—"}
+            </div>
 
-                <div className="flex items-center gap-3 sm:gap-6">
-                  <div className="h-3 w-8 animate-pulse rounded bg-[#111827]" />
-                  <div className="h-3 w-10 animate-pulse rounded bg-[#111827]" />
-                </div>
-              </div>
-            ))}
+            {/* Status with dot */}
+            <div className="flex items-center gap-1.5">
+            {/* Status with dot */}
+{/* Status Chip */}
+{/* Status Chip */}
+<div
+  className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border ${status.bg} ${status.border}`}
+>
+  <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
+  <span className={`text-[11px] font-medium ${status.text}`}>
+    {status.label}
+  </span>
+</div>   </div>
           </div>
-        }
-      >
-        <OrderItems orderId={order.id} />
-      </Suspense>
-    </div>
 
-    {/* FOOTER */}
-    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 bg-[#111827] px-3 py-3 text-xs sm:px-4 sm:text-sm">
+          {/* RIGHT */}
+          <div className="flex items-center gap-3">
 
-      <div className="font-semibold text-white">
-        Total: ${order.total.toFixed(2)}
+            {/* Price */}
+            <div className="text-sm font-semibold text-white">
+              ₹{!isNaN(total) ? total.toFixed(2) : "0.00"}
+            </div>
+
+            {/* Arrow */}
+            <div className="rounded-full p-1 bg-white/5 group-hover:bg-white/10 transition">
+              <ArrowRightIcon className="h-4 w-4 text-gray-400 group-hover:text-white transition" />
+            </div>
+          </div>
+        </div>
       </div>
-
-      <div className="flex items-center gap-2 sm:gap-3">
-
-        <button
-          className="
-            inline-flex items-center justify-center
-            rounded border border-white/10 bg-[#1a1a1a]
-            px-3 py-1.5 text-xs font-medium text-gray-300
-            transition hover:bg-white/5
-            md:px-4 md:py-2 md:text-sm
-          "
-        >
-          Invoice
-        </button>
-
-        <Link
-          href={`/order/${order.id}`}
-          className="
-            inline-flex items-center justify-center
-            rounded bg-[#0ea5e9]
-            px-3 py-1.5 text-xs font-medium text-white
-            shadow-[0_0_12px_rgba(14,165,233,0.35)]
-            transition hover:bg-[#38bdf8]
-            md:px-4 md:py-2 md:text-sm
-          "
-        >
-          View
-          <ArrowRightIcon className="ml-1 h-3 w-3 md:h-4 md:w-4" />
-        </Link>
-
-      </div>
-    </div>
-  </div>
-);
-
+    </Link>
+  );
 }

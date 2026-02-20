@@ -134,50 +134,50 @@ export default async function Page({ params }) {
        FETCH PRODUCT
     ========================= */
     // console.log('slugPath', slugPath)
-const product = await prisma.product_list.findFirst({
-  where: {
-    slug: slugPath,
-    is_deleted: false,
-    is_active: true,
-  },
-  include: {
-    images: {
-      orderBy: { is_primary: "desc" },
-    },
-    category: true,
+    const product = await prisma.product_list.findFirst({
+        where: {
+            slug: slugPath,
+            is_deleted: false,
+            is_active: true,
+        },
+        include: {
+            images: {
+                orderBy: { is_primary: "desc" },
+            },
+            category: true,
 
-    // ✅ ADD THIS BLOCK
-    variants: {
-      where: {
-        is_deleted: false,
-      },
-      orderBy: {
-        size: "asc",
-      },
-    },
-  },
-});
+            // ✅ ADD THIS BLOCK
+            variants: {
+                where: {
+                    is_deleted: false,
+                },
+                orderBy: {
+                    size: "asc",
+                },
+            },
+        },
+    });
 
 
-let relatedProducts= [];
+    let relatedProducts = [];
 
-if (product) {
-  relatedProducts = await prisma.product_list.findMany({
-    where: {
-      category_id: product.category_id, // same category
-      id: { not: product.id }, // exclude current product
-      is_deleted: false,
-      is_active: true,
-    },
-    include: {
-      images: {
-        orderBy: { is_primary: "desc" },
-        take: 1,
-      },
-    },
-    take: 8, // limit results
-  });
-}
+    if (product) {
+        relatedProducts = await prisma.product_list.findMany({
+            where: {
+                category_id: product.category_id, // same category
+                id: { not: product.id }, // exclude current product
+                is_deleted: false,
+                is_active: true,
+            },
+            include: {
+                images: {
+                    orderBy: { is_primary: "desc" },
+                    take: 1,
+                },
+            },
+            take: 8, // limit results
+        });
+    }
 
     //   console.log('productproductproductproductproduct', product)
     if (!product) notFound();
@@ -185,10 +185,13 @@ if (product) {
     /* =========================
        MAIN IMAGE
     ========================= */
-    const mainImage =
-        product.images.find((img) => img.is_primary)?.image_url ||
-        product.images[0]?.image_url ||
-        "/images/not-found.png";
+    console.log('product.imagesproduct.images', product.images)
+    const images =
+        product.images?.map((img) => ({
+            url: img.image_url,
+            isPrimary: img.is_primary,
+        })) || [];
+
 
     /* =========================
        PRICE RESOLVER
@@ -245,7 +248,7 @@ if (product) {
     /* =========================
        SEND SAFE DATA
     ========================= */
-    console.log('relatedProducts',relatedProducts)
+    console.log('relatedProducts', relatedProducts)
     return (
         <ProductDetailClient
             isLoggedIn={isLoggedIn}
@@ -260,9 +263,9 @@ if (product) {
                 sale_price: product.sale_price,
                 stepper_value: product.stepper_value,
                 measure_unit: product.measure_unit,
-                mainImage,
+                mainImage:images,
                 category: product.category,
-                    variants: product.variants, // ✅ PASS VARIANTS
+                variants: product.variants, // ✅ PASS VARIANTS
             }}
         />
     );

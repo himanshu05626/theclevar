@@ -115,7 +115,7 @@ export default function CheckoutTotal({ cartData = [] }) {
       name: "The Clevar",
       description: "Order Payment",
       handler: async function (response) {
-        await fetch("/api/razorpay/verify", {
+        await fetch("/api/razorpay/verify-payment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

@@ -158,15 +158,15 @@ if (
                 name: values.name,
                 slug,
                 sku: values.sku || null,
-                category_id,
+                category: {
+    connect: { id: category_id }
+},
                 low_stock_threshold: Number(values.low_stock_threshold) || null,
                 description: values.description || null,
-                measure_unit: values.measure_unit || null,
                 stepper_value: Number(values.stepper_value) || null,
                 regular_price: Number(values.regular_price),
                 sale_price: values.sale_price ? Number(values.sale_price) : null,
                 stock_qty: Number(values.stock_qty),
-                weight: values.weight ? Number(values.weight) : null,
             },
         });
 

@@ -56,7 +56,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-r from-[#0f0f0f] to-[#111827]">
+    <div className="min-h-screen flex bg-gradient-to-r p-4 from-[#0f0f0f] to-[#111827]">
 
       {/* LEFT BRAND PANEL */}
       <div className="
