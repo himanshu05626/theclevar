@@ -49,24 +49,24 @@ const geistMono = Geist_Mono({
 ========================= */
 
 export const metadata = {
-  metadataBase: new URL("https://theclevar.com.au"),
+  metadataBase: new URL("https://theclevar.com"),
 
-  title: {
-    default: "The Clevar | Security & Protection Solutions",
-    template: "%s | The Clevar",
-  },
+ title: {
+  default: "The Clevar | Custom Dresses & Premium Fashion",
+  template: "%s | The Clevar",
+},
 
   description:
-    "The Clevar provides advanced security and protection solutions across Australia. Trusted, reliable, and professional services.",
+    "The Clevar provides advanced custom dresses and premium fashion solutions across India. Trusted, reliable, and professional services.",
 
   applicationName: "The Clevar",
 
   keywords: [
     "The Clevar",
-    "Security Services Australia",
-    "Protection Solutions",
+    "Custom Dresses ",
+    "Premium Fashion",
     "theclevar",
-    "Security Company",
+    "Fashion Company",
   ],
 
   authors: [{ name: "The Clevar" }],
@@ -84,12 +84,12 @@ export const metadata = {
   },
 
   openGraph: {
-    title: "The Clevar | Security & Protection Solutions",
+    title: "The Clevar | Custom Dresses & Premium Fashion",
     description:
-      "Professional security and protection solutions across Australia.",
-    url: "https://theclevar.com.au",
+      "Professional custom dresses and premium fashion solutions across India.",
+    url: "https://theclevar.com",
     siteName: "The Clevar",
-    locale: "en_AU",
+    locale: "en_IN",
     type: "website",
   },
 

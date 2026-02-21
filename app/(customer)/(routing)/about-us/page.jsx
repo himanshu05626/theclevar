@@ -5,7 +5,7 @@ import WhatWeDo from "../../customer/components/Aboutus/WhatWeDo";
 import ServiceHighlights from "../../customer/components/home/ServiceHighlights";
 
 export const metadata = {
-    title: "theclevar | About Us",
+    title: "About Us | The Clevar",
     description: "The Clevar Website-meta",
 };
 
