@@ -1,3 +1,4 @@
+import { MapIcon, PresentationChartBarIcon, TruckIcon, UserIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 
 export default function ServiceHighlights() {
@@ -10,13 +11,7 @@ export default function ServiceHighlights() {
           {/* ITEM 1 */}
           <div className="flex flex-col items-center text-center">
 
-            <Image
-              src="/icons/delivery-box.svg"
-              alt="Fast Dispatch"
-              width={42}
-              height={42}
-              className="mb-3 opacity-90"
-            />
+           <TruckIcon color="white" className="h-10 w-10 mb-2" />
 
             <h4 className="font-semibold text-white">
               Fast Dispatch
@@ -36,13 +31,7 @@ export default function ServiceHighlights() {
           {/* ITEM 2 */}
           <div className="flex flex-col items-center text-center">
 
-            <Image
-              src="/icons/australia-wise.svg"
-              alt="PAN India Delivery"
-              width={42}
-              height={42}
-              className="mb-3 opacity-90"
-            />
+           <MapIcon color="white" className="h-10 w-10 mb-2"/>
 
             <h4 className="font-semibold text-white">
               PAN India Delivery
@@ -62,17 +51,7 @@ export default function ServiceHighlights() {
           {/* ITEM 3 */}
           <div className="flex flex-col items-center text-center">
 
-            <svg
-              className="mb-3 h-10 w-10 text-sky-400"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            >
-              <circle cx="12" cy="7" r="4" />
-              <path d="M5.5 21a6.5 6.5 0 0113 0" />
-            </svg>
-
+           <UserIcon color="white" className="h-10 w-10 mb-2" />
             <h4 className="font-semibold text-white">
               Friendly Support
             </h4>

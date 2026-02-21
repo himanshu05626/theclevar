@@ -101,8 +101,11 @@ export default async function Page() {
           tier_product_pricing: true,
         },
       },
+        // ✅ ADD THIS
+    variant: true,
     },
   });
+  console.log('cartDatacartDatacartData',cartData)
 
   /* =========================
      APPLY PRICING (CORE LOGIC)
@@ -115,6 +118,7 @@ export default async function Page() {
   }
   const pricedCartData = cartData.map((item) => {
     const p = item.product;
+    const v = item.variant;
 
     let finalPrice = toFloat(p.regular_price);
     let priceSource = "REGULAR_PRICE";
@@ -164,7 +168,7 @@ export default async function Page() {
         images: p.images,
         sku: p.sku,
         stepper_value: p.stepper_value,
-
+        size: v?.size || null,
         price: finalPrice, // ✅ FLOAT
         priceSource,
       },

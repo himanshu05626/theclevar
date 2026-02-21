@@ -10,6 +10,7 @@ import ServiceHighlights from "./customer/components/home/ServiceHighlights";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/requireUser";
 import Banner from "./customer/components/home/Banner";
+import LetsWorkTogether from "./customer/components/Aboutus/LetsWorkTogether";
 
 const brands = [
   { path: "/logo/SVG-1.png", alt: "Brand 1" },
@@ -98,7 +99,10 @@ const products = await prisma.product_list.findMany({
       {/* <BrandStrip brands={brands} /> */}
       {/* <Category /> */}
       <BestSellingProducts products={products} customerId={user?.id} />
-      <WhyChoosetheclevar />
+      {/* <WhyChoosetheclevar />
+       */}
+             <LetsWorkTogether />
+       
       {/* <StatsCounter /> */}
       <Banner products={products} />
       <FAQAccordion />

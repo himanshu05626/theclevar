@@ -1,60 +1,77 @@
-// app/my-account/orders/loading.jsx
 export default function Loading() {
   return (
-    <div className="mx-auto max-w-6xl space-y-4">
+    <div className="mx-auto max-w-6xl px-4 py-6 space-y-6 text-white">
 
-      <p className="mb-2 text-md text-gray-400">Orders</p>
+      {/* ================= HEADER ================= */}
+      <div className="space-y-2">
+        <div className="h-5 w-40 bg-white/10 rounded shimmer" />
+        <div className="h-3 w-64 bg-white/10 rounded shimmer" />
+      </div>
 
-      {[1, 2, 3].map((i) => (
-        <div
-          key={i}
-          className="overflow-hidden rounded-xl border border-white/10 bg-[#1a1a1a]"
-        >
-          {/* HEADER */}
-          <div className="grid grid-cols-2 gap-4 bg-[#111827] px-4 py-4 md:grid-cols-4">
-            {[1, 2, 3, 4].map((j) => (
-              <div key={j} className="space-y-2">
-                <div className="h-3 w-14 animate-pulse rounded bg-[#1a1a1a]" />
-                <div className="h-4 w-24 animate-pulse rounded bg-[#1a1a1a]" />
-              </div>
-            ))}
-          </div>
+      {/* ================= MOBILE LIST ================= */}
+      <div className="space-y-4 md:hidden">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="rounded-xl border border-white/10 bg-[#151515] p-4 space-y-3"
+          >
+            {/* Top Row */}
+            <div className="flex justify-between items-center">
+              <div className="h-4 w-40 bg-white/10 rounded shimmer" />
+              <div className="h-5 w-14 rounded-full bg-[#38bdf8]/20 shimmer" />
+            </div>
 
-          {/* ITEMS */}
-          <div className="space-y-4 px-4 py-4">
-            {[1, 2, 3].map((k) => (
-              <div
-                key={k}
-                className="flex flex-col gap-3 border-b border-white/10 pb-4 last:border-0 md:flex-row md:items-center md:justify-between"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 animate-pulse rounded border border-white/10 bg-[#111827]" />
+            {/* Total */}
+            <div className="h-6 w-24 bg-white/10 rounded shimmer" />
 
-                  <div className="space-y-2">
-                    <div className="h-4 w-56 animate-pulse rounded bg-[#111827]" />
-                    <div className="h-3 w-24 animate-pulse rounded bg-[#111827]" />
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-6">
-                  <div className="h-4 w-10 animate-pulse rounded bg-[#111827]" />
-                  <div className="h-4 w-12 animate-pulse rounded bg-[#111827]" />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* FOOTER */}
-          <div className="flex flex-col gap-3 border-t border-white/10 bg-[#111827] px-4 py-4 md:flex-row md:items-center md:justify-between">
-            <div className="h-4 w-24 animate-pulse rounded bg-[#1a1a1a]" />
-
-            <div className="flex gap-4">
-              <div className="h-4 w-24 animate-pulse rounded bg-[#1a1a1a]" />
-              <div className="h-4 w-32 animate-pulse rounded bg-[#1a1a1a]" />
+            {/* Bottom */}
+            <div className="flex justify-between items-center">
+              <div className="h-3 w-32 bg-white/10 rounded shimmer" />
+              <div className="h-4 w-16 bg-white/10 rounded shimmer" />
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
+
+      {/* ================= DESKTOP GRID ================= */}
+      <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div
+            key={i}
+            className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#151515] p-5 space-y-4"
+          >
+
+            {/* Glow */}
+            <div className="absolute -top-16 -right-16 h-40 w-40 bg-[#38bdf8]/20 blur-3xl" />
+
+            {/* Status */}
+            <div className="flex justify-between items-center">
+              <div className="h-3 w-16 bg-white/10 rounded shimmer" />
+              <div className="h-5 w-16 rounded-full bg-[#22c55e]/20 shimmer" />
+            </div>
+
+            {/* Order ID */}
+            <div className="space-y-2">
+              <div className="h-5 w-48 bg-white/10 rounded shimmer" />
+              <div className="h-5 w-32 bg-white/10 rounded shimmer" />
+            </div>
+
+            {/* Total */}
+            <div className="space-y-1">
+              <div className="h-3 w-16 bg-white/10 rounded shimmer" />
+              <div className="h-6 w-28 bg-[#38bdf8]/20 rounded shimmer" />
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-between items-center pt-2">
+              <div className="h-3 w-32 bg-white/10 rounded shimmer" />
+              <div className="h-4 w-16 bg-white/10 rounded shimmer" />
+            </div>
+          </div>
+        ))}
+
+      </div>
     </div>
   );
 }

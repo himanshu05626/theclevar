@@ -187,7 +187,7 @@ export default function CheckoutTotal({ cartData = [] }) {
         </div>
 
         {/* TERMS */}
-        <label className="mt-4 flex items-start gap-2 text-xs text-gray-400">
+        <label className="mt-4 flex items-start cursor-pointer gap-2 text-xs text-gray-400">
           <input
             type="checkbox"
             checked={agreeTerms}

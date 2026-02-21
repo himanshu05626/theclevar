@@ -282,7 +282,7 @@ export default function ProductDetailClient({
               hover:scale-105
             "
             />
-            
+
 
             {/* WISHLIST */}
             <button
@@ -306,25 +306,27 @@ export default function ProductDetailClient({
 
           </div>
           <div className="flex gap-2 mt-1">
-              {product.mainImage?.map((img, i) => (
-                <img
-                  key={i}
-                  src={img.url}
-                  onClick={() => setActiveImage(img)}
-                  className={`
+            {product.mainImage?.map((img, i) => (
+              <img
+                key={i}
+                src={img.url}
+                onClick={() => setActiveImage(img)}
+                className={`
         w-16 h-16 rounded border cursor-pointer object-cover
         ${activeImage?.url === img.url
-                      ? "border-[#38bdf8]"
-                      : "border-white/10"}
+                    ? "border-[#38bdf8]"
+                    : "border-white/10"}
       `}
-                />
-              ))}
-            </div>
+              />
+            ))}
+          </div>
 
         </div>
         {/* DETAILS */}
         <div className="lg:col-span-2 md:border-l md:border-white/10 md:pl-6">
-
+   <p className="mt-2 text-sm text-gray-500">
+            SKU: <span className="font-medium">{product.sku}</span>
+          </p>
           {/* TITLE */}
           <h1 className="text-2xl font-semibold text-white">
             {product.name}

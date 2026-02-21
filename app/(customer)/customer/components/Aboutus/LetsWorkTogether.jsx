@@ -2,56 +2,44 @@ import Link from "next/link";
 
 export default function LetsWorkTogether() {
   return (
-    <section className="bg-[#0f0f0f] py-20">
+    <section className="relative overflow-hidden bg-[#0f0f0f] py-20">
 
-      <div className="mx-auto max-w-5xl px-6">
+      {/* 🔥 Glow Background */}
+      <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-[#38bdf8]/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-[#0ea5e9]/20 blur-3xl" />
 
-        <div
-          className="
-            relative overflow-hidden
-            rounded-2xl
-            border border-gray-800
-            bg-gradient-to-r from-[#0D1117] to-[#111827]
-            p-10 text-center
-            shadow-[0_10px_50px_rgba(0,0,0,0.9)]
-          "
+      <div className="relative mx-auto max-w-4xl px-6 text-center">
+
+        {/* HEADING */}
+        <h2 className="text-2xl md:text-4xl font-extrabold tracking-tight text-white">
+          Design Your Perfect Fit
+        </h2>
+
+        {/* SUBTEXT */}
+        <p className="mx-auto mt-5 max-w-2xl text-xs md:text-base leading-relaxed text-gray-400">
+          From concept to stitch — we craft outfits tailored to your style.
+          <br />
+          Whether it’s custom dresses, bulk orders, or unique designs,
+          we bring your vision to life with precision and speed.
+        </p>
+
+        {/* CTA */}
+        <Link
+          href="/contact-us"
+          className="group mt-10 inline-flex items-center gap-3 rounded-xl border border-white/10 bg-gradient-to-r from-[#0ea5e9] to-[#0284c7] px-7 py-3 text-sm font-semibold text-white transition-all duration-300 hover:shadow-[0_0_25px_rgba(56,189,248,0.35)]"
         >
+          Start Your Custom Order
 
-          {/* Glow Accent */}
-          <div className="absolute inset-0 bg-gradient-to-r from-sky-500/10 via-transparent to-sky-500/10" />
+          <span className="transition-transform duration-300 group-hover:translate-x-1">
+            →
+          </span>
+        </Link>
 
-          {/* CONTENT */}
-          <div className="relative z-10 text-white">
+        {/* OPTIONAL SMALL TRUST LINE */}
+        <p className="mt-6 text-xs text-gray-500">
+          Premium fabrics • Custom sizing • Fast delivery
+        </p>
 
-            {/* HEADING */}
-            <h2 className="text-2xl font-bold md:text-3xl">
-              Let’s Work <span className="text-sky-400">Together</span>
-            </h2>
-
-            {/* SUBTEXT */}
-            <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-gray-300">
-              Need a quote? Working on a project? Just have a few questions?
-              <br />
-              Get in touch today — we’re here to help you find the right
-              products, fast.
-            </p>
-
-            {/* BUTTON */}
-            <Link
-              href="/contact-us"
-              className="
-                mt-8 inline-flex items-center gap-2
-                rounded-lg bg-sky-500
-                px-7 py-3 text-sm font-semibold text-white
-                shadow-[0_0_25px_rgba(14,165,233,0.6)]
-                transition hover:bg-sky-400
-              "
-            >
-              Contact Us →
-            </Link>
-
-          </div>
-        </div>
       </div>
     </section>
   );
