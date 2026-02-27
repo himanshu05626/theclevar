@@ -124,7 +124,7 @@ if (!variants.length) {
     try {
         /* ---------------- UNIQUE SLUG ---------------- */
         const baseSlug = generateSlug(values.name);
-        const addslug = category_path + "/" + baseSlug;
+        const addslug =   baseSlug;
         let slug = addslug;
         let counter = 1;
 
