@@ -380,74 +380,12 @@ border border-white/10 rounded p-2 space-y-2 max-h-[200px] overflow-y-auto z-[99
                         className="pr-6 flex flex-col gap-4 justify-center items-center"
                       >
                         {/* INNER CARD */}
-                        <div className="flex flex-col gap-3 rounded-[16px] bg-white p-2 min-w-[200px]">
-
-                          {/* TOP BANNER */}
-                          <div
-                            className="relative flex h-[160px] items-center overflow-hidden rounded-[14px] p-4 bg-gradient-to-br bg-gradient-to-br
-from-[#0ea5e9]/20
-via-[#0284c7]/20
-to-[#0369a1]/20
-border border-sky-500/20"
-
-                          >
-                            {/* SHINE OVERLAY */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-white/40 via-white/10 to-transparent" />
-
-                            {/* TEXT */}
-                            {/* <p className="relative z-10 text-lg font-semibold text-white">
-                              Heat Shrink <br /> Tubing
-                            </p> */}
-
-                            {/* IMAGE */}
-                            <Image
-                              src="/images/not-found.png"
-                              alt="Heat Shrink Tubing"
-                              width={260}
-                              height={200}
-                              className="absolute bottom-[-50px] right-[-60px] object-contain"
-
-                              priority
-                            />
-                          </div>
-
-
-
-                        </div>
+                       
                         {/* INNER CARD */}
-                        <div className="flex flex-col gap-3 rounded-[16px] bg-white p-2 min-w-[200px]">
-
-                          {/* TOP BANNER */}
-                          <div
-                            className="relative flex h-[160px] items-center overflow-hidden rounded-[14px] p-4 bg-gradient-to-br bg-gradient-to-br
-from-[#0ea5e9]/20
-via-[#0284c7]/20
-to-[#0369a1]/20
-border border-sky-500/20"
-
-                          >
-                            {/* SHINE OVERLAY */}
-                          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
-
-                            {/* TEXT */}
-                            {/* <p className="relative z-10 text-lg font-semibold text-white">
-                              Heat Shrink <br /> Tubing
-                            </p> */}
-
-                            {/* IMAGE */}
-                            <Image
-                              src="/images/not-found.png"
-                              alt="Heat Shrink Tubing"
-                              width={260}
-                              height={200}
-                              className="absolute bottom-[-50px] right-[-60px] object-contain"
-                              priority
-                            />
-                          </div>
+                       
 
 
 
-                        </div>
                       </div>
 
                     </div>
