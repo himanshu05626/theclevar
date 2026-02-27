@@ -110,7 +110,7 @@ border-t border-white/10">
                   href="mailto:support@theclevar.com"
                   className="hover:text-sky-400"
                 >
-                  support@theclevar.com
+                  info@theclevar.com
                 </a>
               </li>
 

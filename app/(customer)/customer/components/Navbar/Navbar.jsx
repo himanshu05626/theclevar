@@ -262,16 +262,16 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
 
               const widthClass =
                 columnCount >= 4
-                  ? "!max-w-6xl bg-white"
+                  ? "!max-w-6xl bg-black"
                   : columnCount === 5
-                    ? "!max-w-5xl bg-white"
+                    ? "!max-w-5xl bg-black"
                     : columnCount === 2
                       ? "!max-w-[1000px] "
                       : "!max-w-[1000px]";
 
               const gridColsClass =
                 columnCount === 8
-                  ? "col-span-5 columns-5 overflow-hidden gap-0 striped-cols5 [column-fill:auto] max-h-[400px]"
+                  ? "col-span-5 columns-5 overflow-hidden gap-0 striped-cols [column-fill:auto] max-h-[400px]"
                   : columnCount === 6
                     ? "col-span-4 columns-4 gap-0 overflow-hidden striped-cols [column-fill:auto] max-h-[400px]"
                     : columnCount === 4
@@ -380,9 +380,9 @@ border border-white/10 rounded p-2 space-y-2 max-h-[200px] overflow-y-auto z-[99
                         className="pr-6 flex flex-col gap-4 justify-center items-center"
                       >
                         {/* INNER CARD */}
-                       
+
                         {/* INNER CARD */}
-                       
+
 
 
 
@@ -576,6 +576,14 @@ border border-white/10 rounded p-2 space-y-2 max-h-[200px] overflow-y-auto z-[99
 
           {/* MENU CONTENT */}
           <div className="overflow-y-auto h-full pb-24">
+            <div
+              className="flex items-center justify-between px-5 py-4 cursor-pointer text-[15px] font-medium"
+            >
+              <Link href={'/'} onClick={() => setDrawerOpen(false)} className="flex items-center  gap-1">
+
+                <span className="text-sky-400">Home</span></Link>
+
+            </div>
             {menuData.map((l1) => (
               <div key={l1.title} className="border-b border-white/10">
                 {/* LEVEL 1 */}

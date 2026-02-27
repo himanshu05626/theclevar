@@ -11,6 +11,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/requireUser";
 import Banner from "./customer/components/home/Banner";
 import LetsWorkTogether from "./customer/components/Aboutus/LetsWorkTogether";
+import BannerSlider from "./BannerSlider";
 
 const brands = [
   { path: "/logo/SVG-1.png", alt: "Brand 1" },
@@ -34,46 +35,46 @@ const brands = [
 
 export default async function Page() {
   const skus = [
-    "SHIRT1","SHIRT2"
+    "SHIRT1", "SHIRT2"
 
- 
+
 
   ];
   const user = await requireUser();
   let isLoggedIn = user ? true : false;
-  let customer ; 
-if (user) {
-  customer = await prisma.customer_list.findUnique({
-    where: { id: user?.id }, // No user logged in
-    select: {
-      id: true,
-      customer_group_id: true,
-      price_tier: true,
+  let customer;
+  if (user) {
+    customer = await prisma.customer_list.findUnique({
+      where: { id: user?.id }, // No user logged in
+      select: {
+        id: true,
+        customer_group_id: true,
+        price_tier: true,
+      },
+    });
+  }
+  console.log('skus', skus)
+  const products = await prisma.product_list.findMany({
+    where: {
+      sku: { in: skus },
+      is_deleted: false,
+      is_active: true,
     },
-  });
-}
-console.log('skus',skus)
-const products = await prisma.product_list.findMany({
-  where: {
-    sku: { in: skus },
-    is_deleted: false,
-    is_active: true,
-  },
-  include: {
-    images: {
-      orderBy: { is_primary: "desc" },
-    },
-    category: true,
+    include: {
+      images: {
+        orderBy: { is_primary: "desc" },
+      },
+      category: true,
 
-    pricing: customer?.customer_group_id
-      ? {
+      pricing: customer?.customer_group_id
+        ? {
           where: { customer_group_id: customer.customer_group_id },
           take: 1,
         }
-      : false,
+        : false,
 
-    tier_product_pricing: isLoggedIn
-      ? {
+      tier_product_pricing: isLoggedIn
+        ? {
           select: {
             tier_1_price: true,
             tier_2_price: true,
@@ -87,22 +88,23 @@ const products = await prisma.product_list.findMany({
             tier_10_price: true,
           },
         }
-      : false,
-  },
-});
+        : false,
+    },
+  });
 
   console.log('productsproducts', products)
 
   return (
     <>
+   <BannerSlider />
       <Home />
       {/* <BrandStrip brands={brands} /> */}
       {/* <Category /> */}
       <BestSellingProducts products={products} customerId={user?.id} />
       {/* <WhyChoosetheclevar />
        */}
-             <LetsWorkTogether />
-       
+      <LetsWorkTogether />
+
       {/* <StatsCounter /> */}
       <Banner products={products} />
       <FAQAccordion />
