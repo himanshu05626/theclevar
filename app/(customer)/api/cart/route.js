@@ -48,13 +48,19 @@ export async function GET() {
       include: {
         product: {
           include: {
-            images: true,
+            images: {
+              select: {
+                image_url: true,
+              },
+              where: { is_primary: true },
+              take: 1,
+            },
 
             pricing: customer_group_id
               ? {
-                  where: { customer_group_id },
-                  take: 1,
-                }
+                where: { customer_group_id },
+                take: 1,
+              }
               : false,
 
             tier_product_pricing: {

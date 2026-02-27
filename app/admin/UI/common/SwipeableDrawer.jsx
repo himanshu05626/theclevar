@@ -96,7 +96,7 @@ export default function SwipeableDrawer({
       <div
         ref={drawerRef}
         style={{ height }}
-        className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-white shadow-xl touch-none"
+        className="fixed bottom-0 left-0 right-0 z-50 bg-[#1a1a1a] rounded-t-2xl shadow-xl touch-none"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
