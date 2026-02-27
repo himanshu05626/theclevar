@@ -1,9 +1,11 @@
 "use client";
 
 import SwipeableDrawer from "@/app/admin/UI/common/SwipeableDrawer";
+import Link from "next/link";
 import { useState } from "react";
 
 export default function ProductCard({ product }) {
+  console.log('product',product)
   const [open, setOpen] = useState(false);
   const [selectedSize, setSelectedSize] = useState(null);
 
@@ -24,6 +26,7 @@ export default function ProductCard({ product }) {
   return (
     <>
       {/* ================= PRODUCT CARD ================= */}
+      <Link href={`/product/${product.slug}`}>
       <div className="group relative rounded-2xl border border-white/10 bg-[#151515] p-3 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(56,189,248,0.15)]">
 
         {/* Glow */}
@@ -56,7 +59,7 @@ export default function ProductCard({ product }) {
           Add to Cart
         </button>
       </div>
-
+</Link>
       {/* ================= DRAWER ================= */}
       <SwipeableDrawer open={open} onClose={() => setOpen(false)}>
 

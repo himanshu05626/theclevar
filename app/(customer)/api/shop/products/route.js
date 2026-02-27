@@ -63,6 +63,7 @@ export async function GET(req) {
     return {
       id: p.id,
       name: p.name,
+      slug: p.slug,
       image: p.images[0]?.image_url,
       price,
      variants: p.variants

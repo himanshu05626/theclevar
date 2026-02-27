@@ -69,7 +69,7 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
       if (window.scrollY > 50) {
         setTopPosition(58);
       } else {
-        setTopPosition(105);
+        setTopPosition(85);
       }
     }
 
