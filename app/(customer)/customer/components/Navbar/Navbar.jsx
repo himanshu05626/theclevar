@@ -244,7 +244,7 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
     >
 
       {/* ================= TOP BAR ================= */}
-      <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
+      <div className="mx-auto max-w-7xl  px-4 py-3 flex items-center justify-between">
         {/* LOGO */}
         <div className="cursor-pointer" onClick={() => router.push("/")}>
           <Image src="/images/logo4.png" alt="The Clevar" width={140} height={60} />
@@ -253,7 +253,7 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
 
         {/* ================= DESKTOP MENU ================= */}
         {/* ================= DESKTOP MENU ================= */}
-        <ul className="hidden lg:flex gap-8 px-6 font-medium">
+        <ul className="hidden lg:flex gap-8 px-6  font-medium">
           {Array.isArray(menuData) &&
             menuData.map((menu, index) => {
 
@@ -271,7 +271,7 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
 
               const gridColsClass =
                 columnCount === 8
-                  ? "col-span-5 columns-5 overflow-hidden gap-0 striped-cols [column-fill:auto] max-h-[400px]"
+                  ? "col-span-4 columns-4 overflow-hidden gap-0 striped-cols [column-fill:auto] max-h-[400px]"
                   : columnCount === 6
                     ? "col-span-4 columns-4 gap-0 overflow-hidden striped-cols [column-fill:auto] max-h-[400px]"
                     : columnCount === 4
@@ -290,6 +290,7 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
                   <div className={`
     flex items-center gap-1
     cursor-pointer
+    
     transition-colors
     ${openNewMenu === menu.title
                       ? "text-sky-600"
@@ -312,12 +313,16 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
                   ${openNewMenu === menu.title
                         ? "visible opacity-100"
                         : "invisible opacity-0"
-                      }`}
+                      }
+                      
+                      `}
+
                   >
-                    <div className="bg-[#1a1a1a]
+                    <div className="bg-[#0f0f0f]
 border-t border-white/10
 shadow-[0_20px_60px_rgba(0,0,0,0.8)]
 backdrop-blur-xl
+
  rounded p-6 flex gap-6 !m-0 !p-0">
 
                       {/* LEFT CONTENT */}
