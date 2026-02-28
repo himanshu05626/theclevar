@@ -2,7 +2,6 @@
 
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/requireAdmin";
-import { redirect } from "next/navigation";
 
 /* ---------------- SLUG UTILITY ---------------- */
 function generateSlug(text) {
@@ -16,51 +15,46 @@ function generateSlug(text) {
 /* ---------------- SERVER ACTION ---------------- */
 export async function updateProduct(prevState, formData) {
 
+    console.log("🟢 [updateProduct] Action Started");
+
     const values = Object.fromEntries(formData);
     const errors = {};
     const productId = Number(values.id);
+
+    console.log("📦 Incoming Form Values:", values);
+    console.log("🆔 Product ID:", productId);
+
     /* ---------------- VALIDATION ---------------- */
-    if (!values.name?.trim()) {
-        errors.name = "Product name is required";
-    }
-    if (!values.meta_title?.trim()) {
-        errors.meta_title = "Meta title is required";
-    }
-    if (!values.meta_description?.trim()) {
-        errors.meta_description = "Meta description is required";
-    }
-    if (!values.focus_keyword?.trim()) {
-        errors.focus_keyword = "Focus keyword is required";
-    }
-    if (!values.measure_unit?.trim()) {
-        errors.measure_unit = "Measure unit is required";
-    }
-    if (!values.stepper_value?.trim()) {
-        errors.stepper_value = "Stepper value is required";
-    }
 
-
-
-
+    if (!values.name?.trim()) errors.name = "Product name is required";
+    if (!values.meta_title?.trim()) errors.meta_title = "Meta title is required";
+    if (!values.meta_description?.trim()) errors.meta_description = "Meta description is required";
+    if (!values.focus_keyword?.trim()) errors.focus_keyword = "Focus keyword is required";
+    if (!values.stepper_value?.trim()) errors.stepper_value = "Stepper value is required";
 
     let category_id;
     let category_path;
 
     if (!values.category?.trim()) {
-        console.log('=======================no category===================');
+        console.warn("⚠️ Category missing");
         errors.category = "Category is required";
     } else {
         const [id, path] = values.category.split("||");
 
         if (!id || !path) {
+            console.warn("⚠️ Invalid category format:", values.category);
             errors.category = "Invalid category selected";
         } else {
             category_id = Number(id);
             category_path = path;
+            console.log("📂 Category Parsed:", { category_id, category_path });
         }
     }
+
     /* ---------------- SKU UNIQUE CHECK ---------------- */
     if (values.sku?.trim()) {
+        console.log("🔎 Checking SKU uniqueness:", values.sku);
+
         const skuExists = await prisma.product_list.findFirst({
             where: {
                 sku: values.sku,
@@ -69,18 +63,24 @@ export async function updateProduct(prevState, formData) {
         });
 
         if (skuExists) {
+            console.warn("⚠️ Duplicate SKU Found");
             errors.sku = "This SKU already exists";
         }
     }
-    let images = [];
 
+    /* ---------------- IMAGE PARSE ---------------- */
+    let images = [];
     if (values.images) {
         try {
             images = JSON.parse(values.images);
+            console.log("🖼 Parsed Images:", images);
         } catch (e) {
+            console.error("❌ Invalid images JSON:", e);
             errors.images = "Invalid images data";
         }
     }
+
+    /* ---------------- PRICE & STOCK ---------------- */
 
     if (!values.regular_price || Number(values.regular_price) <= 0) {
         errors.regular_price = "Regular price must be greater than 0";
@@ -89,54 +89,58 @@ export async function updateProduct(prevState, formData) {
     if (!values.stock_qty || Number(values.stock_qty) < 0) {
         errors.stock_qty = "Stock quantity is required";
     }
+
     const stockQty = Number(values.stock_qty);
-const lowStockThreshold = values.low_stock_threshold
-  ? Number(values.low_stock_threshold)
-  : null;
+    const lowStockThreshold = values.low_stock_threshold
+        ? Number(values.low_stock_threshold)
+        : null;
+
     if (
-    lowStockThreshold !== null &&
-    (!Number.isInteger(lowStockThreshold) || lowStockThreshold < 0)
-) {
-    errors.low_stock_threshold = "Low stock threshold must be 0 or greater";
-}
+        lowStockThreshold !== null &&
+        (!Number.isInteger(lowStockThreshold) || lowStockThreshold < 0)
+    ) {
+        errors.low_stock_threshold = "Low stock threshold must be 0 or greater";
+    }
 
-/* ❌ CRITICAL RULE */
-if (
-    lowStockThreshold !== null &&
-    stockQty >= 0 &&
-    lowStockThreshold > stockQty
-) {
-    errors.low_stock_threshold =
-        "Low stock threshold cannot be greater than stock quantity";
-}
+    if (
+        lowStockThreshold !== null &&
+        stockQty >= 0 &&
+        lowStockThreshold > stockQty
+    ) {
+        errors.low_stock_threshold =
+            "Low stock threshold cannot be greater than stock quantity";
+    }
 
-    // ❌ If validation fails
+    /* ---------------- RETURN IF VALIDATION FAILS ---------------- */
+
     if (Object.keys(errors).length > 0) {
+        console.warn("❌ Validation Failed:", errors);
+        return { success: false, errors, values };
+    }
+
+    /* ---------------- ADMIN CHECK ---------------- */
+
+    console.log("🔐 Checking Admin Access...");
+    const admin = await requireAdmin();
+
+    if (!admin) {
+        console.error("❌ Unauthorized Access Attempt");
         return {
             success: false,
-            errors,
-            values,
+            errors: { general: "Unauthorized. Please log in again." },
         };
     }
 
-    const admin = await requireAdmin();
-    if (!admin) {
-        console.log('user not authorized')
-        return {
-            success: false,
-            errors: {
-                general: "Unauthorized. Please log in again.",
-            },
-        };
-    }
-    console.log('==============sccuess=================')
+    console.log("✅ Admin Verified:", admin.id);
+
     try {
         /* ---------------- UNIQUE SLUG ---------------- */
-        const baseSlug = generateSlug(values.name);
-        const addslug = `${baseSlug}`;
 
-        let slug = addslug;
+        const baseSlug = generateSlug(values.name);
+        let slug = baseSlug;
         let counter = 1;
+
+        console.log("🔗 Generating slug from:", baseSlug);
 
         while (
             await prisma.product_list.findFirst({
@@ -146,148 +150,122 @@ if (
                 },
             })
         ) {
-            slug = `${addslug}-${counter++}`;
+            slug = `${baseSlug}-${counter++}`;
         }
 
-        console.log('======================0===================')
+        console.log("✅ Final Slug:", slug);
 
-        /* ---------------- CREATE PRODUCT ---------------- */
+        /* ---------------- UPDATE PRODUCT ---------------- */
+
+        console.log("💾 Updating Product...");
         const product = await prisma.product_list.update({
             where: { id: productId },
             data: {
                 name: values.name,
                 slug,
                 sku: values.sku || null,
-                category: {
-    connect: { id: category_id }
-},
-                low_stock_threshold: Number(values.low_stock_threshold) || null,
+                category: { connect: { id: category_id } },
+                low_stock_threshold: lowStockThreshold,
                 description: values.description || null,
                 stepper_value: Number(values.stepper_value) || null,
                 regular_price: Number(values.regular_price),
                 sale_price: values.sale_price ? Number(values.sale_price) : null,
-                stock_qty: Number(values.stock_qty),
+                stock_qty: stockQty,
             },
         });
 
-        console.log('======================1===================')
-        /* ---------------- PRODUCT IMAGES ---------------- */
-        // CASE 1: No images → delete all
-        console.log('imagesimages', images)
+        console.log("✅ Product Updated:", product.id);
 
-        // CASE 1: No images → soft delete all
-      if (!Array.isArray(images) || images.length === 0) {
-    await prisma.product_images.updateMany({
-        where: { product_list_id: productId },
-        data: { is_deleted: true, is_primary: false },
-    });
+        /* ---------------- IMAGE HANDLING ---------------- */
 
-    await prisma.product_meta_data.update({
-        where: { product_list_id: productId },
-        data: {
-            meta_title: values.meta_title,
-            meta_description: values.meta_description,
-            focus_keyword: values.focus_keyword,
-        },
-    });
+        if (!Array.isArray(images) || images.length === 0) {
+            console.log("🧹 No images provided → soft deleting all");
 
-    return { success: true, values };
-}
+            await prisma.product_images.updateMany({
+                where: { product_list_id: productId },
+                data: { is_deleted: true, is_primary: false },
+            });
+        } else {
+            console.log("🖼 Processing Images...");
 
+            const incomingUrls = [
+                ...new Set(
+                    images
+                        .map(img => img?.image_url ?? img?.url)
+                        .filter(url => typeof url === "string" && url.startsWith("http"))
+                ),
+            ];
 
-        /* ───────────────────────────────
-           1️⃣ Normalize & dedupe URLs
-        ─────────────────────────────── */
-        const incomingUrls = [
-            ...new Set(
-                images
-                    .map(img => img?.image_url ?? img?.url)
-                    .filter(url => typeof url === "string" && url.startsWith("http"))
-            ),
-        ];
+            console.log("🔗 Normalized URLs:", incomingUrls);
 
-        console.log("🔗 Incoming image URLs:", incomingUrls);
-
-        /* ───────────────────────────────
-           2️⃣ Soft delete ALL images
-        ─────────────────────────────── */
-        await prisma.product_images.updateMany({
-            where: { product_list_id: productId },
-            data: { is_deleted: true, is_primary: false },
-        });
-
-        /* ───────────────────────────────
-           3️⃣ Restore incoming images
-        ─────────────────────────────── */
-        await prisma.product_images.updateMany({
-            where: {
-                product_list_id: productId,
-                image_url: { in: incomingUrls },
-            },
-            data: { is_deleted: false },
-        });
-
-        /* ───────────────────────────────
-           4️⃣ Fetch existing active images
-        ─────────────────────────────── */
-        const existingImages = await prisma.product_images.findMany({
-            where: {
-                product_list_id: productId,
-                image_url: { in: incomingUrls },
-                is_deleted: false,
-            },
-            distinct: ["image_url"],
-            select: { image_url: true },
-        });
-
-        const existingUrls = existingImages.map(i => i.image_url);
-
-        /* ───────────────────────────────
-           5️⃣ Insert missing images
-        ─────────────────────────────── */
-        const newImages = incomingUrls
-            .filter(url => !existingUrls.includes(url))
-            .map(url => ({
-                product_list_id: productId,
-                image_url: url,
-                is_deleted: false,
-                is_primary: false, // ❗ NEVER set primary here
-            }));
-
-        if (newImages.length) {
-            await prisma.product_images.createMany({ data: newImages });
-        }
-
-        /* ───────────────────────────────
-           6️⃣ SET PRIMARY IMAGE (LAST)
-        ─────────────────────────────── */
-        const primaryUrl =
-            images.find(img => img.is_primary)?.image_url ||
-            images.find(img => img.is_primary)?.url;
-
-        if (primaryUrl) {
-            const primaryImage = await prisma.product_images.findFirst({
-                where: {
-                    product_list_id: productId,
-                    image_url: primaryUrl,
-                    is_deleted: false,
-                },
-                orderBy: { id: "asc" }, // ensure ONE row
+            await prisma.product_images.updateMany({
+                where: { product_list_id: productId },
+                data: { is_deleted: true, is_primary: false },
             });
 
-            if (primaryImage) {
-                await prisma.product_images.update({
-                    where: { id: primaryImage.id },
-                    data: { is_primary: true },
+            await prisma.product_images.updateMany({
+                where: {
+                    product_list_id: productId,
+                    image_url: { in: incomingUrls },
+                },
+                data: { is_deleted: false },
+            });
+
+            const existingImages = await prisma.product_images.findMany({
+                where: {
+                    product_list_id: productId,
+                    image_url: { in: incomingUrls },
+                    is_deleted: false,
+                },
+                distinct: ["image_url"],
+                select: { image_url: true },
+            });
+
+            const existingUrls = existingImages.map(i => i.image_url);
+
+            const newImages = incomingUrls
+                .filter(url => !existingUrls.includes(url))
+                .map(url => ({
+                    product_list_id: productId,
+                    image_url: url,
+                    is_deleted: false,
+                    is_primary: false,
+                }));
+
+            if (newImages.length) {
+                console.log("➕ Inserting New Images:", newImages.length);
+                await prisma.product_images.createMany({ data: newImages });
+            }
+
+            const primaryUrl =
+                images.find(img => img.is_primary)?.image_url ||
+                images.find(img => img.is_primary)?.url;
+
+            if (primaryUrl) {
+                console.log("⭐ Setting Primary Image:", primaryUrl);
+
+                const primaryImage = await prisma.product_images.findFirst({
+                    where: {
+                        product_list_id: productId,
+                        image_url: primaryUrl,
+                        is_deleted: false,
+                    },
+                    orderBy: { id: "asc" },
                 });
+
+                if (primaryImage) {
+                    await prisma.product_images.update({
+                        where: { id: primaryImage.id },
+                        data: { is_primary: true },
+                    });
+                }
             }
         }
 
+        /* ---------------- SEO UPDATE ---------------- */
 
+        console.log("🔍 Updating SEO Data...");
 
-
-
-        /* ---------------- SEO DATA ---------------- */
         await prisma.product_meta_data.update({
             where: { product_list_id: productId },
             data: {
@@ -297,22 +275,12 @@ if (
             },
         });
 
-        try {
-            console.log('======================2===================')
-            // redirect("/admin/products/add?success=1");
+        console.log("🎉 Product Update Completed Successfully");
 
-            return {
-                success: true,
-                values,
-
-            };
-        } catch (err) {
-            console.error("Add product error:", err)
-        }
-
+        return { success: true, values };
 
     } catch (error) {
-        console.error("Add product error:", error);
+        console.error("💥 CRITICAL ERROR in updateProduct:", error);
 
         return {
             success: false,

@@ -204,13 +204,7 @@ export default function EditProduct({ categories, product }) {
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">
-                <Input
-                  label="Measure Unit"
-                  name="measure_unit"
-                  defaultValue={state.values?.measure_unit}
-                  placeholder="kg / pcs / box"
-                  error={state.errors?.measure_unit}
-                />
+              
 
                 <Input
                   label="Stepper Value"

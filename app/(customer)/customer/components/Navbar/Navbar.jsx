@@ -57,9 +57,9 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
 
   // Alias to keep naming consistent
   const handleNavigate = navigate;
-  const [topPosition, setTopPosition] = useState(132);
+  const [topPosition, setTopPosition] = useState(102);
   useEffect(() => {
-    console.log('topPosition', topPosition)
+    console.log('topPositioasdn', topPosition)
   }, [topPosition])
 
   useEffect(() => {
@@ -67,7 +67,8 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
 
     function handleScroll() {
       if (window.scrollY > 50) {
-        setTopPosition(58);
+        console.log('object')
+        setTopPosition(55);
       } else {
         setTopPosition(85);
       }
