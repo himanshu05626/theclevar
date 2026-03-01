@@ -27,7 +27,7 @@ jobs:
       # 🚀 Deploy to VPS
       - name: 🚀 Deploy to VPS
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+          ssh -T -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
 
           # ✅ Load aaPanel Node
           export PATH=/www/server/nodejs/v22.17.1/bin:$PATH
