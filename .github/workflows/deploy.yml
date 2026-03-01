@@ -1,0 +1,44 @@
+name: 🚀 Deploy Next.js to VPS
+
+on:
+  push:
+    branches:
+      - main   # change if using another branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔐 Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: 🚀 Deploy to VPS
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+
+          cd /www/wwwroot/theclevar
+
+          echo "📥 Pulling latest code..."
+          git pull origin main
+
+          echo "📦 Installing dependencies..."
+          npm install
+
+          echo "⚙️ Generating Prisma..."
+          npx prisma generate
+
+          echo "🏗️ Building Next.js..."
+          npm run build
+
+          echo "🔄 Restarting PM2..."
+          pm2 restart clevar || pm2 start npm --name "clevar" -- start
+
+          echo "✅ Deployment Done!"
+
+          EOF
