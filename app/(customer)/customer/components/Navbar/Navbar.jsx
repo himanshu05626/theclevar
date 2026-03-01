@@ -548,117 +548,106 @@ border border-white/10 rounded p-2 space-y-2 max-h-[200px] overflow-y-auto z-[99
 
           {/* MENU CONTENT */}
           <div className="overflow-y-auto h-full pb-24">
-            <div
-              className="flex items-center justify-between px-5 py-4 cursor-pointer text-[15px] font-medium"
-            >
-              <Link href={'/'} onClick={() => setDrawerOpen(false)} className="flex items-center  gap-1">
+           <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 pb-24">
 
-                <span className="text-sky-400">Home</span></Link>
+  {/* HOME */}
+  <Link
+    href="/"
+    onClick={() => setDrawerOpen(false)}
+    className="block px-4 py-3 rounded-xl
+    bg-white/5 hover:bg-white/10
+    text-sky-400 text-[15px] font-semibold
+    transition-all"
+  >
+    Home
+  </Link>
 
-            </div>
-            {menuData.map((l1) => (
-              <div key={l1.title} className="border-b border-white/10">
-                {/* LEVEL 1 */}
-                <div
-                  className="flex items-center justify-between px-5 py-4 cursor-pointer text-[15px] font-medium"
-                  onClick={() => (l1.children ? toggle(l1.title) : navigate(l1.path))}
-                >
-                  <Link onClick={() => setDrawerOpen(false)} href={l1.path} className="flex items-center gap-1">
+  {/* MENU */}
+  {menuData.map((l1) => {
+    const isOpen = openMenu[l1.title];
 
-                    <span className="text-sky-400">{l1.title}</span></Link>
-                  {l1.children && (
-                    <ChevronDown
-                      className={`transition-transform duration-300 ${openMenu[l1.title] ? "rotate-180" : ""
-                        }`}
-                    />
-                  )}
-                </div>
+    return (
+      <div
+        key={l1.title}
+        className={`rounded-xl transition-all duration-300
+        ${isOpen ? "bg-white/5 border border-white/10" : ""}`}
+      >
+        {/* LEVEL 1 */}
+        <div
+          className="flex items-center justify-between px-4 py-3 cursor-pointer"
+          onClick={() => (l1.children ? toggle(l1.title) : navigate(l1.path))}
+        >
+          <span className="text-[15px] font-medium text-white">
+            {l1.title}
+          </span>
 
-                {/* LEVEL 2 */}
-                <div
-                  className={`pl-5 overflow-hidden transition-all duration-300 ease-in-out
-                  ${openMenu[l1.title] ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"}`}
-                >
-                  {l1.children?.map((l2) => (
-                    <div key={l2.title}>
-                      <div
-                        className="flex items-center justify-between py-3  pr-4 cursor-pointer text-sm"
-                        onClick={() =>
-                          l2.children
-                            ? toggle(l1.title + l2.title)
-                            : navigate(l2.path)
-                        }
-                      >
-                        <Link onClick={() => setDrawerOpen(false)} href={l2.path} className="flex items-center gap-1">
+          {l1.children && (
+            <ChevronDown
+              className={`w-4 h-4 text-gray-400 transition-transform duration-300
+              ${isOpen ? "rotate-180 text-sky-400" : ""}`}
+            />
+          )}
+        </div>
 
-                          {l2.title}
+        {/* LEVEL 2 */}
+        <div
+          className={`overflow-hidden transition-all duration-300
+          ${isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"}`}
+        >
+          <div className="pl-3 pb-3 space-y-2">
+            {l1.children?.map((l2) => {
+              const key2 = l1.title + l2.title;
+              const isOpen2 = openMenu[key2];
+
+              return (
+                <div key={l2.title}>
+                  {/* LEVEL 2 ITEM */}
+                  <div
+                    className="flex items-center justify-between px-3 py-2 rounded-lg
+                    text-sm text-gray-300 hover:bg-white/10 transition cursor-pointer"
+                    onClick={() =>
+                      l2.children ? toggle(key2) : navigate(l2.path)
+                    }
+                  >
+                    <span>{l2.title}</span>
+
+                    {l2.children && (
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform
+                        ${isOpen2 ? "rotate-180 text-sky-400" : ""}`}
+                      />
+                    )}
+                  </div>
+
+                  {/* LEVEL 3 */}
+                  <div
+                    className={`overflow-hidden transition-all duration-300
+                    ${isOpen2 ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}
+                  >
+                    <div className="pl-3 space-y-1">
+                      {l2.children?.map((l3) => (
+                        <Link
+                          key={l3.title}
+                          href={l3.path}
+                          onClick={() => setDrawerOpen(false)}
+                          className="block px-3 py-2 rounded-md text-[13px]
+                          text-gray-400 hover:text-white hover:bg-white/10
+                          transition"
+                        >
+                          {l3.title}
                         </Link>
-                        {l2.children && (
-                          <ChevronDown
-                            className={`transition-transform duration-300 ${openMenu[l1.title + l2.title] ? "rotate-180" : ""
-                              }`}
-                          />
-                        )}
-                      </div>
-
-                      {/* LEVEL 3 */}
-                      <div
-                        className={`pl-4 overflow-hidden transition-all duration-300 ease-in-out
-                        ${openMenu[l1.title + l2.title]
-                            ? "max-h-[800px] opacity-100"
-                            : "max-h-0 opacity-0"
-                          }`}
-                      >
-                        {l2.children?.map((l3) => (
-                          <div key={l3.title}>
-                            <div
-                              className="flex items-center justify-between py-2 cursor-pointer text-[13px] text-gray-300"
-                              onClick={() =>
-                                l3.children
-                                  ? toggle(l1.title + l2.title + l3.title)
-                                  : navigate(l3.path)
-                              }
-                            >
-                              <Link onClick={() => setDrawerOpen(false)} href={l3.path} className="flex items-center gap-1">
-
-                                {l3.title}
-                              </Link>
-                              {l3.children && (
-                                <ChevronDown
-                                  className={`transition-transform duration-300 ${openMenu[l1.title + l2.title + l3.title]
-                                    ? "rotate-180"
-                                    : ""
-                                    }`}
-                                />
-                              )}
-                            </div>
-
-                            {/* LEVEL 4 */}
-                            <div
-                              className={`pl-4 overflow-hidden transition-all duration-300 ease-in-out
-                              ${openMenu[l1.title + l2.title + l3.title]
-                                  ? "max-h-[600px] opacity-100"
-                                  : "max-h-0 opacity-0"
-                                }`}
-                            >
-                              {l3.children?.map((l4) => (
-                                <div
-                                  key={l4.title}
-                                  className="py-2 text-[12px] text-gray-400 cursor-pointer"
-                                  onClick={() => navigate(l4.path)}
-                                >
-                                  {l4.title}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  })}
+</div>
           </div>
         </div>
       </div>
