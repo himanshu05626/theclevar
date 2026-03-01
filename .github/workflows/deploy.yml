@@ -3,7 +3,7 @@ name: 🚀 Deploy Next.js to VPS
 on:
   push:
     branches:
-      - main   # change if using another branch
+      - main
 
 jobs:
   deploy:
@@ -18,27 +18,20 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
+      # 👇 ADD THIS DEBUG STEP
+      - name: 🔍 Check SSH Key Loaded
+        run: ssh-add -l
+
       - name: 🚀 Deploy to VPS
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
 
           cd /www/wwwroot/theclevar
 
-          echo "📥 Pulling latest code..."
           git pull origin main
-
-          echo "📦 Installing dependencies..."
           npm install
-
-          echo "⚙️ Generating Prisma..."
           npx prisma generate
-
-          echo "🏗️ Building Next.js..."
           npm run build
-
-          echo "🔄 Restarting PM2..."
           pm2 restart clevar || pm2 start npm --name "clevar" -- start
-
-          echo "✅ Deployment Done!"
 
           EOF
