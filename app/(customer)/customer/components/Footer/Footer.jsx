@@ -153,7 +153,7 @@ border-t border-white/10">
           
           <p>
             © 2026 <span className="font-semibold text-white">The Clevar</span>.  
-            All Rights Reserved. MOHD MIZNA 
+            All Rights Reserved. MOHD 
           </p>
 
           <div className="flex items-center gap-4">
