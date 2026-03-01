@@ -1,4 +1,4 @@
-name: 🚀 Deploy Next.js to VPS
+name: 🚀 Deploy Next.js to VPS (Fresh Clone Safe)
 
 on:
   push:
@@ -10,18 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 📥 Checkout repo (required for workflow)
       - name: 📥 Checkout Code
         uses: actions/checkout@v4
 
+      # 🔐 Setup SSH
       - name: 🔐 Setup SSH
         uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      # 👇 Debug: Check if SSH key loaded
+      # 🔍 Debug SSH key (optional but useful)
       - name: 🔍 Check SSH Key Loaded
         run: ssh-add -l
 
+      # 🚀 Deploy to VPS
       - name: 🚀 Deploy to VPS
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
@@ -33,24 +36,43 @@ jobs:
           node -v
           npm -v
 
-          # ✅ Fix Git safe directory (IMPORTANT: exact path)
-          git config --global --add safe.directory /www/wwwroot/theclevar
+          cd /www/wwwroot
 
-          # ✅ Go to project folder
+          # ✅ Backup .env if exists
+          if [ -f /www/wwwroot/theclevar/.env ]; then
+            echo "💾 Backing up .env..."
+            cp /www/wwwroot/theclevar/.env /www/wwwroot/.env.backup
+          fi
+
+          # ✅ Remove old project
+          echo "🗑️ Deleting old project..."
+          rm -rf /www/wwwroot/theclevar
+
+          # ✅ Fresh clone
+          echo "📥 Cloning fresh repo..."
+          git clone https://github.com/himanshu05626/theclevar.git
+
           cd /www/wwwroot/theclevar
 
-          echo "📥 Pulling latest code..."
-          git pull origin main
+          # ✅ Restore .env
+          if [ -f /www/wwwroot/.env.backup ]; then
+            echo "♻️ Restoring .env..."
+            mv /www/wwwroot/.env.backup /www/wwwroot/theclevar/.env
+          fi
 
+          # ✅ Install deps
           echo "📦 Installing dependencies..."
           npm install
 
+          # ✅ Prisma
           echo "⚙️ Generating Prisma..."
           npx prisma generate
 
+          # ✅ Build
           echo "🏗️ Building Next.js..."
           npm run build
 
+          # ✅ Restart PM2
           echo "🔄 Restarting PM2..."
           pm2 restart clevar || pm2 start npm --name "clevar" -- start
 
