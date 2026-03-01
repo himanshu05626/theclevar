@@ -1,6 +1,7 @@
 "use client";
 
 import SwipeableDrawer from "@/app/admin/UI/common/SwipeableDrawer";
+import { useCart } from "@/app/context/CartContext";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -8,7 +9,8 @@ export default function ProductCard({ product }) {
   const [open, setOpen] = useState(false);
   const [selectedSize, setSelectedSize] = useState(null);
   const [loading, setLoading] = useState(false);
-
+const [qty, setQty] = useState(1);
+const {reloadCart} = useCart();
   const handleAddToCart = async () => {
     if (!selectedSize) return;
 
@@ -23,11 +25,12 @@ export default function ProductCard({ product }) {
         body: JSON.stringify({
           productId: product.id,
           variantId: selectedSize,
+           quantity: qty, // ✅ NEW
         }),
       });
 
       if (!res.ok) throw new Error("Failed");
-
+reloadCart();
       setOpen(false);
       setSelectedSize(null);
     } catch (err) {
@@ -98,67 +101,134 @@ export default function ProductCard({ product }) {
 
       {/* ================= DRAWER ================= */}
       <SwipeableDrawer open={open} onClose={() => setOpen(false)}>
-        <div className="space-y-5 p-3">
+  <div className="space-y-5 p-4">
 
-          {/* TITLE */}
-          <div>
-            <h3 className="text-lg font-semibold text-white">
-              Select Size
-            </h3>
-            <p className="text-xs text-gray-400">
-              Choose your fit before adding to cart
-            </p>
-          </div>
+    {/* ================= PRODUCT PREVIEW ================= */}
+    <div className="flex gap-3">
+      <img
+        src={product.image}
+        className="w-20 h-20 rounded-xl object-cover border border-white/10"
+      />
 
-          {/* SIZE OPTIONS */}
-          <div className="flex flex-wrap gap-2">
-            {product.variants?.map((v) => {
-              const active = selectedSize === v.id;
+      <div className="flex-1">
+        <h3 className="text-sm font-semibold text-white line-clamp-1">
+          {product.name}
+        </h3>
 
-              return (
-                <button
-                  key={v.id}
-                  onClick={() => setSelectedSize(v.id)}
-                  className={`
-                    px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 border
-                    ${active
-                      ? "bg-[#38bdf8] text-black border-[#38bdf8] shadow-[0_0_12px_rgba(56,189,248,0.5)] scale-105"
-                      : "border-white/10 text-gray-400 hover:border-[#38bdf8]/50 hover:text-white"
-                    }
-                  `}
-                >
-                  {v.size}
-                </button>
-              );
-            })}
-          </div>
+        <p className="text-xs text-gray-400 line-clamp-2">
+          {product.description || "Premium quality product"}
+        </p>
 
-          {/* SELECTED */}
-          {selectedSize && (
-            <p className="text-xs text-[#38bdf8]">
-              Selected:{" "}
-              {
-                product.variants.find((v) => v.id === selectedSize)?.size
-              }
-            </p>
+        {/* PRICE */}
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-[#38bdf8] font-semibold text-sm">
+            ₹{product.price}
+          </span>
+
+          {product.regular_price && (
+            <>
+              <span className="text-xs text-gray-500 line-through">
+                ₹{product.regular_price}
+              </span>
+
+              <span className="text-xs text-green-400">
+                {Math.round(
+                  ((product.regular_price - product.price) /
+                    product.regular_price) *
+                    100
+                )}
+                % OFF
+              </span>
+            </>
           )}
-
-          {/* CTA */}
-          <button
-            onClick={handleAddToCart}
-            disabled={!selectedSize || loading}
-            className={`
-              w-full py-3 rounded-xl text-sm font-semibold transition-all duration-300
-              ${selectedSize
-                ? "bg-gradient-to-r from-[#0ea5e9] to-[#0284c7] text-white hover:shadow-[0_0_25px_rgba(56,189,248,0.35)]"
-                : "bg-[#1f2937] text-gray-500 cursor-not-allowed"
-              }
-            `}
-          >
-            {loading ? "Adding..." : selectedSize ? "Add to Cart" : "Select Size First"}
-          </button>
         </div>
-      </SwipeableDrawer>
+      </div>
+    </div>
+
+    {/* ================= SIZE ================= */}
+    <div>
+      <h4 className="text-sm font-medium text-white mb-2">
+        Select Size
+      </h4>
+
+      <div className="flex flex-wrap gap-2">
+        {product.variants?.map((v) => {
+          const active = selectedSize === v.id;
+
+          return (
+            <button
+              key={v.id}
+              onClick={() => setSelectedSize(v.id)}
+              className={`
+                px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 border
+                ${
+                  active
+                    ? "bg-[#38bdf8] text-black border-[#38bdf8] shadow-[0_0_12px_rgba(56,189,248,0.5)] scale-105"
+                    : "border-white/10 text-gray-400 hover:border-[#38bdf8]/50 hover:text-white"
+                }
+              `}
+            >
+              {v.size}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+
+    {/* ================= QUANTITY ================= */}
+    <div>
+      <h4 className="text-sm font-medium text-white mb-2">
+        Quantity
+      </h4>
+
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => setQty((prev) => Math.max(1, prev - 1))}
+          className="w-9 h-9 rounded-lg bg-[#1f2937] text-white text-lg"
+        >
+          -
+        </button>
+
+        <span className="text-white font-semibold">{qty}</span>
+
+        <button
+          onClick={() => setQty((prev) => prev + 1)}
+          className="w-9 h-9 rounded-lg bg-[#1f2937] text-white text-lg"
+        >
+          +
+        </button>
+      </div>
+    </div>
+
+    {/* SELECTED SIZE */}
+    {selectedSize && (
+      <p className="text-xs text-[#38bdf8]">
+        Selected:{" "}
+        {product.variants.find((v) => v.id === selectedSize)?.size}
+      </p>
+    )}
+
+    {/* ================= CTA ================= */}
+    <button
+      onClick={handleAddToCart}
+      disabled={!selectedSize || loading}
+      className={`
+        w-full py-3 rounded-xl text-sm font-semibold transition-all duration-300
+        ${
+          selectedSize
+            ? "bg-gradient-to-r from-[#0ea5e9] to-[#0284c7] text-white hover:shadow-[0_0_25px_rgba(56,189,248,0.35)]"
+            : "bg-[#1f2937] text-gray-500 cursor-not-allowed"
+        }
+      `}
+    >
+      {loading
+        ? "Adding..."
+        : selectedSize
+        ? "Add to Cart"
+        : "Select Size First"}
+    </button>
+  </div>
+</SwipeableDrawer>
     </>
   );
 }
