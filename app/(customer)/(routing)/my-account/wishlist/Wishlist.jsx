@@ -70,7 +70,7 @@ export default function Wishlist({ wishlists }) {
             </p>
 
             <Link
-                href="/quick-order"
+                href="/shop"
                 className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 transition"
             >
                 Browse Products
@@ -183,7 +183,7 @@ export default function Wishlist({ wishlists }) {
                                         </button>
 
                                         <Link
-                                            href={`/quick-order?wishlist=${wishlist.id}`}
+                                            href={`/shop?wishlist=${wishlist.id}`}
                                             className="text-blue-600 hover:underline"
                                         >
                                             Edit

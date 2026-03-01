@@ -4,7 +4,7 @@ import { ShareIcon } from "@heroicons/react/24/outline";
 
 export default function ShareWishlistLink({ wishlist }) {
   const handleShare = async () => {
-    const shareUrl = `${window.location.origin}/quick-order?wishlist=${wishlist.slug}`;
+    const shareUrl = `${window.location.origin}/shop?wishlist=${wishlist.slug}`;
 
     if (navigator.share) {
       try {

@@ -8,7 +8,7 @@ export default function TopNavbar({ isLoggedIn }) {
   const pathname = usePathname();
 
   // hide on quick-order
-  const isQuickOrder = pathname.startsWith("/quick-order");
+  const isQuickOrder = pathname.startsWith("/shop");
   if (isQuickOrder) return null;
 
   return (

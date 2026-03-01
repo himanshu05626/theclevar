@@ -127,7 +127,7 @@ export default function WishlistTable({
   =============================== */
   useEffect(() => {
     Promise.all([
-      fetch("/api/quick-order?minimal=true").then((r) => r.json()),
+      fetch("/api/shop?minimal=true").then((r) => r.json()),
       getProductDetails(),
     ]).then(([products, details]) => {
       setProducts(products);

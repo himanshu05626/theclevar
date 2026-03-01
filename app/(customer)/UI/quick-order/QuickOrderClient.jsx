@@ -342,7 +342,7 @@ export default function QuickOrderClient({ products, customerId, menuData, isLog
 
     async function loadDetails() {
       try {
-        const res = await fetch("/api/quick-order-detail", {
+        const res = await fetch("/api/shop-detail", {
           credentials: "include",
         });
         const details = await res.json();

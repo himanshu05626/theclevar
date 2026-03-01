@@ -82,7 +82,7 @@ export default function WhyChoosetheclevar() {
 
             {/* CTA */}
             <Link
-              href="/quick-order"
+              href="/shop"
               className="mt-10 inline-flex items-center gap-2 rounded-md bg-[#0ea5e9] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#38bdf8] shadow-[0_0_20px_rgba(14,165,233,0.35)]"
             >
               Explore Collection →

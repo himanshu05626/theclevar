@@ -56,7 +56,7 @@ function EmptyState({ setOpen }) {
       </p>
 
       <Link
-        href="/quick-order"
+        href="/shop"
         onClick={() => setOpen(false)}
         className="group w-full max-w-[220px]
         bg-gradient-to-r from-[#0ea5e9] to-[#38bdf8]

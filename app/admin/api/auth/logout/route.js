@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(request) {
   const redirectTo =
-    request.nextUrl.searchParams.get("redirect") || "/quick-order";
+    request.nextUrl.searchParams.get("redirect") || "/shop";
 
   console.log("redirectTo", redirectTo);
 

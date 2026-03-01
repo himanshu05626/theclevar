@@ -6,7 +6,7 @@ import TopNavbar from "./TopNavbar";
 export default function TopNavbarClient({isLoggedIn}) {
   const pathname = usePathname();
 
-  const isQuickOrder = pathname.startsWith("/quick-order");
+  const isQuickOrder = pathname.startsWith("/shop");
 
   // hide TopNavbar completely on quick-order
   if (isQuickOrder) return null;

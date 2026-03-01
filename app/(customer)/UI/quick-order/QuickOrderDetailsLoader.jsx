@@ -1,4 +1,4 @@
-// UI/quick-order/QuickOrderDetailsLoader.jsx
+// UI/shop/QuickOrderDetailsLoader.jsx
 "use client";
 
 import { useEffect } from "react";

@@ -16,7 +16,7 @@ import ProfileDropdown from "./ProfileDropdown";
 export default function Navbar({ menuData = [], isLoggedIn }) {
 
   const pathname = usePathname();
-  const isQuickOrder = pathname.startsWith("/quick-order");
+  const isQuickOrder = pathname.startsWith("/shop");
 
 
   const { setOpen, cartItems } = useCart();
@@ -133,7 +133,7 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
               {isLoggedIn === null && (
                 <li>
                   <Link
-                    href="/auth/login?redirect=/quick-order"
+                    href="/auth/login?redirect=/shop"
 
                     className="text-gray-200 hover:text-sky-400 transition"
                   >
@@ -208,7 +208,7 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
               {isLoggedIn === null && (
                 <li>
                   <Link
-                    href="/auth/login?redirect=/quick-order"
+                    href="/auth/login?redirect=/shop"
 
                     className="text-gray-200 hover:text-sky-400 transition"
                   >

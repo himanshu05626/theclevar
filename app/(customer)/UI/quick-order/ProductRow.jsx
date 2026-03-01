@@ -1,4 +1,4 @@
-// UI/quick-order/ProductRow.jsx
+// UI/shop/ProductRow.jsx
 import Image from "next/image";
 import { HeartIcon as HeartOutline } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";

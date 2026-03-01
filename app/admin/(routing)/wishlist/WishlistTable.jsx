@@ -117,7 +117,7 @@ export default function WishlistTable({ wishlistId }) {
        LOAD PRODUCTS
     =============================== */
     useEffect(() => {
-        fetch("/api/quick-order?minimal=true")
+        fetch("/api/shop?minimal=true")
             .then((r) => r.json())
             .then(setProducts);
 

@@ -1,4 +1,4 @@
-// app/api/quick-order/route.ts
+// app/api/shop/route.ts
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 

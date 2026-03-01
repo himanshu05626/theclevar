@@ -1,4 +1,4 @@
-// UI/quick-order/ProductSkeletonRow.jsx
+// UI/shop/ProductSkeletonRow.jsx
 export default function ProductSkeletonRow() {
   return (
     <tr className="animate-pulse">
