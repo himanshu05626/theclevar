@@ -107,7 +107,6 @@ export default async function Page() {
 
       {/* <StatsCounter /> */}
       <Banner products={products} />
-      <FAQAccordion />
       <ServiceHighlights />
     </>
   );
