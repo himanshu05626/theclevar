@@ -1,56 +1,66 @@
 "use client";
 
-import { CheckBadgeIcon } from "@heroicons/react/24/outline";
+import {
+  CheckBadgeIcon,
+  XMarkIcon,
+  ExclamationCircleIcon,
+} from "@heroicons/react/24/outline";
 
 export default function ToastItem({ toast, onClose }) {
   const isSuccess = toast.type === "success";
 
   return (
     <div
-      className={`
-        w-80 rounded border shadow-lg p-4 flex gap-3 items-center
-        animate-slide-in
-        ${isSuccess
-          ? "bg-blue-50 border-blue-200"
-          : "bg-red-50 border-red-200"}
-      `}
+      className={`relative w-80 rounded-xl p-[1px]
+      ${isSuccess
+        ? "bg-gradient-to-r from-[#0ea5e9]/40 to-[#38bdf8]/40"
+        : "bg-gradient-to-r from-red-500/40 to-red-400/40"}
+      animate-slide-in`}
     >
-   <div
-  className={`
-    h-8 w-8 flex items-center justify-center rounded-full text-white
-    ${isSuccess ? "bg-blue-600" : "bg-red-600"}
-  `}
->
-  {isSuccess ? (
-    <CheckBadgeIcon className="h-6 w-6" />  // ✅ Set explicit size
-  ) : (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      className="h-6 w-6" // ✅ Also set size here
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-    </svg>
-  )}
-</div>
-
-
-      <div className="flex-1">
-        <p className="text-sm font-semibold text-gray-900">
-          {isSuccess ? "Success" : "Error"}
-        </p>
-        <p className="text-sm text-gray-600">{toast.message}</p>
-      </div>
-
-      <button
-        onClick={onClose}
-        className="text-gray-400 hover:text-gray-600"
+      {/* INNER CARD */}
+      <div
+        className="flex items-center gap-3 p-4 rounded-xl
+        bg-[#0f0f0f]/90 backdrop-blur-xl
+        border border-white/10
+        shadow-[0_0_25px_rgba(0,0,0,0.6)]"
       >
-        ✕
-      </button>
+        {/* ICON */}
+        <div
+          className={`h-9 w-9 flex items-center justify-center rounded-full
+          ${isSuccess
+            ? "bg-[#0ea5e9]/20 text-[#38bdf8] shadow-[0_0_15px_rgba(14,165,233,0.5)]"
+            : "bg-red-500/20 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.5)]"}
+        `}
+        >
+          {isSuccess ? (
+            <CheckBadgeIcon className="h-5 w-5" />
+          ) : (
+            <ExclamationCircleIcon className="h-5 w-5" />
+          )}
+        </div>
+
+        {/* TEXT */}
+        <div className="flex-1">
+          <p
+            className={`text-sm font-semibold tracking-wide
+            ${isSuccess ? "text-[#38bdf8]" : "text-red-400"}`}
+          >
+            {isSuccess ? "Success" : "Error"}
+          </p>
+
+          <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">
+            {toast.message}
+          </p>
+        </div>
+
+        {/* CLOSE */}
+        <button
+          onClick={onClose}
+          className="p-1 rounded-md hover:bg-white/10 transition"
+        >
+          <XMarkIcon className="h-4 w-4 text-gray-400 hover:text-white" />
+        </button>
+      </div>
     </div>
   );
 }

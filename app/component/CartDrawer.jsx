@@ -166,7 +166,7 @@ export default function CartDrawer({ isLoggedIn }) {
             {/* ITEMS */}
             {!isEmpty && (
               <div
-                className={`flex flex-col gap-4 ${
+                className={`flex flex-col mt-2 gap-4 ${
                   loading ? "opacity-60 pointer-events-none" : ""
                 }`}
               >
