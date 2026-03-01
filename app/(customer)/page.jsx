@@ -11,7 +11,6 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/requireUser";
 import Banner from "./customer/components/home/Banner";
 import LetsWorkTogether from "./customer/components/Aboutus/LetsWorkTogether";
-import BannerSlider from "./BannerSlider";
 
 const brands = [
   { path: "/logo/SVG-1.png", alt: "Brand 1" },
@@ -96,7 +95,6 @@ export default async function Page() {
 
   return (
     <>
-   <BannerSlider />
       <Home />
       {/* <BrandStrip brands={brands} /> */}
       {/* <Category /> */}
