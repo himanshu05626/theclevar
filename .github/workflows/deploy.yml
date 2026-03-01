@@ -18,21 +18,42 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      # 👇 ADD THIS DEBUG STEP
+      # 👇 Debug: Check if SSH key loaded
       - name: 🔍 Check SSH Key Loaded
         run: ssh-add -l
 
       - name: 🚀 Deploy to VPS
         run: |
-          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
 
+          # ✅ Load aaPanel Node
+          export PATH=/www/server/nodejs/v22.17.1/bin:$PATH
+
+          echo "🔎 Checking Node & NPM..."
+          node -v
+          npm -v
+
+          # ✅ Fix Git safe directory (IMPORTANT: exact path)
+          git config --global --add safe.directory /www/wwwroot/theclevar
+
+          # ✅ Go to project folder
           cd /www/wwwroot/theclevar
 
+          echo "📥 Pulling latest code..."
           git pull origin main
+
+          echo "📦 Installing dependencies..."
           npm install
+
+          echo "⚙️ Generating Prisma..."
           npx prisma generate
+
+          echo "🏗️ Building Next.js..."
           npm run build
+
+          echo "🔄 Restarting PM2..."
           pm2 restart clevar || pm2 start npm --name "clevar" -- start
 
+          echo "✅ Deployment Done!"
+
           EOF
-          
