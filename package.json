@@ -31,7 +31,8 @@
     "react-chartjs-2": "^5.3.1",
     "react-dom": "19.2.1",
     "recharts": "^3.6.0",
-    "scrollreveal": "^4.0.9"
+    "scrollreveal": "^4.0.9",
+    "swiper": "^12.1.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

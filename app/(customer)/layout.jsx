@@ -131,11 +131,15 @@ export default async function RootLayout({ children }) {
           ${inter.className}
           ${geistSans.variable}
           ${geistMono.variable}
-          antialiased
+          antialiased 
+        bg-gradient-to-r 
+                        from-[#0f0f0f] 
+                        via-[#1a1a1a] 
+                        to-[#111827]
         `}
       >
         <CartProvider isLoggedIn={isLoggedIn}>
-          <TopNavbarClient isLoggedIn={isLoggedIn} />
+          {/* <TopNavbarClient isLoggedIn={isLoggedIn} /> */}
           <BNavbar isLoggedIn={isLoggedIn} />
 
           <ToastProvider>

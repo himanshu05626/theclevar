@@ -1,120 +1,103 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Pagination, EffectCoverflow } from "swiper/modules";
+
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/effect-coverflow";
 
 const slides = [
   { image: "/images/banner/banner1.jpg" },
   { image: "/images/banner/b11.png" },
+  
 ];
 
-export default function BannerSlider() {
-  const [index, setIndex] = useState(0);
-  const [direction, setDirection] = useState(0);
-  const intervalRef = useRef(null);
-
-  // 👉 AUTO SLIDE CONTROL
-  const startAuto = () => {
-    stopAuto();
-    intervalRef.current = setInterval(() => {
-      nextSlide();
-    }, 4000);
-  };
-
-  const stopAuto = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-  };
-
-  useEffect(() => {
-    startAuto();
-    return () => stopAuto();
-  }, [index]);
-
-  // 👉 NAVIGATION
-  const nextSlide = () => {
-    setDirection(1);
-    setIndex((prev) => (prev + 1) % slides.length);
-  };
-
-  const prevSlide = () => {
-    setDirection(-1);
-    setIndex((prev) => (prev - 1 + slides.length) % slides.length);
-  };
-
-  // 👉 ANIMATION (NO FLICKER)
-  const variants = {
-    enter: (direction) => ({
-      x: direction > 0 ? "100%" : "-100%",
-    }),
-    center: {
-      x: 0,
-    },
-    exit: (direction) => ({
-      x: direction > 0 ? "-100%" : "100%",
-    }),
-  };
-
+export default function PremiumBanner() {
   return (
-    <div
-      className="relative w-full overflow-hidden rounded-2xl bg-black
-      h-[180px] sm:h-[220px] md:h-[320px]"
-      
-      // 👉 Pause on interaction (important UX)
-      onMouseEnter={stopAuto}
-      onMouseLeave={startAuto}
-      onTouchStart={stopAuto}
-      onTouchEnd={startAuto}
-    >
-      <AnimatePresence initial={false} custom={direction}>
-        <motion.div
-          key={index}
-          custom={direction}
-          variants={variants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{ duration: 0.45 }}
-          className="absolute inset-0"
-        >
-          {/* IMAGE */}
-          <motion.img
-            src={slides[index].image}
-            className="absolute inset-0 w-full h-full object-cover"
-            
-            // 👉 SWIPE ENABLED
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.9}
-            onDragEnd={(e, { offset, velocity }) => {
-              const swipe = offset.x + velocity.x * 80;
+    <div className="w-full px-3 sm:px-6 mt-4">
+      <Swiper
+        modules={[Autoplay, Pagination, EffectCoverflow]}
+        effect="coverflow"
+        centeredSlides={true}
+        slidesPerView={1.1}
+        spaceBetween={20}
+        loop={true}
+        autoplay={{
+          delay: 3500,
+          disableOnInteraction: false,
+        }}
+        pagination={{
+          clickable: true,
+        }}
+        coverflowEffect={{
+          rotate: 0,
+          stretch: 0,
+          depth: 120,
+          modifier: 2.5,
+          slideShadows: false,
+        }}
+        className="!overflow-visible"
+      >
+        {slides.map((slide, i) => (
+          <SwiperSlide key={i}>
+            <div
+              className="
+                relative rounded-3xl overflow-hidden
+                bg-[#0f0f0f]
+                border border-white/10
+                shadow-[0_0_40px_rgba(14,165,233,0.15)]
+                transition-all duration-500
+              "
+            >
+              {/* IMAGE */}
+              <img
+                src={slide.image}
+                className="w-full h-[180px] sm:h-[260px] md:h-[340px] object-cover"
+              />
 
-              if (swipe < -120) nextSlide();
-              else if (swipe > 120) prevSlide();
-            }}
-          />
+              {/* GLASS OVERLAY */}
+              <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/40" />
 
-          {/* DARK OVERLAY (PREMIUM LOOK) */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent" />
-        </motion.div>
-      </AnimatePresence>
+              {/* NEON GLOW EDGE */}
+              <div className="absolute inset-0 rounded-3xl pointer-events-none
+                shadow-[inset_0_0_30px_rgba(56,189,248,0.2)]" />
 
-      {/* DOTS */}
-      <div className="absolute bottom-2 w-full flex justify-center gap-2">
-        {slides.map((_, i) => (
-          <div
-            key={i}
-            onClick={() => {
-              setDirection(i > index ? 1 : -1);
-              setIndex(i);
-            }}
-            className={`h-2 rounded-full cursor-pointer transition-all duration-300 ${
-              i === index
-                ? "w-5 bg-white"
-                : "w-2 bg-white/40"
-            }`}
-          />
+              {/* OPTIONAL TEXT */}
+              <div className="absolute bottom-4 left-4">
+                <h2 className="text-white text-lg sm:text-xl font-semibold">
+                  CLEVAR DROP
+                </h2>
+                <p className="text-gray-300 text-xs sm:text-sm">
+                  Premium Streetwear
+                </p>
+              </div>
+            </div>
+          </SwiperSlide>
         ))}
-      </div>
+      </Swiper>
+
+      {/* CUSTOM DOT STYLING */}
+      <style jsx global>{`
+        .swiper-pagination {
+          margin-top: 10px;
+        }
+
+        .swiper-pagination-bullet {
+          width: 8px;
+          height: 8px;
+          background: rgba(255,255,255,0.3);
+          opacity: 1;
+          border-radius: 999px;
+          transition: all 0.3s ease;
+        }
+
+        .swiper-pagination-bullet-active {
+          width: 22px;
+          background: linear-gradient(90deg, #0ea5e9, #38bdf8);
+          box-shadow: 0 0 12px rgba(56,189,248,0.8);
+        }
+      `}</style>
     </div>
   );
 }

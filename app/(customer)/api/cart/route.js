@@ -46,6 +46,11 @@ export async function GET() {
         is_deleted: false,
       },
       include: {
+            variant : {
+              select: {
+                size: true,
+            },},
+        
         product: {
           include: {
             images: {

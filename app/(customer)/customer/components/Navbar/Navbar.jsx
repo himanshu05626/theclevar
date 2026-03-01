@@ -9,8 +9,9 @@ import Link from "next/link";
 import { useCart } from "@/app/context/CartContext";
 import { clientFetch } from "@/lib/clientFetch";
 import { useRef } from "react";
-import { HeartIcon, ShoppingBagIcon } from "@heroicons/react/24/outline";
+import { HeartIcon, ShoppingBagIcon, UserIcon } from "@heroicons/react/24/outline";
 import { usePathname } from "next/navigation";
+import ProfileDropdown from "./ProfileDropdown";
 
 export default function Navbar({ menuData = [], isLoggedIn }) {
 
@@ -57,7 +58,7 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
 
   // Alias to keep naming consistent
   const handleNavigate = navigate;
-  const [topPosition, setTopPosition] = useState(102);
+  const [topPosition, setTopPosition] = useState(30);
   useEffect(() => {
     console.log('topPositioasdn', topPosition)
   }, [topPosition])
@@ -68,7 +69,7 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
     function handleScroll() {
       if (window.scrollY > 50) {
         console.log('object')
-        setTopPosition(55);
+        setTopPosition(45);
       } else {
         setTopPosition(85);
       }
@@ -87,7 +88,7 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
 
 
     return (
-      <nav className="md:sticky top-0 z-20 w-full bg-white shadow-sm">
+      <nav className="md:sticky top-0  z-20 w-full bg-white shadow-sm">
         <div className="mx-auto max-w-7xl px-4 py-3">
 
           {/* ROW 1: LOGO + ICONS */}
@@ -145,15 +146,7 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
             {/* RIGHT ICONS */}
             <div className="flex items-center gap-4 sm:gap-6 shrink-0">
               {/* WISHLIST */}
-              <Link
-                href="/my-account/wishlist"
-                className="flex items-center gap-2 text-white hover:text-gray-700"
-              >
-                <HeartIcon className="w-5 h-5 sm:w-6 sm:h-6" />
-                <span className=" text-sm font-semibold">
-                  Wishlist
-                </span>
-              </Link>
+
               <Divider />
               {/* CART */}
               <button
@@ -245,10 +238,10 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
     >
 
       {/* ================= TOP BAR ================= */}
-      <div className="mx-auto max-w-7xl  px-4 py-3 flex items-center justify-between">
+      <div className="mx-auto max-w-7xl  px-4 py-4 lg:py-4 xl:py-6 flex items-center justify-between">
         {/* LOGO */}
         <div className="cursor-pointer" onClick={() => router.push("/")}>
-          <Image src="/images/logo4.png" alt="The Clevar" width={140} height={60} />
+          <Image src="/images/logo4.png" alt="The Clevar" width={180} height={60} />
         </div>
 
 
@@ -404,7 +397,7 @@ border border-white/10 rounded p-2 space-y-2 max-h-[200px] overflow-y-auto z-[99
 
 
         {/* ================= RIGHT ICONS ================= */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6 md:gap-6 ">
           {/* DESKTOP SEARCH */}
           <div className="relative hidden md:block">
             {/* Search Icon */}
@@ -443,36 +436,8 @@ border border-white/10 rounded p-2 space-y-2 max-h-[200px] overflow-y-auto z-[99
             /> */}
           </div>
 
-          <Link href="/my-account/wishlist" className="relative flex items-center gap-2 text-white hover:text-gray-700 transition cursor-pointer"
+          <ProfileDropdown />
 
-
-          >
-
-            {/* ICON WRAPPER */}
-            <div className="relative flex items-center justify-center">
-              <div className="relative mr-2">
-                <HeartIcon className="w-6 h-6" />
-
-              </div>
-              {/* BADGE */}
-
-
-              {/* TEXT */}
-              <span
-                className="
-    font-inter
-    text-[14px]
-    font-semibold
-    leading-none
-    align-middle
-  "
-              >
-                Wishlist
-              </span>
-
-            </div>
-
-          </Link>
           <Divider />
 
           <button
@@ -523,6 +488,7 @@ border border-white/10 rounded p-2 space-y-2 max-h-[200px] overflow-y-auto z-[99
     font-semibold
     leading-none
     align-middle
+    hidden md:inline-block 
   "
               >
                 Cart
