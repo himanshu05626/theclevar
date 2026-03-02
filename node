@@ -1,4 +1,85 @@
-aaPanel Internet Address: https://187.77.191.197:36901/68e66c85
-aaPanel Internal Address: https://187.77.191.197:36901/68e66c85
-username: xkear8ni
-password: 171f0140
+name: 🚀 Deploy Next.js (Main + Stag)
+
+on:
+  push:
+    branches:
+      - main
+      - stag
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔐 Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: 🚀 Deploy to VPS
+        run: |
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          echo "Branch detected: $BRANCH_NAME"
+
+          ssh -T -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "
+            export PATH=/www/server/nodejs/v22.17.1/bin:\$PATH
+
+            if [ \"$BRANCH_NAME\" = \"main\" ]; then
+              APP_DIR=/www/wwwroot/theclevar
+              PM2_NAME=clevar
+              PORT=3000
+            else
+              APP_DIR=/www/wwwroot/theclevarstag
+              PM2_NAME=clevarstag
+              PORT=3001
+            fi
+
+            echo '🚀 Deploying branch: $BRANCH_NAME'
+            echo '📁 Directory:' \$APP_DIR
+
+            # Backup .env if exists
+            if [ -f \$APP_DIR/.env ]; then
+              cp \$APP_DIR/.env /www/wwwroot/.env.backup.\$PM2_NAME
+            fi
+
+            # If folder doesn't exist → clone
+            if [ ! -d \$APP_DIR ]; then
+              git clone -b $BRANCH_NAME https://github.com/himanshu05626/theclevar.git \$APP_DIR
+            fi
+
+            cd \$APP_DIR || exit 1
+
+            # Pull latest code
+            git fetch origin
+            git reset --hard origin/$BRANCH_NAME
+
+            # Restore .env if backup exists
+            if [ -f /www/wwwroot/.env.backup.\$PM2_NAME ]; then
+              mv /www/wwwroot/.env.backup.\$PM2_NAME \$APP_DIR/.env
+            fi
+
+            # Install clean deps
+            npm ci
+
+            # Prisma
+            npx prisma generate
+
+            # Build
+            npm run build
+
+            # Start or reload PM2
+            if pm2 describe \$PM2_NAME > /dev/null; then
+              echo '🔄 Reloading' \$PM2_NAME
+              pm2 reload \$PM2_NAME --update-env
+            else
+              echo '🆕 Starting' \$PM2_NAME
+              PORT=\$PORT pm2 start npm --name \$PM2_NAME -- start
+            fi
+
+            pm2 save
+
+            echo '✅ Deployment Complete'
+          "
