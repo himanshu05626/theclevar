@@ -77,6 +77,7 @@ export default function ProfileDropdown({isLoggedIn}) {
 
         {/* MENU ITEMS */}
         <Link
+        onClick={()=>setOpen(false)}
           href="/my-account/orders"
           className="
             block px-4 py-3 text-sm text-gray-300
