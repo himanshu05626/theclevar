@@ -11,21 +11,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 📥 Checkout
       - name: 📥 Checkout Code
         uses: actions/checkout@v4
 
-      # 🔐 Setup SSH
       - name: 🔐 Setup SSH
         uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      # 🔍 Debug SSH
-      - name: 🔍 Check SSH Key
+      - name: 🔍 Check SSH Key Loaded
         run: ssh-add -l
 
-      # 🚀 Deploy
       - name: 🚀 Deploy to VPS
         run: |
           BRANCH=${GITHUB_REF##*/}
@@ -33,50 +29,65 @@ jobs:
 
           ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
 
-          # ✅ Load Node
           export PATH=/www/server/nodejs/v22.17.1/bin:\$PATH
 
           echo "📦 Branch: $BRANCH"
 
-          # ✅ Set folder
+          # ✅ Set folder & PM2 name
           if [ "$BRANCH" = "main" ]; then
             APP_DIR="/www/wwwroot/theclevar"
             APP_NAME="clevar"
           elif [ "$BRANCH" = "stag" ]; then
             APP_DIR="/www/wwwroot/theclevarstag"
-            APP_NAME="clevarstag"
+            APP_NAME="clevar-stag"
           else
-            echo "❌ Unknown branch: $BRANCH"
+            echo "❌ Unknown branch"
             exit 1
           fi
 
-          echo "📁 Path: \$APP_DIR"
+          echo "📁 Deploy path: \$APP_DIR"
 
           cd /www/wwwroot
 
-          # ✅ Clone or pull
-          if [ ! -d "\$APP_DIR" ]; then
-            echo "📥 First clone..."
-            git clone git@github.com:himanshu05626/theclevar.git \$(basename \$APP_DIR)
-            cd \$APP_DIR
-            git checkout $BRANCH
-          else
-            echo "🔄 Updating..."
-            cd \$APP_DIR
-            git fetch origin
-            git reset --hard origin/$BRANCH
+          # ✅ Backup ENV
+          if [ -f "\$APP_DIR/.env" ]; then
+            echo "💾 Backing up .env..."
+            cp "\$APP_DIR/.env" "/www/wwwroot/.env.backup.\$BRANCH"
           fi
 
-          # ✅ Install
+          # ✅ Delete old project
+          echo "🗑️ Removing old project..."
+          rm -rf "\$APP_DIR"
+
+          # ✅ Fresh clone (PRIVATE REPO FIXED)
+          echo "📥 Cloning fresh repo..."
+          git clone git@github.com:himanshu05626/theclevar.git \$(basename \$APP_DIR)
+
+          cd "\$APP_DIR"
+
+          # ✅ Checkout correct branch
+          git checkout $BRANCH
+
+          # ✅ Restore ENV
+          if [ -f "/www/wwwroot/.env.backup.\$BRANCH" ]; then
+            echo "♻️ Restoring .env..."
+            mv "/www/wwwroot/.env.backup.\$BRANCH" "\$APP_DIR/.env"
+          fi
+
+          # ✅ Install deps
+          echo "📦 Installing dependencies..."
           npm install
 
           # ✅ Prisma
+          echo "⚙️ Prisma generate..."
           npx prisma generate
 
           # ✅ Build
+          echo "🏗️ Building app..."
           npm run build
 
-          # ✅ PM2
+          # ✅ Restart PM2
+          echo "🔄 Restarting PM2..."
           pm2 describe \$APP_NAME > /dev/null 2>&1
           if [ \$? -eq 0 ]; then
             pm2 restart \$APP_NAME
@@ -84,6 +95,6 @@ jobs:
             pm2 start npm --name "\$APP_NAME" -- start
           fi
 
-          echo "✅ Done for $BRANCH"
+          echo "✅ Deployment Done for $BRANCH!"
 
           EOF
