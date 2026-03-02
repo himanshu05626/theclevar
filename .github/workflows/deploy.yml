@@ -44,7 +44,7 @@ jobs:
             APP_NAME="clevar"
           elif [ "$BRANCH" = "stag" ]; then
             APP_DIR="/www/wwwroot/theclevarstag"
-            APP_NAME="clevar-stag"
+            APP_NAME="clevarstag"
           else
             echo "❌ Unknown branch: $BRANCH"
             exit 1
