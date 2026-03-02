@@ -14,6 +14,7 @@ import {
   ShoppingBagIcon,
   XMarkIcon,
 } from "@heroicons/react/24/solid";
+import Link from "next/link";
 
 export default function BestSellingProducts({ products }) {
   const { reloadCart, cartItems } = useCart();
@@ -250,8 +251,8 @@ export default function BestSellingProducts({ products }) {
         >
 
           {/* IMAGE */}
-          <div
-            onClick={() => openModal(product)}
+          <Link
+          href={`/product/${product.slug}`}
             className="relative w-full aspect-square cursor-pointer overflow-hidden"
           >
             <Image
@@ -267,7 +268,7 @@ export default function BestSellingProducts({ products }) {
 
             {/* Glow overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition" />
-          </div>
+          </Link>
 
           {/* CONTENT */}
           <div className="flex flex-col flex-1 p-4">
