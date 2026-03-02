@@ -1,4 +1,4 @@
-name: 🚀 Deploy Next.js to VPS (Fresh Clone Safe)
+name: 🚀 Deploy Next.js to VPS
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 📥 Checkout repo (required for workflow)
+      # 📥 Checkout (required)
       - name: 📥 Checkout Code
         uses: actions/checkout@v4
 
@@ -20,62 +20,60 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      # 🔍 Debug SSH key (optional but useful)
-      - name: 🔍 Check SSH Key Loaded
+      # 🔍 Debug SSH
+      - name: 🔍 Check SSH Key
         run: ssh-add -l
 
-      # 🚀 Deploy to VPS
+      # 🚀 Deploy
       - name: 🚀 Deploy to VPS
         run: |
-          ssh -T -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
 
-          # ✅ Load aaPanel Node
+          # ✅ Load Node (aaPanel)
           export PATH=/www/server/nodejs/v22.17.1/bin:$PATH
 
-          echo "🔎 Checking Node & NPM..."
+          echo "🔎 Node Version:"
           node -v
           npm -v
 
+          # ✅ Go to root folder
           cd /www/wwwroot
 
-          # ✅ Backup .env if exists
-          if [ -f /www/wwwroot/theclevar/.env ]; then
-            echo "💾 Backing up .env..."
-            cp /www/wwwroot/theclevar/.env /www/wwwroot/.env.backup
+          # ✅ Clone if not exists, else pull
+          if [ ! -d "theclevar" ]; then
+            echo "📥 First time clone..."
+            git clone git@github.com:himanshu05626/theclevar.git
+          else
+            echo "🔄 Updating repo..."
+            cd theclevar
+            git reset --hard
+            git pull origin main
+            cd ..
           fi
-
-          # ✅ Remove old project
-          echo "🗑️ Deleting old project..."
-          rm -rf /www/wwwroot/theclevar
-
-          # ✅ Fresh clone
-          echo "📥 Cloning fresh repo..."
-          git clone https://github.com/himanshu05626/theclevar.git
 
           cd /www/wwwroot/theclevar
 
-          # ✅ Restore .env
-          if [ -f /www/wwwroot/.env.backup ]; then
-            echo "♻️ Restoring .env..."
-            mv /www/wwwroot/.env.backup /www/wwwroot/theclevar/.env
-          fi
-
-          # ✅ Install deps
+          # ✅ Install dependencies
           echo "📦 Installing dependencies..."
           npm install
 
           # ✅ Prisma
-          echo "⚙️ Generating Prisma..."
+          echo "⚙️ Prisma generate..."
           npx prisma generate
 
           # ✅ Build
-          echo "🏗️ Building Next.js..."
+          echo "🏗️ Building app..."
           npm run build
 
-          # ✅ Restart PM2
+          # ✅ Restart PM2 (zero crash safe)
           echo "🔄 Restarting PM2..."
-          pm2 restart clevar || pm2 start npm --name "clevar" -- start
+          pm2 describe clevar > /dev/null 2>&1
+          if [ $? -eq 0 ]; then
+            pm2 restart clevar
+          else
+            pm2 start npm --name "clevar" -- start
+          fi
 
-          echo "✅ Deployment Done!"
+          echo "✅ Deployment Successful!"
 
           EOF
