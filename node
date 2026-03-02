@@ -1,4 +1,4 @@
-name: 🚀 Deploy Next.js (Main + Stag)
+name: 🚀 Deploy Next.js (Main + Stag - Private Repo)
 
 on:
   push:
@@ -37,31 +37,24 @@ jobs:
               PORT=3001
             fi
 
-            echo '🚀 Deploying branch: $BRANCH_NAME'
+            echo '🚀 Deploying branch:' $BRANCH_NAME
             echo '📁 Directory:' \$APP_DIR
 
-            # Backup .env if exists
-            if [ -f \$APP_DIR/.env ]; then
-              cp \$APP_DIR/.env /www/wwwroot/.env.backup.\$PM2_NAME
-            fi
-
-            # If folder doesn't exist → clone
+            # If folder doesn't exist → clone via SSH
             if [ ! -d \$APP_DIR ]; then
-              git clone -b $BRANCH_NAME https://github.com/himanshu05626/theclevar.git \$APP_DIR
+              git clone -b $BRANCH_NAME git@github.com:himanshu05626/theclevar.git \$APP_DIR
             fi
 
             cd \$APP_DIR || exit 1
+
+            # Ensure correct remote (important for old HTTPS clones)
+            git remote set-url origin git@github.com:himanshu05626/theclevar.git
 
             # Pull latest code
             git fetch origin
             git reset --hard origin/$BRANCH_NAME
 
-            # Restore .env if backup exists
-            if [ -f /www/wwwroot/.env.backup.\$PM2_NAME ]; then
-              mv /www/wwwroot/.env.backup.\$PM2_NAME \$APP_DIR/.env
-            fi
-
-            # Install clean deps
+            # Install deps
             npm ci
 
             # Prisma
