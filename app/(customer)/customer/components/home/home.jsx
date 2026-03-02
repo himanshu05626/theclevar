@@ -18,7 +18,7 @@ export default function Home() {
             {/* HEADING */}
             <div className="text-4xl font-semibold leading-tight 
                             text-white md:text-5xl">
-              Wear Your Style <br />
+              Wear Your STAG <br />
               <span className="text-sky-400">Designed by You</span>
             </div>
 
