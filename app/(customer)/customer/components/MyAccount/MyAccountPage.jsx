@@ -3,10 +3,57 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function LoginPage() {
+export default function LoginPage({isLoggedIn}) {
   const router = useRouter();
+   useEffect(() => {
+    if (isLoggedIn) {
+      router.replace("/");
+    }
+  }, [isLoggedIn, router]);
+
+if (isLoggedIn) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f0f0f] via-[#111827] to-black">
+
+      <div className="flex flex-col items-center gap-6">
+
+        {/* Glow Spinner */}
+        <div className="relative">
+          <div className="w-16 h-16 rounded-full border-2 border-white/10"></div>
+
+          <div className="
+            absolute inset-0
+            rounded-full
+            border-2 border-t-[#38bdf8] border-r-[#0ea5e9]
+            animate-spin
+            shadow-[0_0_25px_rgba(56,189,248,0.4)]
+          "></div>
+        </div>
+
+        {/* Text */}
+        <div className="text-center">
+          <p className="text-white text-lg font-medium tracking-wide">
+            Redirecting...
+          </p>
+
+          <p className="text-[#9ca3af] text-sm mt-1">
+            Taking you to your Home 🚀
+          </p>
+        </div>
+
+        {/* Animated dots */}
+        <div className="flex gap-1">
+          <span className="w-2 h-2 bg-[#38bdf8] rounded-full animate-bounce [animation-delay:-0.3s]" />
+          <span className="w-2 h-2 bg-[#38bdf8] rounded-full animate-bounce [animation-delay:-0.15s]" />
+          <span className="w-2 h-2 bg-[#38bdf8] rounded-full animate-bounce" />
+        </div>
+
+      </div>
+    </div>
+  );
+}
   const searchParams = useSearchParams();
 
   const redirectTo = searchParams.get("redirect") || "/";

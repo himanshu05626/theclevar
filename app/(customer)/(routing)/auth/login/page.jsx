@@ -1,9 +1,11 @@
 import MyAccountPage from "@/app/(customer)/customer/components/MyAccount/MyAccountPage";
+import { requireUser } from "@/lib/requireUser";
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const isLoggedIn = await requireUser();
 
   return (
-     <MyAccountPage />
+     <MyAccountPage isLoggedIn={isLoggedIn} />
    
   );
 }
