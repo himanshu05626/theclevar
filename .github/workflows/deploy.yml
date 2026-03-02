@@ -1,4 +1,4 @@
-name: 🚀 Deploy to VPS (Main + Stag)
+name: 🚀 Deploy Next.js to VPS
 
 on:
   push:
@@ -11,55 +11,79 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout
+      # 📥 Checkout
+      - name: 📥 Checkout Code
         uses: actions/checkout@v4
 
+      # 🔐 Setup SSH
       - name: 🔐 Setup SSH
         uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: 🚀 Deploy
-        run: |
-          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
-          echo "Branch detected: $BRANCH_NAME"
+      # 🔍 Debug SSH
+      - name: 🔍 Check SSH Key
+        run: ssh-add -l
 
-          if [ "$BRANCH_NAME" = "main" ]; then
+      # 🚀 Deploy
+      - name: 🚀 Deploy to VPS
+        run: |
+          BRANCH=${GITHUB_REF##*/}
+          echo "🚀 Deploying branch: $BRANCH"
+
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
+
+          # ✅ Load Node
+          export PATH=/www/server/nodejs/v22.17.1/bin:\$PATH
+
+          echo "📦 Branch: $BRANCH"
+
+          # ✅ Set folder
+          if [ "$BRANCH" = "main" ]; then
             APP_DIR="/www/wwwroot/theclevar"
-            PM2_NAME="clevar"
-            PORT="3000"
-          else
+            APP_NAME="clevar"
+          elif [ "$BRANCH" = "stag" ]; then
             APP_DIR="/www/wwwroot/theclevarstag"
-            PM2_NAME="clevarstag"
-            PORT="3001"
+            APP_NAME="clevar-stag"
+          else
+            echo "❌ Unknown branch: $BRANCH"
+            exit 1
           fi
 
-          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "
-            export PATH=/www/server/nodejs/v22.17.1/bin:\$PATH
+          echo "📁 Path: \$APP_DIR"
 
-            echo '🚀 Deploying branch: $BRANCH_NAME'
-            echo '📁 Directory: $APP_DIR'
+          cd /www/wwwroot
 
-            if [ ! -d \"$APP_DIR\" ]; then
-              git clone -b $BRANCH_NAME git@github.com:himanshu05626/theclevar.git $APP_DIR
-            fi
-
-            cd $APP_DIR || exit 1
-
-            git remote set-url origin git@github.com:himanshu05626/theclevar.git
+          # ✅ Clone or pull
+          if [ ! -d "\$APP_DIR" ]; then
+            echo "📥 First clone..."
+            git clone git@github.com:himanshu05626/theclevar.git \$(basename \$APP_DIR)
+            cd \$APP_DIR
+            git checkout $BRANCH
+          else
+            echo "🔄 Updating..."
+            cd \$APP_DIR
             git fetch origin
-            git reset --hard origin/$BRANCH_NAME
+            git reset --hard origin/$BRANCH
+          fi
 
-            npm ci
-            npx prisma generate
-            npm run build
+          # ✅ Install
+          npm install
 
-            if pm2 describe $PM2_NAME > /dev/null; then
-              pm2 reload $PM2_NAME --update-env
-            else
-              PORT=$PORT pm2 start npm --name $PM2_NAME -- start
-            fi
+          # ✅ Prisma
+          npx prisma generate
 
-            pm2 save
-            echo '✅ Deployment Complete'
-          "
+          # ✅ Build
+          npm run build
+
+          # ✅ PM2
+          pm2 describe \$APP_NAME > /dev/null 2>&1
+          if [ \$? -eq 0 ]; then
+            pm2 restart \$APP_NAME
+          else
+            pm2 start npm --name "\$APP_NAME" -- start
+          fi
+
+          echo "✅ Done for $BRANCH"
+
+          EOF
