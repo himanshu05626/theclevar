@@ -296,7 +296,7 @@ border border-white/10 rounded p-2 space-y-2 max-h-[200px] overflow-y-auto z-[99
             /> */}
           </div>
 
-          <ProfileDropdown />
+          <ProfileDropdown isLoggedIn={isLoggedIn} />
 
           <Divider />
 

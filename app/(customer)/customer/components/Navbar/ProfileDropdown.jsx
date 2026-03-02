@@ -1,11 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { UserIcon } from "@heroicons/react/24/outline";
+import AccountMenu from "./AccountMenu";
+import LogoutButton from "./LogoutButton";
 
-export default function ProfileDropdown() {
+export default function ProfileDropdown({isLoggedIn}) {
   const [open, setOpen] = useState(false);
+  const [userName, setUserName] = useState(null);
+
+  /* READ USER NAME FROM LOCALSTORAGE */
+  useEffect(() => {
+    const name =
+      localStorage.getItem("user_name") ||
+      localStorage.getItem("userName");
+
+    if (name) setUserName(name);
+  }, []);
 
   return (
     <div
@@ -13,7 +25,7 @@ export default function ProfileDropdown() {
       onMouseEnter={() => setOpen(true)}   // desktop hover
       onMouseLeave={() => setOpen(false)} // desktop leave
     >
-      
+
       {/* PROFILE BUTTON */}
       <div
         onClick={() => setOpen(!open)} // mobile click
@@ -42,28 +54,30 @@ export default function ProfileDropdown() {
         {/* TOP SECTION */}
         <div className="p-4 border-b border-white/10">
           <p className="text-sm font-medium text-white">
-            Hello User
+            {userName ? `Hello ${userName}` : "Hello User"}
           </p>
           <p className="text-xs text-gray-400">
             To access your theclevar account
           </p>
-<Link href="/auth/login" className="text-blue-400 hover:text-blue-300">
-          <button className="
+          {!isLoggedIn && (
+          <Link href="/auth/login" className="text-blue-400 hover:text-blue-300">
+            <button className="
             mt-3 w-full py-2 rounded-lg
             bg-gradient-to-r from-[#0ea5e9] to-[#38bdf8]
             text-black font-semibold
             hover:shadow-[0_0_15px_rgba(56,189,248,0.6)]
             transition cursor-pointer
           ">
-            Sign Up / Log In
-          </button>
+              Sign Up / Log In
+            </button>
           </Link>
+          )}
 
         </div>
 
         {/* MENU ITEMS */}
         <Link
-          href="/orders"
+          href="/my-account/orders"
           className="
             block px-4 py-3 text-sm text-gray-300
             hover:bg-white/5 hover:text-[#38bdf8]
@@ -73,16 +87,15 @@ export default function ProfileDropdown() {
           My Orders
         </Link>
 
-        <button
-          className="
-            block w-full text-left px-4 py-3 text-sm
-            text-red-400
-            hover:bg-red-500/10 hover:text-red-300
-            transition
-          "
-        >
-          Delete Account
-        </button>
+         {!isLoggedIn ? (
+            <Link href="/auth/login" className="hover:underline">
+              Login / Register
+            </Link>
+          ) : (
+             <div className="border-t border-white/10">
+                    <LogoutButton />
+                  </div>
+          )}
       </div>
     </div>
   );
