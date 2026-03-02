@@ -91,7 +91,6 @@ export default async function Page() {
     },
   });
 
-  console.log('productsproducts', products)
 
   return (
     <>
