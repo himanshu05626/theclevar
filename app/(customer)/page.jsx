@@ -60,8 +60,9 @@ export default async function Page() {
       is_active: true,
     },
     include: {
+      variants: true,
       images: {
-        orderBy: { is_primary: "desc" },
+        where: { is_primary: true },
       },
       category: true,
 

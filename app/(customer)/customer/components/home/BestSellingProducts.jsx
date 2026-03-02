@@ -2,21 +2,39 @@
 
 import { useToast } from "@/app/admin/context/ToastProvider";
 import { useCart } from "@/app/context/CartContext";
-import Image from "next/image";
-import Link from "next/link";
-import { addToCartAction, deleteCartItem } from "./action";
-import { useState, useTransition, useCallback } from "react";
+import SwipeableDrawer from "@/app/admin/UI/common/SwipeableDrawer";
 
-export default function BestSellingProducts({ products, customerId }) {
+import Image from "next/image";
+import { useState, useEffect, useCallback } from "react";
+
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+
+import {
+  ShoppingBagIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/solid";
+
+export default function BestSellingProducts({ products }) {
   const { reloadCart, cartItems } = useCart();
   const { showToast } = useToast();
+  const [selectedSize, setSelectedSize] = useState(null);
 
-  const [isPending, startTransition] = useTransition();
-  const [loadingProductId, setLoadingProductId] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [qty, setQty] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-  /* =========================
-     GET CART QTY
-  ========================= */
+  /* ================= MOBILE DETECT ================= */
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  /* ================= CART QTY ================= */
   const getCartQty = useCallback(
     (productId) => {
       if (Array.isArray(cartItems) && cartItems.length > 0) {
@@ -27,197 +45,309 @@ export default function BestSellingProducts({ products, customerId }) {
       }
 
       if (typeof window === "undefined") return 0;
+
       const guestCart =
         JSON.parse(localStorage.getItem("guest_cart")) || {};
+
       return guestCart[productId]?.quantity || 0;
     },
     [cartItems]
   );
 
-  /* =========================
-     ADD TO CART
-  ========================= */
-  const handleAddToCart = (product) => {
-    const step = Number(product.stepper_value ?? 1);
-    setLoadingProductId(product.id);
-
-    startTransition(async () => {
-      const payload = { [product.id]: step };
-      const res = await addToCartAction({ customerId, quantities: payload });
-
-      if (res?.success) {
-        reloadCart();
-        showToast({ type: "success", message: "Product added to cart" });
-        setLoadingProductId(null);
-        return;
-      }
-
-      if (res?.message === "Customer not found") {
-        if (typeof window !== "undefined") {
-          const existingCart =
-            JSON.parse(localStorage.getItem("guest_cart")) || {};
-          const updatedCart = { ...existingCart };
-
-          if (updatedCart[product.id]) {
-            updatedCart[product.id].quantity += step;
-          } else {
-            updatedCart[product.id] = {
-              product_id: product.id,
-              product_list_id: product.id,
-              name: product.name,
-              price: Number(product.regular_price ?? 0),
-              image: product.images?.[0]?.image_url,
-              stepper_value: product.stepper_value,
-              quantity: step,
-            };
-          }
-
-          localStorage.setItem(
-            "guest_cart",
-            JSON.stringify(updatedCart)
-          );
-        }
-
-        reloadCart();
-        showToast({ type: "success", message: "Saved to cart." });
-        setLoadingProductId(null);
-        return;
-      }
-
-      showToast({
-        type: "error",
-        message: res?.message || "Something went wrong",
-      });
-      setLoadingProductId(null);
-    });
+  /* ================= OPEN ================= */
+  const openModal = (product) => {
+    setSelectedProduct(product);
+    setSelectedVariant(product.variants?.[0]?.id || null);
+    setSelectedSize(product.variants?.[0]?.size || null);
+    setQty(1);
   };
 
-  /* =========================
-     REMOVE FROM CART
-  ========================= */
-  const handleRemoveFromCart = (product) => {
-    startTransition(async () => {
-      if (customerId) {
-        const cartItem = cartItems?.find(
-          (i) => i.product_list_id === product.id
-        );
-        if (!cartItem) return;
+  const closeModal = () => {
+    setSelectedProduct(null);
+    setSelectedVariant(null);
+    setQty(1);
+  };
 
-        const fd = new FormData();
-        fd.append("cartId", cartItem.id);
-        await deleteCartItem(null, fd);
-      } else {
-        const cart =
-          JSON.parse(localStorage.getItem("guest_cart")) || {};
-        delete cart[product.id];
-        localStorage.setItem("guest_cart", JSON.stringify(cart));
-      }
+  /* ================= ADD ================= */
+  const handleAddToCart = async () => {
+    if (!selectedVariant) {
+      showToast({ type: "error", message: "Select size first" });
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await fetch("/api/cart/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: selectedProduct.id,
+          variantId: selectedVariant,
+          quantity: qty,
+        }),
+      });
+
+      if (!res.ok) throw new Error();
 
       reloadCart();
-      showToast({ type: "success", message: "Removed from cart" });
-    });
+      showToast({ type: "success", message: "Added to Bag" });
+
+      closeModal();
+    } catch {
+      showToast({ type: "error", message: "Something went wrong" });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return (
-    <section className="bg-[#0f0f0f] py-14">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <h2 className="mb-6 sm:mb-10 text-center text-2xl sm:text-3xl font-extrabold text-white">
-          Best Selling Products
-        </h2>
+  /* ================= CONTENT ================= */
+  const Content = () => (
+    <div className="space-y-5 p-4">
 
-        {/* ================= MOBILE SWIPE + DESKTOP GRID ================= */}
-        <div
-          className="
-            flex gap-4 overflow-x-auto pb-2
-            snap-x snap-mandatory scroll-smooth
+      {/* PRODUCT */}
+      <div className="flex gap-3">
+        <img
+          src={selectedProduct?.images?.[0]?.image_url || "/images/not-found.png"}
+          className="w-20 h-20 rounded-xl object-cover border border-white/10"
+        />
 
-            sm:grid sm:grid-cols-2 sm:overflow-visible
-            lg:grid-cols-4
-          "
-        >
-          {products.map((product, index) => {
-            const qty = getCartQty(product.id);
-            const isThisLoading =
-              isPending && loadingProductId === product.id;
+        <div className="flex-1">
+          <h3 className="text-sm font-semibold text-white line-clamp-1">
+            {selectedProduct?.name}
+          </h3>
+
+          <p className="text-xs text-gray-400 line-clamp-2">
+            {selectedProduct?.description || "Premium quality product"}
+          </p>
+
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-[#38bdf8] font-semibold text-sm">
+              ₹{selectedProduct?.price}
+            </span>
+
+            {selectedProduct?.regular_price && (
+              <>
+                <span className="text-xs text-gray-500 line-through">
+                  ₹{selectedProduct?.regular_price}
+                </span>
+
+                <span className="text-xs text-green-400">
+                  {Math.round(
+                    ((selectedProduct?.regular_price - selectedProduct?.price) /
+                      selectedProduct?.regular_price) *
+                    100
+                  )}
+                  % OFF
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* SIZE */}
+      <div>
+        <h4 className="text-sm font-medium text-white mb-2">
+          Select Size
+        </h4>
+
+        <div className="flex flex-wrap gap-2">
+          {selectedProduct?.variants?.map((v) => {
+            const active = selectedSize === v.id;
 
             return (
-              <div
-                key={product.id}
-                className="
-                  min-w-[75%] sm:min-w-0
-                  snap-start
-                  rounded-xl bg-[#1a1a1a] shadow-lg border border-white/10 
-                  transition hover:shadow-2xl
-                "
+              <button
+                key={v.id}
+                onClick={() => setSelectedSize(v.id)}
+                className={`px-4 py-2 rounded-lg text-sm border transition-all duration-300
+                  ${active
+                    ? "bg-[#38bdf8] text-black border-[#38bdf8] shadow-[0_0_12px_rgba(56,189,248,0.5)] scale-105"
+                    : "border-white/10 text-gray-400 hover:border-[#38bdf8]/50 hover:text-white"
+                  }
+                `}
               >
-                {/* IMAGE */}
-                <Link href={`/product/${product.slug}`}>
-                  <div className="relative mb-4 h-60 sm:h-72 w-full">
-                    <Image
-                      src={
-                        product.images?.[0]?.image_url ||
-                        "/images/not-found.png"
-                      }
-                      alt={product.name}
-                      fill
-                      className="object-cover rounded-t-xl"
-                      priority={index === 0}
-                    />
-                  </div>
-                </Link>
-
-                <div className="p-4 flex flex-col gap-3">
-                  <h3 className="min-h-[48px] text-sm font-medium text-gray-300">
-                    {product.name}
-                  </h3>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-lg font-bold text-[#38bdf8]">
-                        ₹{product.regular_price}
-                      </p>
-                      <p className="text-xs text-gray-400">ex. GST</p>
-                    </div>
-
-                    {qty > 0 && (
-                      <span className="rounded bg-[#0ea5e9]/20 px-2 py-0.5 text-xs font-medium text-[#7dd3fc]">
-                        Qty {qty}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2">
-                    {qty > 0 && (
-                      <button
-                        onClick={() => handleRemoveFromCart(product)}
-                        className="w-full rounded border border-white/10 py-2 text-sm font-medium text-gray-300 hover:bg-white/5"
-                      >
-                        Remove
-                      </button>
-                    )}
-
-                    <button
-                      disabled={isThisLoading}
-                      onClick={() => handleAddToCart(product)}
-                      className={`h-9 w-full rounded-md text-sm font-medium transition disabled:opacity-60 ${
-                        qty > 0
-                          ? "border border-[#0ea5e9] bg-[#0ea5e9]/10 text-[#7dd3fc] hover:bg-[#0ea5e9]/20"
-                          : "bg-[#0ea5e9] text-white hover:bg-[#38bdf8]"
-                      }`}
-                    >
-                      {isThisLoading
-                        ? "Adding…"
-                        : qty > 0
-                        ? "Add More"
-                        : "Add to cart"}
-                    </button>
-                  </div>
-                </div>
-              </div>
+                {v.size}
+              </button>
             );
           })}
         </div>
       </div>
+
+      {/* QTY */}
+      <div>
+        <h4 className="text-sm font-medium text-white mb-2">
+          Quantity
+        </h4>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setQty((prev) => Math.max(1, prev - 1))}
+            className="w-9 h-9 rounded-lg bg-[#1f2937] text-white text-lg"
+          >
+            -
+          </button>
+
+          <span className="text-white font-semibold">{qty}</span>
+
+          <button
+            onClick={() => setQty((prev) => prev + 1)}
+            className="w-9 h-9 rounded-lg bg-[#1f2937] text-white text-lg"
+          >
+            +
+          </button>
+        </div>
+      </div>
+
+      {/* CTA */}
+      <button
+        onClick={handleAddToCart}
+        disabled={!selectedSize || loading}
+        className={`w-full py-3 rounded-xl text-sm font-semibold transition-all duration-300
+          ${selectedSize
+            ? "bg-gradient-to-r from-[#0ea5e9] to-[#0284c7] text-white hover:shadow-[0_0_25px_rgba(56,189,248,0.35)]"
+            : "bg-[#1f2937] text-gray-500 cursor-not-allowed"
+          }
+        `}
+      >
+        {loading
+          ? "Adding..."
+          : selectedSize
+            ? "Add to Cart"
+            : "Select Size First"}
+      </button>
+    </div>
+  );
+  return (
+    <section className="bg-[#0f0f0f] py-14">
+      <div className="max-w-7xl mx-auto px-4">
+
+  <h2 className="text-center text-2xl font-bold text-white mb-10">
+    Best Selling Products
+  </h2>
+
+  {/* GRID */}
+  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+    {products.map((product) => {
+      const qtyInCart = getCartQty(product.id);
+
+      return (
+        <div
+          key={product.id}
+          className="
+            group flex flex-col
+            bg-[#151515]
+            rounded-2xl
+            border border-white/10
+            overflow-hidden
+            transition-all duration-300
+            hover:border-cyan-400/40
+            hover:shadow-[0_0_25px_rgba(34,211,238,0.15)]
+          "
+        >
+
+          {/* IMAGE */}
+          <div
+            onClick={() => openModal(product)}
+            className="relative w-full aspect-square cursor-pointer overflow-hidden"
+          >
+            <Image
+              src={product.images?.[0]?.image_url}
+              fill
+              className="
+                object-cover
+                transition-transform duration-500
+                group-hover:scale-105
+              "
+              alt={product.name}
+            />
+
+            {/* Glow overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition" />
+          </div>
+
+          {/* CONTENT */}
+          <div className="flex flex-col flex-1 p-4">
+
+            {/* TITLE */}
+            <h3 className="text-sm font-semibold text-white line-clamp-1">
+              {product.name}
+            </h3>
+
+            {/* DESC */}
+            <p className="text-xs text-gray-400 line-clamp-2 mt-1">
+              {product.description || "Premium quality product"}
+            </p>
+
+            {/* PRICE */}
+            <div className="mt-3 flex items-center gap-2">
+              <span className="text-lg font-bold text-cyan-400">
+                ₹{product.regular_price}
+              </span>
+            </div>
+
+            {/* CART INFO */}
+            {qtyInCart > 0 && (
+              <span className="mt-1 text-xs text-cyan-300">
+                In Cart: {qtyInCart}
+              </span>
+            )}
+
+            {/* PUSH BUTTON TO BOTTOM */}
+            <div className="mt-auto pt-4">
+
+              <button
+                onClick={() => openModal(product)}
+                className="
+                  w-full h-10
+                  rounded-xl
+                  text-sm font-semibold
+                  bg-gradient-to-r from-[#0ea5e9] to-[#0284c7]
+                  text-white
+                  transition-all duration-300
+                  hover:shadow-[0_0_20px_rgba(56,189,248,0.4)]
+                  active:scale-95
+                "
+              >
+                Add to Cart
+              </button>
+
+            </div>
+          </div>
+        </div>
+      );
+    })}
+
+  </div>
+</div>
+
+      {/* ================= MOBILE DRAWER ================= */}
+      {isMobile && selectedProduct && (
+        <SwipeableDrawer open={true} onClose={closeModal}>
+          <Content />
+        </SwipeableDrawer>
+      )}
+
+      {/* ================= DESKTOP MODAL ================= */}
+      {!isMobile && selectedProduct && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div className="bg-[#111] max-w-lg w-full rounded-2xl border border-white/10">
+
+            <div className="flex justify-between p-4 border-b border-white/10">
+              <h2 className="text-white">{selectedProduct.name}</h2>
+
+              <button onClick={closeModal}>
+                <XMarkIcon className="w-5 h-5 text-white" />
+              </button>
+            </div>
+
+            <Content />
+          </div>
+        </div>
+      )}
     </section>
   );
 }
