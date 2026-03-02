@@ -28,20 +28,17 @@ jobs:
       # 🚀 Deploy
       - name: 🚀 Deploy to VPS
         run: |
+          BRANCH=${GITHUB_REF##*/}
+          echo "🚀 Deploying branch: $BRANCH"
+
           ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
 
-          # ✅ Load Node (aaPanel)
-          export PATH=/www/server/nodejs/v22.17.1/bin:$PATH
+          # ✅ Load Node
+          export PATH=/www/server/nodejs/v22.17.1/bin:\$PATH
 
-          echo "🔎 Node Version:"
-          node -v
-          npm -v
+          echo "📦 Branch: $BRANCH"
 
-          # ✅ Detect branch
-          BRANCH="${GITHUB_REF##*/}"
-          echo "📦 Deploying branch: $BRANCH"
-
-          # ✅ Set folder based on branch
+          # ✅ Set folder
           if [ "$BRANCH" = "main" ]; then
             APP_DIR="/www/wwwroot/theclevar"
             APP_NAME="clevar"
@@ -49,48 +46,44 @@ jobs:
             APP_DIR="/www/wwwroot/theclevarstag"
             APP_NAME="clevarstag"
           else
-            echo "❌ Unknown branch. Exiting..."
+            echo "❌ Unknown branch: $BRANCH"
             exit 1
           fi
 
-          echo "📁 Deploy path: $APP_DIR"
+          echo "📁 Path: \$APP_DIR"
 
           cd /www/wwwroot
 
-          # ✅ Clone or Pull
-          if [ ! -d "$APP_DIR" ]; then
-            echo "📥 First time clone..."
-            git clone git@github.com:himanshu05626/theclevar.git $(basename $APP_DIR)
-            cd $APP_DIR
+          # ✅ Clone or pull
+          if [ ! -d "\$APP_DIR" ]; then
+            echo "📥 First clone..."
+            git clone git@github.com:himanshu05626/theclevar.git \$(basename \$APP_DIR)
+            cd \$APP_DIR
             git checkout $BRANCH
           else
-            echo "🔄 Updating repo..."
-            cd $APP_DIR
+            echo "🔄 Updating..."
+            cd \$APP_DIR
             git fetch origin
             git reset --hard origin/$BRANCH
           fi
 
-          # ✅ Install deps
-          echo "📦 Installing dependencies..."
+          # ✅ Install
           npm install
 
           # ✅ Prisma
-          echo "⚙️ Prisma generate..."
           npx prisma generate
 
           # ✅ Build
-          echo "🏗️ Building app..."
           npm run build
 
-          # ✅ PM2 Restart (separate apps)
-          echo "🔄 Restarting PM2..."
-          pm2 describe $APP_NAME > /dev/null 2>&1
-          if [ $? -eq 0 ]; then
-            pm2 restart $APP_NAME
+          # ✅ PM2
+          pm2 describe \$APP_NAME > /dev/null 2>&1
+          if [ \$? -eq 0 ]; then
+            pm2 restart \$APP_NAME
           else
-            pm2 start npm --name "$APP_NAME" -- start
+            pm2 start npm --name "\$APP_NAME" -- start
           fi
 
-          echo "✅ Deployment Successful for $BRANCH!"
+          echo "✅ Done for $BRANCH"
 
           EOF
