@@ -76,7 +76,8 @@ export default function ProfileDropdown({isLoggedIn}) {
         </div>
 
         {/* MENU ITEMS */}
-        <Link
+        {isLoggedIn && (
+            <Link
         onClick={()=>setOpen(false)}
           href="/my-account/orders"
           className="
@@ -87,11 +88,12 @@ export default function ProfileDropdown({isLoggedIn}) {
         >
           My Orders
         </Link>
+        )}
+      
 
          {!isLoggedIn ? (
-            <Link href="/auth/login" className="hover:underline">
-              Login / Register
-            </Link>
+            <>
+            </>
           ) : (
              <div className="border-t border-white/10">
                     <LogoutButton />

@@ -5,8 +5,9 @@ export async function GET(request) {
     request.nextUrl.searchParams.get("redirect") || "";
 
   console.log("redirectTo123", redirectTo);
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theclevar.com";
 
-  const loginUrl = new URL("/auth/login", request.url);
+  const loginUrl = new URL("/auth/login", baseUrl);
   loginUrl.searchParams.set("redirect", redirectTo);
 
   const res = NextResponse.redirect(loginUrl);
