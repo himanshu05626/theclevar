@@ -4,13 +4,14 @@ on:
   push:
     branches:
       - main
+      - stag
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 📥 Checkout (required)
+      # 📥 Checkout
       - name: 📥 Checkout Code
         uses: actions/checkout@v4
 
@@ -27,7 +28,7 @@ jobs:
       # 🚀 Deploy
       - name: 🚀 Deploy to VPS
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << EOF
 
           # ✅ Load Node (aaPanel)
           export PATH=/www/server/nodejs/v22.17.1/bin:$PATH
@@ -36,24 +37,40 @@ jobs:
           node -v
           npm -v
 
-          # ✅ Go to root folder
-          cd /www/wwwroot
+          # ✅ Detect branch
+          BRANCH="${GITHUB_REF##*/}"
+          echo "📦 Deploying branch: $BRANCH"
 
-          # ✅ Clone if not exists, else pull
-          if [ ! -d "theclevar" ]; then
-            echo "📥 First time clone..."
-            git clone git@github.com:himanshu05626/theclevar.git
+          # ✅ Set folder based on branch
+          if [ "$BRANCH" = "main" ]; then
+            APP_DIR="/www/wwwroot/theclevar"
+            APP_NAME="clevar"
+          elif [ "$BRANCH" = "stag" ]; then
+            APP_DIR="/www/wwwroot/theclevarstag"
+            APP_NAME="clevarstag"
           else
-            echo "🔄 Updating repo..."
-            cd theclevar
-            git reset --hard
-            git pull origin main
-            cd ..
+            echo "❌ Unknown branch. Exiting..."
+            exit 1
           fi
 
-          cd /www/wwwroot/theclevar
+          echo "📁 Deploy path: $APP_DIR"
 
-          # ✅ Install dependencies
+          cd /www/wwwroot
+
+          # ✅ Clone or Pull
+          if [ ! -d "$APP_DIR" ]; then
+            echo "📥 First time clone..."
+            git clone git@github.com:himanshu05626/theclevar.git $(basename $APP_DIR)
+            cd $APP_DIR
+            git checkout $BRANCH
+          else
+            echo "🔄 Updating repo..."
+            cd $APP_DIR
+            git fetch origin
+            git reset --hard origin/$BRANCH
+          fi
+
+          # ✅ Install deps
           echo "📦 Installing dependencies..."
           npm install
 
@@ -65,15 +82,15 @@ jobs:
           echo "🏗️ Building app..."
           npm run build
 
-          # ✅ Restart PM2 (zero crash safe)
+          # ✅ PM2 Restart (separate apps)
           echo "🔄 Restarting PM2..."
-          pm2 describe clevar > /dev/null 2>&1
+          pm2 describe $APP_NAME > /dev/null 2>&1
           if [ $? -eq 0 ]; then
-            pm2 restart clevar
+            pm2 restart $APP_NAME
           else
-            pm2 start npm --name "clevar" -- start
+            pm2 start npm --name "$APP_NAME" -- start
           fi
 
-          echo "✅ Deployment Successful!"
+          echo "✅ Deployment Successful for $BRANCH!"
 
           EOF
