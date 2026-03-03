@@ -14,9 +14,8 @@ export default function Footer({ category = [] }) {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsVisible(window.scrollY > 100);
+      setIsVisible(window.scrollY > 120);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -26,44 +25,44 @@ export default function Footer({ category = [] }) {
   };
 
   return (
-<footer className="bg-gradient-to-b 
-from-[#020617] 
-to-black 
-border-t border-white/10">
+    <footer className="relative bg-[#020617] text-white overflow-hidden">
 
+      {/* 🔵 BACKGROUND GLOW */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-[-120px] left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-sky-500/10 blur-[140px] rounded-full"></div>
+      </div>
 
-      {/* TOP FOOTER */}
-      <div className="relative mx-auto max-w-7xl px-6 py-16">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-3 lg:grid-cols-6">
-          
-          {/* LOGO + BRAND TEXT */}
-          <div className="md:col-span-2 pr-6 md:border-r md:border-white/10">
+      <div className="relative mx-auto max-w-7xl px-6 py-20">
+
+        {/* GRID */}
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+
+          {/* BRAND */}
+          <div className="space-y-4">
             <Image
               src="/images/logo4.png"
               alt="The Clevar Logo"
-              width={180}
+              width={160}
               height={40}
               priority
             />
 
-            <p className="mt-4 max-w-md text-sm leading-relaxed text-gray-300">
-              The Clevar is a modern fashion brand delivering premium quality
-              T-shirts and shirts across Pan India. We never compromise on
-              fabric, fit, or finish — and offer custom design shirts tailored
-              to your unique style.
+            <p className="text-sm text-gray-400 leading-relaxed">
+              Premium Gen-Z fashion brand delivering quality-first apparel
+              across India. Built for style, comfort & expression.
             </p>
 
-            <p className="mt-3 text-sm text-sky-400 font-medium">
-              “Never Compromise With Quality.”
+            <p className="text-sky-400 font-medium text-sm">
+              ✦ Never Compromise With Quality
             </p>
 
-            <p className="mt-3 text-xs text-gray-500">
-              Version {pkg.version}
+            <p className="text-xs text-gray-500">
+              v{pkg.version}
             </p>
           </div>
 
-          {/* CATEGORIES */}
-          <FooterColumn
+          {/* GLASS CARD */}
+          <FooterCard
             title="Categories"
             links={filteredCategories.map((cat) => ({
               label: cat.name,
@@ -71,134 +70,79 @@ border-t border-white/10">
             }))}
           />
 
-          {/* INFORMATION */}
-          <FooterColumn
-            title="Information"
+          <FooterCard
+            title="Explore"
+            links={[
+              { label: "New Arrivals", href: "/new-arrivals" },
+              { label: "Trending", href: "/trending" },
+              { label: "Best Sellers", href: "/best-sellers" },
+              { label: "Customize Shirt", href: "/customize-shirt" },
+            ]}
+          />
+
+          <FooterCard
+            title="Support"
             links={[
               { label: "About Us", href: "/about-us" },
               { label: "Contact Us", href: "/contact-us" },
-              { label: "My Account", href: "/my-account" },
               { label: "Orders", href: "/my-account/orders" },
+              { label: "My Account", href: "/my-account" },
             ]}
           />
+        </div>
 
-          {/* QUICK LINKS */}
-          <FooterColumn
-            title="Quick Links"
-            links={[
-              { label: "Customize Shirt", href: "/customize-shirt" },
-              { label: "New Arrivals", href: "/new-arrivals" },
-              { label: "Trending Designs", href: "/trending" },
-              { label: "Best Sellers", href: "/best-sellers" },
-            ]}
+        {/* CONTACT STRIP */}
+        <div className="mt-12 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+
+          <div className="text-sm text-gray-300">
+            📍 Varanasi, India • Pan India Delivery
+          </div>
+
+          <div className="flex items-center gap-6 text-sm">
+            <a href="mailto:info@theclevar.com" className="hover:text-sky-400">
+              info@theclevar.com
+            </a>
+            <a href="tel:+91XXXXXXXXXX" className="hover:text-sky-400">
+              +91 XXXXX XXXXX
+            </a>
+          </div>
+
+          <Image
+            src="/images/razorpay1.png"
+            alt="Payment"
+            width={150}
+            height={20}
           />
-
-          {/* CONTACT */}
-          <div>
-            <h4 className="mb-4 text-sm font-semibold tracking-wide text-white">
-              Contact Us
-            </h4>
-
-            <ul className="space-y-3 text-sm text-gray-300">
-              <li>
-                Varanasi, Uttar Pradesh <br />
-                India – Pan India Delivery
-              </li>
-
-              <li>
-                <a
-                  href="mailto:support@theclevar.com"
-                  className="hover:text-sky-400"
-                >
-                  info@theclevar.com
-                </a>
-              </li>
-
-              <li>
-                <a
-                  href="tel:+91XXXXXXXXXX"
-                  className="hover:text-sky-400"
-                >
-                  +91 XXXXX XXXXX
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* SCROLL TO TOP */}
-        <button
-          onClick={scrollToTop}
-          className={`
-            fixed right-6 bottom-6 flex h-12 w-12 items-center justify-center
-            rounded-full border border-white/20 bg-white/10 text-white
-            backdrop-blur-md shadow-lg
-            transition-all duration-300
-            ${
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-4 pointer-events-none"
-            }
-            hover:bg-sky-500
-          `}
-          aria-label="Scroll to top"
-        >
-          ↑
-        </button>
-      </div>
-
-      {/* BOTTOM BAR */}
-      <div className="bg-[#070B14]">
-        <div className="mx-auto flex max-w-7xl flex-col md:flex-row items-center justify-between px-6 py-4 text-sm text-gray-400 gap-2 md:gap-0">
-          
-          <p>
-            © 2026 <span className="font-semibold text-white">The Clevar</span>.  
-            All Rights Reserved. MOHD MIZNA
-          </p>
-
-          <div className="flex items-center gap-4">
-            <span className="text-xs">
-              Secure Payments • UPI • Cards • Net Banking
-            </span>
-
-            <Image
-              src="/images/PayPal.png"
-              alt="Payment Methods"
-              width={80}
-              height={20}
-            />
-          </div>
         </div>
       </div>
+
+      {/* BOTTOM */}
+      <div className="border-t border-white/10 text-center py-5 text-sm text-gray-500">
+        © 2026 <span className="text-white font-medium">The Clevar</span> — Built by Mizna ✦
+      </div>
+
     </footer>
   );
 }
 
-/* REUSABLE COLUMN */
-function FooterColumn({ title, links = [] }) {
-  if (links.length === 0) return null;
-
+/* 🔹 CARD COMPONENT */
+function FooterCard({ title, links = [] }) {
   return (
-    <div>
-      <h4 className="mb-4 text-sm font-semibold tracking-wide text-white">
+    <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 hover:border-sky-400/40 transition-all">
+
+      <h4 className="mb-4 text-sm font-semibold text-white">
         {title}
       </h4>
 
-      <ul className="space-y-2 text-sm text-gray-300">
+      <ul className="space-y-2 text-sm text-gray-400">
         {links.map((link, i) => (
           <li key={i}>
-            {link.href ? (
-              <Link
-                href={link.href}
-                className="hover:text-sky-400 transition-colors"
-              >
-                {link.label}
-              </Link>
-            ) : (
-              <span className="cursor-pointer hover:text-sky-400">
-                {link.label}
-              </span>
-            )}
+            <Link
+              href={link.href}
+              className="hover:text-sky-400 transition-all hover:translate-x-1 inline-block"
+            >
+              {link.label}
+            </Link>
           </li>
         ))}
       </ul>

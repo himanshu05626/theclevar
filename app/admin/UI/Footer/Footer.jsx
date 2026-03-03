@@ -100,7 +100,7 @@ export default function Footer() {
                     </p>
 
                     <Image
-                        src="/images/paypal.png"
+                        src="/images/razorpay1.png"
                         alt="PayPal"
                         width={80}
                         height={20}
