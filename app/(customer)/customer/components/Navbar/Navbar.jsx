@@ -83,7 +83,7 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-  
+
 
 
   return (
@@ -93,13 +93,25 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
              from-[#0f0f0f]
              via-[#1a1a1a]
              to-[#111827]
+             h-full
              border-b border-white/10
-             shadow-[0_8px_30px_rgba(0,0,0,0.6)]"
+             shadow-[0_8px_30px_rgba(0,0,0,0.6)]
+             
+             z-20"
     >
 
       {/* ================= TOP BAR ================= */}
       <div className="mx-auto max-w-7xl  px-4 py-4 lg:py-4 xl:py-6 flex items-center justify-between">
         {/* LOGO */}
+        <button
+          className="lg:hidden"
+          onClick={() => setDrawerOpen(true)}
+          aria-label="Open Menu"
+        >
+          <span className="block w-6 h-[2px] bg-white mb-1" />
+          <span className="block w-6 h-[2px] bg-white mb-1" />
+          <span className="block w-6 h-[2px] bg-white" />
+        </button>
         <div className="cursor-pointer" onClick={() => router.push("/")}>
           <Image src="/images/logo4.png" alt="The Clevar" width={180} height={60} />
         </div>
@@ -362,15 +374,7 @@ border border-white/10 rounded p-2 space-y-2 max-h-[200px] overflow-y-auto z-[99
 
 
           {/* HAMBURGER */}
-          <button
-            className="lg:hidden"
-            onClick={() => setDrawerOpen(true)}
-            aria-label="Open Menu"
-          >
-            <span className="block w-6 h-[2px] bg-white mb-1" />
-            <span className="block w-6 h-[2px] bg-white mb-1" />
-            <span className="block w-6 h-[2px] bg-white" />
-          </button>
+
         </div>
       </div>
 
@@ -408,106 +412,106 @@ border border-white/10 rounded p-2 space-y-2 max-h-[200px] overflow-y-auto z-[99
 
           {/* MENU CONTENT */}
           <div className="overflow-y-auto h-full pb-24">
-           <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 pb-24">
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 pb-24">
 
-  {/* HOME */}
-  <Link
-    href="/"
-    onClick={() => setDrawerOpen(false)}
-    className="block px-4 py-3 rounded-xl
+              {/* HOME */}
+              <Link
+                href="/"
+                onClick={() => setDrawerOpen(false)}
+                className="block px-4 py-3 rounded-xl
     bg-white/5 hover:bg-white/10
     text-sky-400 text-[15px] font-semibold
     transition-all"
-  >
-    Home
-  </Link>
+              >
+                Home
+              </Link>
 
-  {/* MENU */}
-  {menuData.map((l1) => {
-    const isOpen = openMenu[l1.title];
+              {/* MENU */}
+              {menuData.map((l1) => {
+                const isOpen = openMenu[l1.title];
 
-    return (
-      <div
-        key={l1.title}
-        className={`rounded-xl transition-all duration-300
+                return (
+                  <div
+                    key={l1.title}
+                    className={`rounded-xl transition-all duration-300
         ${isOpen ? "bg-white/5 border border-white/10" : ""}`}
-      >
-        {/* LEVEL 1 */}
-        <div
-          className="flex items-center justify-between px-4 py-3 cursor-pointer"
-          onClick={() => (l1.children ? toggle(l1.title) : navigate(l1.path))}
-        >
-          <span className="text-[15px] font-medium text-white">
-            {l1.title}
-          </span>
+                  >
+                    {/* LEVEL 1 */}
+                    <div
+                      className="flex items-center justify-between px-4 py-3 cursor-pointer"
+                      onClick={() => (l1.children ? toggle(l1.title) : navigate(l1.path))}
+                    >
+                      <span className="text-[15px] font-medium text-white">
+                        {l1.title}
+                      </span>
 
-          {l1.children && (
-            <ChevronDown
-              className={`w-4 h-4 text-gray-400 transition-transform duration-300
+                      {l1.children && (
+                        <ChevronDown
+                          className={`w-4 h-4 text-gray-400 transition-transform duration-300
               ${isOpen ? "rotate-180 text-sky-400" : ""}`}
-            />
-          )}
-        </div>
+                        />
+                      )}
+                    </div>
 
-        {/* LEVEL 2 */}
-        <div
-          className={`overflow-hidden transition-all duration-300
+                    {/* LEVEL 2 */}
+                    <div
+                      className={`overflow-hidden transition-all duration-300
           ${isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"}`}
-        >
-          <div className="pl-3 pb-3 space-y-2">
-            {l1.children?.map((l2) => {
-              const key2 = l1.title + l2.title;
-              const isOpen2 = openMenu[key2];
+                    >
+                      <div className="pl-3 pb-3 space-y-2">
+                        {l1.children?.map((l2) => {
+                          const key2 = l1.title + l2.title;
+                          const isOpen2 = openMenu[key2];
 
-              return (
-                <div key={l2.title}>
-                  {/* LEVEL 2 ITEM */}
-                  <div
-                    className="flex items-center justify-between px-3 py-2 rounded-lg
+                          return (
+                            <div key={l2.title}>
+                              {/* LEVEL 2 ITEM */}
+                              <div
+                                className="flex items-center justify-between px-3 py-2 rounded-lg
                     text-sm text-gray-300 hover:bg-white/10 transition cursor-pointer"
-                    onClick={() =>
-                      l2.children ? toggle(key2) : navigate(l2.path)
-                    }
-                  >
-                    <span>{l2.title}</span>
+                                onClick={() =>
+                                  l2.children ? toggle(key2) : navigate(l2.path)
+                                }
+                              >
+                                <span>{l2.title}</span>
 
-                    {l2.children && (
-                      <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform
+                                {l2.children && (
+                                  <ChevronDown
+                                    className={`w-3.5 h-3.5 transition-transform
                         ${isOpen2 ? "rotate-180 text-sky-400" : ""}`}
-                      />
-                    )}
-                  </div>
+                                  />
+                                )}
+                              </div>
 
-                  {/* LEVEL 3 */}
-                  <div
-                    className={`overflow-hidden transition-all duration-300
+                              {/* LEVEL 3 */}
+                              <div
+                                className={`overflow-hidden transition-all duration-300
                     ${isOpen2 ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0"}`}
-                  >
-                    <div className="pl-3 space-y-1">
-                      {l2.children?.map((l3) => (
-                        <Link
-                          key={l3.title}
-                          href={l3.path}
-                          onClick={() => setDrawerOpen(false)}
-                          className="block px-3 py-2 rounded-md text-[13px]
+                              >
+                                <div className="pl-3 space-y-1">
+                                  {l2.children?.map((l3) => (
+                                    <Link
+                                      key={l3.title}
+                                      href={l3.path}
+                                      onClick={() => setDrawerOpen(false)}
+                                      className="block px-3 py-2 rounded-md text-[13px]
                           text-gray-400 hover:text-white hover:bg-white/10
                           transition"
-                        >
-                          {l3.title}
-                        </Link>
-                      ))}
+                                    >
+                                      {l3.title}
+                                    </Link>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    );
-  })}
-</div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
