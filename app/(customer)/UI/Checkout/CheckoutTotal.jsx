@@ -161,79 +161,128 @@ export default function CheckoutTotal({ cartData = [] }) {
       </div>
 
       {/* PAYMENT */}
-      <div className="max-w-5xl rounded-xl border border-white/10 bg-[#1a1a1a] p-6 shadow-lg mt-4 text-gray-200">
-        <h3 className="mb-2 text-lg font-semibold text-white">Payment</h3>
+      <div className="max-w-5xl mt-6">
 
-        <div className="space-y-2 text-sm">
-          
+  {/* CARD */}
+  <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-[0_10px_40px_rgba(0,0,0,0.4)] text-gray-200">
 
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              checked={paymentMethod === "razorpay"}
-              onChange={() => setPaymentMethod("razorpay")}
-            />
-            Razorpay
-          </label>
+    <h3 className="text-xl font-semibold text-white mb-4">
+      Payment Method
+    </h3>
 
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              checked={paymentMethod === "po"}
-              onChange={() => setPaymentMethod("po")}
-            />
-            Purchase Order
-          </label>
-        </div>
+    {/* PAYMENT OPTIONS */}
+    <div className="grid grid-cols-1 sm:grid-cols-1 gap-3">
 
-        {/* TERMS */}
-        <label className="mt-4 flex items-start cursor-pointer gap-2 text-xs text-gray-400">
-          <input
-            type="checkbox"
-            checked={agreeTerms}
-            onChange={(e) => setAgreeTerms(e.target.checked)}
-          />
-          I agree to terms & conditions
-        </label>
+      {/* RAZORPAY */}
+      <button
+        onClick={() => setPaymentMethod("razorpay")}
+        className={`p-4 rounded-xl border cursor-pointer transition-all text-left
+        ${
+          paymentMethod === "razorpay"
+            ? "border-sky-500 bg-sky-500/10 shadow-[0_0_20px_rgba(14,165,233,0.4)]"
+            : "border-white/10 hover:border-sky-400/40"
+        }`}
+      >
+        <p className="font-medium text-white">Razorpay</p>
+        <p className="text-xs text-gray-400">UPI • Cards • Net Banking</p>
+      </button>
 
-        {/* PAYPAL */}
-        {paymentMethod === "paypal" && agreeTerms && (
-          <div className="mt-4">
-            <PayPalButtons />
-          </div>
-        )}
+      {/* PURCHASE ORDER */}
+      {/* <button
+        onClick={() => setPaymentMethod("po")}
+        className={`p-4 rounded-xl border cursor-pointer transition-all text-left
+        ${
+          paymentMethod === "po"
+            ? "border-sky-500 bg-sky-500/10 shadow-[0_0_20px_rgba(14,165,233,0.4)]"
+            : "border-white/10 hover:border-sky-400/40"
+        }`}
+      >
+        <p className="font-medium text-white">Purchase Order</p>
+        <p className="text-xs text-gray-400">Manual approval flow</p>
+      </button> */}
+    </div>
 
-        {/* RAZORPAY */}
-        {paymentMethod === "razorpay" && (
-          <button
-            onClick={handleRazorpayPayment}
-            disabled={!agreeTerms || rzpLoading}
-            className="mt-4 w-full rounded bg-sky-500 py-3 text-white"
-          >
-            {rzpLoading ? "Processing..." : "Pay with Razorpay"}
-          </button>
-        )}
-
-        {/* PURCHASE ORDER */}
-        {paymentMethod === "po" && (
-          <div className="mt-4 space-y-3">
-            <input
-              type="text"
-              value={poNumber}
-              onChange={(e) => setPoNumber(e.target.value)}
-              placeholder="Enter PO number"
-              className="w-full rounded bg-[#020617] border border-white/10 px-3 py-2 text-sm"
-            />
-
-            <button
-              disabled={!agreeTerms || !poNumber || poLoading}
-              className="w-full rounded bg-sky-500 py-3 text-white"
-            >
-              {poLoading ? "Placing Order..." : "Place Order"}
-            </button>
-          </div>
+    {/* TERMS */}
+    <label className="mt-5 flex items-start gap-3 cursor-pointer group">
+      <div
+        className={`h-5 w-5 rounded-md border flex items-center justify-center transition-all
+        ${
+          agreeTerms
+            ? "bg-sky-500 border-sky-500"
+            : "border-white/20 group-hover:border-sky-400"
+        }`}
+      >
+        {agreeTerms && (
+          <span className="text-xs text-white">✓</span>
         )}
       </div>
-    </>
+
+      <input
+        type="checkbox"
+        checked={agreeTerms}
+        onChange={(e) => setAgreeTerms(e.target.checked)}
+        className="hidden"
+      />
+
+      <span className="text-xs text-gray-400 group-hover:text-gray-300">
+        I agree to <span className="text-sky-400">terms & conditions</span>
+      </span>
+    </label>
+
+    {/* ACTION AREA */}
+    <div className="mt-6">
+
+      {/* RAZORPAY */}
+      {paymentMethod === "razorpay" && (
+        <button
+          onClick={handleRazorpayPayment}
+          disabled={!agreeTerms || rzpLoading}
+          className="w-full rounded-xl py-3 text-white font-medium
+          bg-gradient-to-r from-sky-500 to-blue-600
+          shadow-[0_0_20px_rgba(14,165,233,0.5)]
+          hover:scale-[1.02] active:scale-[0.98]
+          transition-all disabled:opacity-50"
+        >
+          {rzpLoading ? "Processing..." : "Pay Securely"}
+        </button>
+      )}
+
+      {/* PURCHASE ORDER */}
+      {paymentMethod === "po" && (
+        <div className="space-y-3">
+
+          <input
+            type="text"
+            value={poNumber}
+            onChange={(e) => setPoNumber(e.target.value)}
+            placeholder="Enter PO number"
+            className="w-full rounded-xl bg-black/40 border border-white/10 px-4 py-3 text-sm
+            focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
+          />
+
+          <button
+            disabled={!agreeTerms || !poNumber || poLoading}
+            className="w-full rounded-xl py-3 text-white font-medium
+            bg-gradient-to-r from-sky-500 to-blue-600
+            shadow-[0_0_20px_rgba(14,165,233,0.5)]
+            hover:scale-[1.02] active:scale-[0.98]
+            transition-all disabled:opacity-50"
+          >
+            {poLoading ? "Placing Order..." : "Place Order"}
+          </button>
+        </div>
+      )}
+
+      {/* PAYPAL */}
+      {paymentMethod === "paypal" && agreeTerms && (
+        <div className="mt-4 rounded-xl border border-white/10 p-3 bg-white/5">
+          <PayPalButtons />
+        </div>
+      )}
+
+    </div>
+  </div>
+</div>
+          </>
   );
 }
