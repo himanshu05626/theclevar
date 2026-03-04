@@ -34,7 +34,7 @@ export default async function sitemap() {
   });
 
   const categoryUrls = mainCategories.map((cat) => ({
-    url: `${baseUrl}${cat.path}`,
+  url: `${baseUrl}/product-category/${cat.path.replace(/^\/+/, "")}`,
     lastModified: cat.updated_at || new Date(),
     changeFrequency: "daily", // 🔥 IMPORTANT for ranking
     priority: 0.95, // ⭐ HIGH PRIORITY (after homepage)
