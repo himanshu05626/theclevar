@@ -1,145 +1,144 @@
 "use client";
 
 import Image from "next/image";
-import pkg from "../../../../../package.json";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import pkg from "../../../../../package.json";
 
 export default function Footer({ category = [] }) {
   const filteredCategories = category.filter(
     (cat) => cat.slug !== "uncategorized"
   );
 
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsVisible(window.scrollY > 120);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   return (
-    <footer className="relative bg-[#020617] text-white overflow-hidden">
+    <footer className="bg-black text-gray-400 border-t border-white/10">
 
-      {/* 🔵 BACKGROUND GLOW */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-[-120px] left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-sky-500/10 blur-[140px] rounded-full"></div>
-      </div>
-
-      <div className="relative mx-auto max-w-7xl px-6 py-20">
+      <div className="max-w-7xl mx-auto px-6 py-16">
 
         {/* GRID */}
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
 
           {/* BRAND */}
-          <div className="space-y-4">
-            <Image
-              src="/images/logo4.png"
-              alt="The Clevar Logo"
-              width={160}
-              height={40}
-              priority
-            />
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Image
+                src="/images/logo4.png"
+                alt="The Clevar"
+                width={140}
+                height={40}
+              />
+            </div>
 
-            <p className="text-sm text-gray-400 leading-relaxed">
-              Premium Gen-Z fashion brand delivering quality-first apparel
-              across India. Built for style, comfort & expression.
+            <p className="text-sm leading-relaxed mb-6">
+              Premium Gen-Z fashion redefining the street culture.
+              Built for the bold. Designed for expression.
             </p>
 
-            <p className="text-sky-400 font-medium text-sm">
-              ✦ Never Compromise With Quality
-            </p>
+            {/* Social Icons */}
+            <div className="flex gap-4">
+              <a href="#" className="border border-white/20 p-2 hover:border-cyan-400 hover:text-cyan-400 transition">
+                IG
+              </a>
+              <a href="#" className="border border-white/20 p-2 hover:border-cyan-400 hover:text-cyan-400 transition">
+                TW
+              </a>
+              <a href="#" className="border border-white/20 p-2 hover:border-cyan-400 hover:text-cyan-400 transition">
+                YT
+              </a>
+            </div>
 
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-600 mt-6">
               v{pkg.version}
             </p>
           </div>
 
-          {/* GLASS CARD */}
-          <FooterCard
-            title="Categories"
+          {/* SHOP */}
+          <FooterColumn
+            title="SHOP"
             links={filteredCategories.map((cat) => ({
               label: cat.name,
               href: `/product-category/${cat.path || cat.slug}`,
             }))}
           />
 
-          <FooterCard
-            title="Explore"
+          {/* SUPPORT */}
+          <FooterColumn
+            title="SUPPORT"
             links={[
-              { label: "New Arrivals", href: "/new-arrivals" },
-              { label: "Trending", href: "/trending" },
-              { label: "Best Sellers", href: "/best-sellers" },
-              { label: "Customize Shirt", href: "/customize-shirt" },
-            ]}
-          />
-
-          <FooterCard
-            title="Support"
-            links={[
-              { label: "About Us", href: "/about-us" },
+              { label: "Sizing Guide", href: "/size-guide" },
+              { label: "Shipping Info", href: "/shipping" },
+              { label: "Returns & Exchanges", href: "/returns" },
+              { label: "Track Order", href: "/track-order" },
               { label: "Contact Us", href: "/contact-us" },
-              { label: "Orders", href: "/my-account/orders" },
-              { label: "My Account", href: "/my-account" },
             ]}
           />
+
+          {/* NEWSLETTER */}
+          <div>
+            <h4 className="text-white text-sm font-semibold mb-4 uppercase tracking-wider">
+              JOIN THE SIGNAL
+            </h4>
+
+            <p className="text-sm mb-6">
+              Get early access to drops, exclusive discounts,
+              and street energy straight to your inbox.
+            </p>
+
+            <div className="flex">
+              <input
+                type="email"
+                placeholder="your@email.com"
+                className="w-full bg-black border border-white/20 px-4 py-2 text-sm focus:outline-none focus:border-cyan-400"
+              />
+              <button className="bg-cyan-400 text-black px-4 hover:bg-cyan-300 transition">
+                →
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* CONTACT STRIP */}
-        <div className="mt-12 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+        {/* Divider */}
+        <div className="border-t border-white/10 mt-14 pt-6 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600 gap-4">
 
-          <div className="text-sm text-gray-300">
-            📍 Varanasi, India • Pan India Delivery
+          <p>
+            © 2026 The Clevar. All Rights Reserved.
+          </p>
+
+          <div className="flex gap-6">
+            <Link href="/privacy-policy" className="hover:text-cyan-400">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="hover:text-cyan-400">
+              Terms
+            </Link>
+            <Link href="/cookies" className="hover:text-cyan-400">
+              Cookies
+            </Link>
           </div>
 
-          <div className="flex items-center gap-6 text-sm">
-            <a href="mailto:info@theclevar.com" className="hover:text-sky-400">
-              info@theclevar.com
-            </a>
-            <a href="tel:+91XXXXXXXXXX" className="hover:text-sky-400">
-              +91 XXXXX XXXXX
-            </a>
-          </div>
-
-          <Image
-            src="/images/razorpay1.png"
-            alt="Payment"
-            width={150}
-            height={20}
-          />
+          <p className="text-gray-500">
+            MADE WITH <span className="text-pink-500">♥</span> FOR THE CULTURE
+          </p>
         </div>
       </div>
-
-      {/* BOTTOM */}
-      <div className="border-t border-white/10 text-center py-5 text-sm text-gray-500">
-        © 2026 <span className="text-white font-medium">The Clevar</span> — Built by Mizna ✦
-      </div>
-
     </footer>
   );
 }
 
-/* 🔹 CARD COMPONENT */
-function FooterCard({ title, links = [] }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 hover:border-sky-400/40 transition-all">
 
-      <h4 className="mb-4 text-sm font-semibold text-white">
+/* COLUMN COMPONENT */
+function FooterColumn({ title, links = [] }) {
+  return (
+    <div>
+      <h4 className="text-white text-sm font-semibold mb-4 uppercase tracking-wider">
         {title}
       </h4>
 
-      <ul className="space-y-2 text-sm text-gray-400">
+      <ul className="space-y-3 text-sm">
         {links.map((link, i) => (
           <li key={i}>
             <Link
               href={link.href}
-              className="hover:text-sky-400 transition-all hover:translate-x-1 inline-block"
+              className="hover:text-cyan-400 transition"
             >
               {link.label}
             </Link>

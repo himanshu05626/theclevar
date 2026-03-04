@@ -13,6 +13,8 @@ import {
   HeartIcon,
   TrashIcon,
   ShoppingBagIcon,
+  StarIcon,
+  ShareIcon,
 } from "@heroicons/react/24/solid";
 import ProductInfoTabs from "./ProductInfoTabs";
 
@@ -154,13 +156,16 @@ ${activeImage?.url === img.url
               <h1 className="text-3xl md:text-4xl font-bold mt-1">
                 {product.name}
               </h1>
+              <p className="text-gray-400 text-sm mt-1">{product.description}</p>
 
               {/* rating */}
               <div className="flex items-center gap-2 mt-2 text-sm text-gray-400">
 
-                <div className="flex text-yellow-400">
-                  ★★★★★
-                </div>
+              <div className="flex items-center gap-1 text-yellow-400">
+  {[...Array(5)].map((_, i) => (
+    <StarIcon key={i} className="w-4 h-4" />
+  ))}
+</div>
 
                 <span className="text-cyan-400 font-semibold">4.8</span>
 
@@ -298,7 +303,7 @@ ${isOut ? "opacity-40 cursor-not-allowed" : ""}
               <button
                 onClick={handleAddToCart}
                 disabled={isAdding}
-                className="flex-1 h-12 rounded-lg border border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black transition font-semibold"
+                className="flex-1 h-12 cursor-pointer rounded-lg border border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black transition font-semibold"
               >
                 {isAdding ? "Adding..." : "Add To Cart"}
               </button>
@@ -313,9 +318,10 @@ Buy Now
 
 
             {/* share */}
-            <p className="text-xs text-gray-500 cursor-pointer">
-              Share this product
-            </p>
+        <p className="flex items-center gap-2 text-xs text-gray-500 cursor-pointer hover:text-white transition">
+  <ShareIcon className="w-4 h-4" />
+  Share this product
+</p>
 
           </div>
 

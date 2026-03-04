@@ -9,6 +9,7 @@ import { Navigation } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/navigation";
+import { StarIcon } from "@heroicons/react/24/solid";
 
 export default function RelatedProduct({ relatedProducts = [] }) {
   const swiperRef = useRef(null);
@@ -134,9 +135,12 @@ function ProductCard({ product, index }) {
           {product.name}
         </h3>
 
-        <div className="flex items-center gap-1 text-yellow-400 text-xs">
-          ★★★★★
+        <div className="flex items-center gap-1 text-yellow-400">
+          {[...Array(5)].map((_, i) => (
+            <StarIcon key={i} className="w-4 h-4" />
+          ))}
           <span className="text-gray-400 ml-1">(52)</span>
+
         </div>
 
         <div className="flex items-center gap-2">
