@@ -17,7 +17,8 @@ export default function RelatedProduct({ relatedProducts = [] }) {
   if (!relatedProducts.length) return null;
 
   return (
-    <section className="bg-[#0f0f0f] py-16">
+        <section className="border-t border-b border-white/10 py-12">
+
       <div className="mx-auto max-w-7xl px-6">
 
         {/* HEADER */}

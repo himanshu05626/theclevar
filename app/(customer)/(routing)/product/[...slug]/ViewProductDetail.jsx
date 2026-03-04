@@ -109,7 +109,7 @@ export default function ProductDetailClient({
   return (
     <section className="bg-[#05070b] text-white min-h-screen">
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 md:py-10">
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
           <div className="flex justify-evenly flex-wrap-reverse gap-6">
@@ -329,15 +329,13 @@ Buy Now
           </div>
 
         </div>
+      </div>
 
         <ProductInfoTabs />
         <ServiceHighlights />
         {/* related */}
-        <div className="mt-20">
           <RelatedProduct relatedProducts={relatedProducts} />
-        </div>
 
-      </div>
 
     </section>
   )
