@@ -2,9 +2,17 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
 import ProductCard from "./ProductCard";
 import FilterPanel from "./FilterPanel";
 import SwipeableDrawer from "@/app/admin/UI/common/SwipeableDrawer";
+
+import {
+  FunnelIcon,
+  Squares2X2Icon,
+  Bars3Icon,
+} from "@heroicons/react/24/outline";
+import ShopHeader from "./ShopHeader";
 
 export default function ShopPage() {
   const params = useSearchParams();
@@ -30,6 +38,7 @@ export default function ShopPage() {
     );
 
     const json = await res.json();
+
     setProducts(json.products);
     setMeta(json.meta);
     setLoading(false);
@@ -39,112 +48,155 @@ export default function ShopPage() {
     fetchProducts();
   }, [params.toString()]);
 
+  const updateQuery = (key, value) => {
+    router.push(
+      `?${new URLSearchParams({
+        ...query,
+        [key]: value,
+      })}`
+    );
+  };
+
   return (
-    <div className="bg-[#0f0f0f] text-white min-h-screen px-4 md:px-6 py-6">
+    <div className="bg-[#0f0f0f] max-w-7xl mx-auto min-h-screen text-white  ">
+      <ShopHeader count={products.length} />
+      {/* ================= CATEGORY TABS ================= */}
 
-      {/* ================= LAYOUT ================= */}
-      <div className="flex gap-6">
+      <div className="flex items-center p-2 gap-3 mb-6 overflow-x-auto">
 
-        {/* ================= DESKTOP FILTER ================= */}
-        <div className="hidden md:block w-64 shrink-0">
-          <div className="sticky top-20">
-            <FilterPanel query={query} />
-          </div>
-        </div>
+        {["", "tshirt", "hoodie", "oversized"].map((c) => {
+          const active = query.category === c;
 
-        {/* ================= MAIN ================= */}
-        <div className="flex-1 space-y-5">
-
-          {/* ================= TOP BAR ================= */}
-          <div className="flex items-center justify-between">
-
-            {/* MOBILE FILTER BUTTON */}
+          return (
             <button
-              className="md:hidden px-4 py-2 rounded-xl border border-white/10 bg-[#151515] text-sm hover:border-[#38bdf8]/40 transition"
-              onClick={() => setOpenFilter(true)}
+              key={c || "all"}
+              onClick={() => updateQuery("category", c)}
+              className={`px-4 py-2 text-xs rounded-full border whitespace-nowrap transition
+                ${active
+                  ? "bg-[#22d3ee] text-black border-[#22d3ee]"
+                  : "border-white/10 text-gray-400 hover:border-[#22d3ee]/50 hover:text-white"
+                }
+              `}
             >
-              Filters
+              {c || "ALL"}
             </button>
+          );
+        })}
+      </div>
+
+      {/* ================= FILTER BAR ================= */}
+
+      <div className="rounded m-2 border border-white/10 bg-[#111] p-4 mb-6">
+
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+          {/* LEFT */}
+          <div className="flex items-center gap-4 flex-wrap">
+
+            <p className="text-xs text-gray-400">
+              Price Range: ₹0 - ₹3400
+            </p>
+
+            {/* TAGS */}
+
+            <div className="flex gap-2 flex-wrap">
+              {["New", "Trending", "Bestseller", "Limited", "Sale"].map((t) => (
+                <span
+                  key={t}
+                  className="px-3 py-1 text-xs rounded-full border border-white/10 text-gray-400 hover:border-[#22d3ee]/50 hover:text-white cursor-pointer"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* RIGHT */}
+
+          <div className="flex  items-center gap-3">
 
             {/* SORT */}
+
             <select
               value={query.sort}
-              onChange={(e) =>
-                router.push(
-                  `?${new URLSearchParams({
-                    ...query,
-                    sort: e.target.value,
-                  })}`
-                )
-              }
-              className="bg-[#151515] border border-white/10 px-4 py-2 rounded-xl text-sm focus:outline-none focus:border-[#38bdf8]"
+              onChange={(e) => updateQuery("sort", e.target.value)}
+              className="bg-[#0f0f0f] border border-white/10 px-3 py-2 rounded-lg text-xs focus:outline-none focus:border-[#22d3ee]"
             >
-              <option value="">Sort</option>
-              <option value="price_asc">Price: Low → High</option>
-              <option value="price_desc">Price: High → Low</option>
+              <option value="">Featured</option>
+              <option value="price_asc">Price Low → High</option>
+              <option value="price_desc">Price High → Low</option>
             </select>
-          </div>
 
-          {/* ================= ACTIVE FILTERS ================= */}
-          {(query.category || query.size) && (
-            <div className="flex flex-wrap gap-2">
-              {query.category && (
-                <span className="px-3 py-1 text-xs rounded-full bg-[#38bdf8]/10 text-[#38bdf8] border border-[#38bdf8]/30">
-                  {query.category}
-                </span>
-              )}
-              {query.size && (
-                <span className="px-3 py-1 text-xs rounded-full bg-[#38bdf8]/10 text-[#38bdf8] border border-[#38bdf8]/30">
-                  Size: {query.size}
-                </span>
-              )}
-            </div>
-          )}
+            {/* FILTER BUTTON */}
 
-          {/* ================= GRID ================= */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {products.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
+            <button
+              onClick={() => setOpenFilter(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#22d3ee]/40 text-[#22d3ee] text-xs hover:bg-[#22d3ee]/10 transition"
+            >
+              <FunnelIcon className="w-4 h-4" />
+              Filter
+            </button>
 
-          {/* ================= PAGINATION ================= */}
-          <div className="flex justify-center mt-6 gap-2 flex-wrap">
-            {[...Array(meta.totalPages || 1)].map((_, i) => {
-              const active = Number(query.page) === i + 1;
+            {/* GRID / LIST ICON */}
 
-              return (
-                <button
-                  key={i}
-                  onClick={() =>
-                    router.push(
-                      `?${new URLSearchParams({
-                        ...query,
-                        page: i + 1,
-                      })}`
-                    )
-                  }
-                  className={`
-                    px-3 py-1.5 text-sm rounded-lg transition
-                    ${
-                      active
-                        ? "bg-[#38bdf8] text-black shadow-[0_0_10px_rgba(56,189,248,0.5)]"
-                        : "bg-[#151515] text-gray-400 border border-white/10 hover:border-[#38bdf8]/40 hover:text-white"
-                    }
-                  `}
-                >
-                  {i + 1}
-                </button>
-              );
-            })}
+            <button className="p-2 rounded-lg border border-white/10 text-gray-400 hover:text-white">
+              <Squares2X2Icon className="w-4 h-4" />
+            </button>
+
+            <button className="p-2 rounded-lg border border-white/10 text-gray-400 hover:text-white">
+              <Bars3Icon className="w-4 h-4" />
+            </button>
+
           </div>
         </div>
       </div>
 
-      {/* ================= MOBILE FILTER DRAWER ================= */}
-      <SwipeableDrawer open={openFilter} onClose={() => setOpenFilter(false)}>
+      {/* ================= GRID ================= */}
+
+      <div className="grid p-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+
+        {products.map((p) => (
+          <ProductCard key={p.id} product={p} />
+        ))}
+
+      </div>
+
+      {/* ================= PAGINATION ================= */}
+
+      <div className="flex justify-center mt-10 gap-2 flex-wrap">
+
+        {[...Array(meta.totalPages || 1)].map((_, i) => {
+          const active = Number(query.page) === i + 1;
+
+          return (
+            <button
+              key={i}
+              onClick={() =>
+                updateQuery("page", i + 1)
+              }
+              className={`px-3 py-1.5 text-sm rounded-lg transition
+                ${active
+                  ? "bg-[#22d3ee] text-black"
+                  : "bg-[#151515] text-gray-400 border border-white/10 hover:border-[#22d3ee]/40 hover:text-white"
+                }
+              `}
+            >
+              {i + 1}
+            </button>
+          );
+        })}
+
+      </div>
+
+      {/* ================= MOBILE FILTER ================= */}
+
+      <SwipeableDrawer
+        open={openFilter}
+        onClose={() => setOpenFilter(false)}
+      >
         <FilterPanel query={query} />
       </SwipeableDrawer>
+
     </div>
   );
 }

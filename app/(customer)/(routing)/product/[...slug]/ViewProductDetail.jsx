@@ -111,21 +111,8 @@ export default function ProductDetailClient({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-
-          {/* LEFT IMAGE */}
-          <div className="relative">
-
-            <span className="absolute top-4 left-4 z-10 bg-pink-500 text-xs px-3 py-1 rounded-full font-semibold">
-              HOT
-            </span>
-
-            <img
-              src={activeImage?.url}
-              className="w-full h-120 rounded-xl object-contain"
-            />
-
-            {/* thumbnails */}
-            <div className="flex gap-3 mt-4">
+          <div className="flex justify-evenly flex-wrap-reverse gap-6">
+            <div className="flex flex-row md:flex-col gap-3 mt-4">
               {product.mainImage?.map((img, i) => (
                 <img
                   key={i}
@@ -139,9 +126,24 @@ ${activeImage?.url === img.url
                 />
               ))}
             </div>
+            {/* LEFT IMAGE */}
+            <div className="relative">
+
+              <span className="absolute top-4 left-4 z-10 bg-pink-500 text-xs px-3 py-1 rounded-full font-semibold">
+                HOT
+              </span>
+
+              <img
+                src={activeImage?.url}
+                className="w-full h-120 rounded-xl object-contain"
+              />
+
+              {/* thumbnails */}
+
+
+            </div>
 
           </div>
-
 
           {/* RIGHT DETAILS */}
           <div className="space-y-6">
@@ -161,11 +163,11 @@ ${activeImage?.url === img.url
               {/* rating */}
               <div className="flex items-center gap-2 mt-2 text-sm text-gray-400">
 
-              <div className="flex items-center gap-1 text-yellow-400">
-  {[...Array(5)].map((_, i) => (
-    <StarIcon key={i} className="w-4 h-4" />
-  ))}
-</div>
+                <div className="flex items-center gap-1 text-yellow-400">
+                  {[...Array(5)].map((_, i) => (
+                    <StarIcon key={i} className="w-4 h-4" />
+                  ))}
+                </div>
 
                 <span className="text-cyan-400 font-semibold">4.8</span>
 
@@ -318,10 +320,10 @@ Buy Now
 
 
             {/* share */}
-        <p className="flex items-center gap-2 text-xs text-gray-500 cursor-pointer hover:text-white transition">
-  <ShareIcon className="w-4 h-4" />
-  Share this product
-</p>
+            <p className="flex items-center gap-2 text-xs text-gray-500 cursor-pointer hover:text-white transition">
+              <ShareIcon className="w-4 h-4" />
+              Share this product
+            </p>
 
           </div>
 
