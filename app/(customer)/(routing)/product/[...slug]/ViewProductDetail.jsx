@@ -103,94 +103,94 @@ export default function ProductDetailClient({
     }
   };
 
-return (
-<section className="bg-[#05070b] text-white min-h-screen">
+  return (
+    <section className="bg-[#05070b] text-white min-h-screen">
 
-<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-<div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
 
-{/* LEFT IMAGE */}
-<div className="relative">
+          {/* LEFT IMAGE */}
+          <div className="relative">
 
-<span className="absolute top-4 left-4 z-10 bg-pink-500 text-xs px-3 py-1 rounded-full font-semibold">
-HOT
-</span>
+            <span className="absolute top-4 left-4 z-10 bg-pink-500 text-xs px-3 py-1 rounded-full font-semibold">
+              HOT
+            </span>
 
-<img
-src={activeImage?.url}
-className="w-full rounded-xl object-cover"
-/>
+            <img
+              src={activeImage?.url}
+              className="w-full h-120 rounded-xl object-contain"
+            />
 
-{/* thumbnails */}
-<div className="flex gap-3 mt-4">
-{product.mainImage?.map((img,i)=>(
-<img
-key={i}
-src={img.url}
-onClick={()=>setActiveImage(img)}
-className={`w-16 h-16 object-cover rounded-md cursor-pointer border
-${activeImage?.url===img.url
-? "border-cyan-400"
-: "border-white/10 hover:border-cyan-400"
-}`}
- />
-))}
-</div>
+            {/* thumbnails */}
+            <div className="flex gap-3 mt-4">
+              {product.mainImage?.map((img, i) => (
+                <img
+                  key={i}
+                  src={img.url}
+                  onClick={() => setActiveImage(img)}
+                  className={`w-16 h-16 object-cover rounded-md cursor-pointer border
+${activeImage?.url === img.url
+                      ? "border-cyan-400"
+                      : "border-white/10 hover:border-cyan-400"
+                    }`}
+                />
+              ))}
+            </div>
 
-</div>
-
-
-{/* RIGHT DETAILS */}
-<div className="space-y-6">
-
-{/* product title */}
-<div>
-
-<p className="text-green-400 text-xs uppercase tracking-wider">
-Oversized
-</p>
-
-<h1 className="text-3xl md:text-4xl font-bold mt-1">
-{product.name}
-</h1>
-
-{/* rating */}
-<div className="flex items-center gap-2 mt-2 text-sm text-gray-400">
-
-<div className="flex text-yellow-400">
-★★★★★
-</div>
-
-<span className="text-cyan-400 font-semibold">4.8</span>
-
-<span>(234 reviews)</span>
-
-</div>
-
-</div>
+          </div>
 
 
-{/* PRICE */}
-<div className="flex items-center gap-4">
+          {/* RIGHT DETAILS */}
+          <div className="space-y-6">
 
-<span className="text-3xl font-bold">
-₹{price}
-</span>
+            {/* product title */}
+            <div>
 
-<span className="line-through text-gray-500">
-₹{originalPrice}
-</span>
+              <p className="text-green-400 text-xs uppercase tracking-wider">
+                Oversized
+              </p>
 
-<span className="bg-green-500/20 text-green-400 text-xs px-3 py-1 rounded">
-32% OFF
-</span>
+              <h1 className="text-3xl md:text-4xl font-bold mt-1">
+                {product.name}
+              </h1>
 
-</div>
+              {/* rating */}
+              <div className="flex items-center gap-2 mt-2 text-sm text-gray-400">
+
+                <div className="flex text-yellow-400">
+                  ★★★★★
+                </div>
+
+                <span className="text-cyan-400 font-semibold">4.8</span>
+
+                <span>(234 reviews)</span>
+
+              </div>
+
+            </div>
 
 
-{/* COLOR SELECT */}
-{/* <div>
+            {/* PRICE */}
+            <div className="flex items-center gap-4">
+
+              <span className="text-3xl font-bold">
+                ₹{price}
+              </span>
+
+              <span className="line-through text-gray-500">
+                ₹{originalPrice}
+              </span>
+
+              <span className="bg-green-500/20 text-green-400 text-xs px-3 py-1 rounded">
+                32% OFF
+              </span>
+
+            </div>
+
+
+            {/* COLOR SELECT */}
+            {/* <div>
 
 <p className="text-gray-400 text-sm mb-2">
 COLOR: SELECT
@@ -209,127 +209,127 @@ COLOR: SELECT
 </div> */}
 
 
-{/* SIZE */}
-{product.variants?.length > 0 && (
-<div>
+            {/* SIZE */}
+            {product.variants?.length > 0 && (
+              <div>
 
-<div className="flex justify-between mb-2">
+                <div className="flex justify-between mb-2">
 
-<p className="text-gray-400 text-sm">
-SIZE: SELECT
-</p>
+                  <p className="text-gray-400 text-sm">
+                    SIZE: SELECT
+                  </p>
 
-<span className="text-xs text-gray-500 cursor-pointer">
-Size Guide
-</span>
+                  <span className="text-xs text-gray-500 cursor-pointer">
+                    Size Guide
+                  </span>
 
-</div>
+                </div>
 
-<div className="flex gap-3 flex-wrap">
+                <div className="flex gap-3 flex-wrap">
 
-{product.variants.map((variant)=>{
+                  {product.variants.map((variant) => {
 
-const isSelected = selectedVariant?.id === variant.id
-const isOut = variant.stock_qty <=0
+                    const isSelected = selectedVariant?.id === variant.id
+                    const isOut = variant.stock_qty <= 0
 
-return(
+                    return (
 
-<button
-key={variant.id}
-disabled={isOut}
-onClick={()=>setSelectedVariant(variant)}
-className={`px-4 py-2 text-sm rounded-md border transition
+                      <button
+                        key={variant.id}
+                        disabled={isOut}
+                        onClick={() => setSelectedVariant(variant)}
+                        className={`px-4 py-2 text-sm rounded-md border transition
 
 ${isSelected
-? "border-cyan-400 text-cyan-400"
-: "border-white/10 hover:border-cyan-400"}
+                            ? "border-cyan-400 text-cyan-400"
+                            : "border-white/10 hover:border-cyan-400"}
 
 ${isOut ? "opacity-40 cursor-not-allowed" : ""}
 `}
->
+                      >
 
-{variant.size}
+                        {variant.size}
 
-</button>
+                      </button>
 
-)
+                    )
 
-})}
+                  })}
 
-</div>
+                </div>
 
-</div>
-)}
-
-
-{/* QTY */}
-<div className="flex items-center gap-3">
-
-<p className="text-sm text-gray-400">
-QTY:
-</p>
-
-<div className="flex items-center border border-white/10 rounded-md overflow-hidden">
-
-<button
-onClick={()=>setQty(q=>Math.max(1,q-1))}
-className="px-3 py-2 hover:bg-white/5"
->
--
-</button>
-
-<span className="px-4">{qty}</span>
-
-<button
-onClick={()=>setQty(q=>q+1)}
-className="px-3 py-2 hover:bg-white/5"
->
-+
-</button>
-
-</div>
-
-</div>
+              </div>
+            )}
 
 
-{/* BUTTONS */}
-<div className="flex gap-4 pt-2">
+            {/* QTY */}
+            <div className="flex items-center gap-3">
 
-<button
-onClick={handleAddToCart}
-disabled={isAdding}
-className="flex-1 h-12 rounded-lg border border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black transition font-semibold"
->
-{isAdding ? "Adding..." : "Add To Cart"}
-</button>
+              <p className="text-sm text-gray-400">
+                QTY:
+              </p>
 
-{/* <button
+              <div className="flex items-center border border-white/10 rounded-md overflow-hidden">
+
+                <button
+                  onClick={() => setQty(q => Math.max(1, q - 1))}
+                  className="px-3 py-2 hover:bg-white/5"
+                >
+                  -
+                </button>
+
+                <span className="px-4">{qty}</span>
+
+                <button
+                  onClick={() => setQty(q => q + 1)}
+                  className="px-3 py-2 hover:bg-white/5"
+                >
+                  +
+                </button>
+
+              </div>
+
+            </div>
+
+
+            {/* BUTTONS */}
+            <div className="flex gap-4 pt-2">
+
+              <button
+                onClick={handleAddToCart}
+                disabled={isAdding}
+                className="flex-1 h-12 rounded-lg border border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black transition font-semibold"
+              >
+                {isAdding ? "Adding..." : "Add To Cart"}
+              </button>
+
+              {/* <button
 className="flex-1 h-12 rounded-lg bg-pink-500 hover:bg-pink-600 transition font-semibold"
 >
 Buy Now
 </button> */}
 
-</div>
+            </div>
 
 
-{/* share */}
-<p className="text-xs text-gray-500 cursor-pointer">
-Share this product
-</p>
+            {/* share */}
+            <p className="text-xs text-gray-500 cursor-pointer">
+              Share this product
+            </p>
 
-</div>
+          </div>
 
-</div>
+        </div>
 
-<ProductInfoTabs />
+        <ProductInfoTabs />
 
-{/* related */}
-<div className="mt-20">
-<RelatedProduct relatedProducts={relatedProducts}/>
-</div>
+        {/* related */}
+        <div className="mt-20">
+          <RelatedProduct relatedProducts={relatedProducts} />
+        </div>
 
-</div>
+      </div>
 
-</section>
-)
+    </section>
+  )
 }

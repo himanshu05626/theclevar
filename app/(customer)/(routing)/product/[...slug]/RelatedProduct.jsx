@@ -2,102 +2,158 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRef } from "react";
+
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
+
+import "swiper/css";
+import "swiper/css/navigation";
 
 export default function RelatedProduct({ relatedProducts = [] }) {
+  const swiperRef = useRef(null);
+
   if (!relatedProducts.length) return null;
 
   return (
-    <section className="bg-[#0f0f0f] py-14">
+    <section className="bg-[#0f0f0f] py-16">
       <div className="mx-auto max-w-7xl px-6">
 
-        {/* TITLE */}
-        <h2 className="
-          mb-10 text-center text-3xl font-extrabold
-          text-white tracking-wide
-        ">
-          Related Products
-        </h2>
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-12">
 
-        {/* GRID */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {relatedProducts.map((product, index) => (
-            <div
-              key={product.id}
-              className="
-                rounded-xl
-                bg-[#1a1a1a]
-                border border-white/10
-                shadow-[0_4px_30px_rgba(0,0,0,0.6)]
-                transition-all duration-300
-                hover:shadow-[0_0_25px_rgba(56,189,248,0.25)]
-                hover:-translate-y-1
-              "
-            >
-              {/* IMAGE */}
-              <Link href={`/product/${product.slug}`}>
-                <div className="relative h-72 w-full overflow-hidden rounded-t-xl">
-                  <Image
-                    src={
-                      product.images?.[0]?.image_url ||
-                      "/images/not-found.png"
-                    }
-                    alt={product.name}
-                    fill
-                    className="object-cover transition duration-300 hover:scale-105"
-                    priority={index === 0}
-                  />
-                </div>
-              </Link>
+          <h2 className="text-3xl font-extrabold tracking-widest text-white">
+            YOU MIGHT ALSO LIKE
+          </h2>
 
-              {/* CONTENT */}
-              <div className="p-4 flex flex-col gap-3">
+          {/* Desktop Navigation */}
+          {relatedProducts.length > 4 && (
+            <div className="hidden lg:flex gap-3">
 
-                {/* NAME */}
-                <h3 className="
-                  min-h-[48px]
-                  text-sm font-medium
-                  text-[#d1d5db]
-                ">
-                  {product.name}
-                </h3>
+              <button
+                onClick={() => swiperRef.current?.slidePrev()}
+                className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10"
+              >
+                ←
+              </button>
 
-                {/* PRICE */}
-                <div>
-                  <p className="
-                    text-lg font-bold
-                    text-white
-                  ">
-                    ₹{product.regular_price}
-                  </p>
-                  <p className="text-xs text-[#9ca3af]">
-                    incl. GST
-                  </p>
-                </div>
+              <button
+                onClick={() => swiperRef.current?.slideNext()}
+                className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10"
+              >
+                →
+              </button>
 
-                {/* BUTTON */}
-                <Link
-                  href={`/product/${product.slug}`}
-                  className="
-                    h-10 w-full flex items-center justify-center
-                    rounded-lg
-                    bg-[#0ea5e9]
-                    text-sm font-semibold text-white
-                    transition-all duration-200
-
-                    shadow-[0_0_15px_rgba(14,165,233,0.35)]
-
-                    hover:bg-[#38bdf8]
-                    hover:scale-[1.02]
-                  "
-                >
-                  View Product
-                </Link>
-
-              </div>
             </div>
-          ))}
+          )}
+
         </div>
+
+        {/* MOBILE SWIPER */}
+        <div className="lg:hidden">
+
+          <Swiper
+            spaceBetween={16}
+            slidesPerView={1.2}
+            onSwiper={(swiper) => (swiperRef.current = swiper)}
+          >
+
+            {relatedProducts.map((product, index) => (
+              <SwiperSlide key={product.id}>
+                <ProductCard product={product} index={index} />
+              </SwiperSlide>
+            ))}
+
+          </Swiper>
+
+        </div>
+
+        {/* DESKTOP GRID */}
+        <div className="hidden lg:grid gap-6 grid-cols-4">
+
+          {relatedProducts.slice(0, 8).map((product, index) => (
+            <ProductCard key={product.id} product={product} index={index} />
+          ))}
+
+        </div>
+
       </div>
     </section>
+  );
+}
+
+/* PRODUCT CARD */
+
+function ProductCard({ product, index }) {
+  return (
+    <div
+      className="
+      group
+      rounded-2xl
+      bg-[#0b0b0b]
+      border border-white/10
+      overflow-hidden
+      transition-all duration-300
+      hover:-translate-y-1
+      hover:shadow-[0_0_25px_rgba(56,189,248,0.25)]
+    "
+    >
+
+      {/* IMAGE */}
+      <Link href={`/product/${product.slug}`}>
+        <div className="relative aspect-[4/5] overflow-hidden">
+
+          <Image
+            src={
+              product.images?.[0]?.image_url ||
+              "/images/not-found.png"
+            }
+            alt={product.name}
+            fill
+            priority={index === 0}
+            className="object-cover transition duration-500 group-hover:scale-110"
+          />
+
+          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition" />
+
+          <span className="absolute top-3 left-3 text-[10px] font-bold px-2 py-1 rounded-md bg-cyan-400 text-black">
+            BESTSELLER
+          </span>
+
+        </div>
+      </Link>
+
+      {/* CONTENT */}
+      <div className="p-4 space-y-2">
+
+        <p className="text-[10px] uppercase tracking-widest text-cyan-400">
+          {product.category?.name || "OVERSIZED"}
+        </p>
+
+        <h3 className="text-sm font-semibold text-white leading-tight line-clamp-2">
+          {product.name}
+        </h3>
+
+        <div className="flex items-center gap-1 text-yellow-400 text-xs">
+          ★★★★★
+          <span className="text-gray-400 ml-1">(52)</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+
+          <span className="text-white font-bold text-sm">
+            ₹{product.price || product.regular_price}
+          </span>
+
+          {product.sale_price && (
+            <span className="text-gray-500 text-xs line-through">
+              ₹{product.sale_price}
+            </span>
+          )}
+
+        </div>
+
+      </div>
+    </div>
   );
 }
