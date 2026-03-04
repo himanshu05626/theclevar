@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { ArrowRightIcon } from "@heroicons/react/24/solid";
 
 export default function Home() {
   const container = {
@@ -76,12 +77,14 @@ export default function Home() {
           variants={item}
           className="mt-10 flex items-center justify-center gap-4 flex-wrap"
         >
-          <Link
-            href="/shop"
-            className="px-8 py-3 rounded-xl bg-cyan-400 text-black font-semibold hover:bg-cyan-300 transition shadow-[0_0_25px_rgba(34,211,238,0.5)]"
-          >
-            SHOP NOW →
-          </Link>
+        <Link
+  href="/shop"
+  className="group inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-cyan-400 text-black font-semibold hover:bg-cyan-300 transition shadow-[0_0_25px_rgba(34,211,238,0.5)]"
+>
+  SHOP NOW
+
+  <ArrowRightIcon className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
+</Link>
 
           <Link
             href="/custom"
