@@ -8,56 +8,64 @@ import gsap from "gsap";
 export default function Home() {
   const heroRef = useRef(null);
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+useEffect(() => {
+  const ctx = gsap.context(() => {
 
-      tl.from(".hero-tag", {
-        opacity: 0,
-        y: 30,
-        duration: 0.6,
-      })
-        .from(
-          ".hero-title",
-          {
-            opacity: 0,
-            y: 50,
-            duration: 0.8,
-          },
-          "-=0.3"
-        )
-        .from(
-          ".hero-desc",
-          {
-            opacity: 0,
-            y: 30,
-            duration: 0.7,
-          },
-          "-=0.4"
-        )
-        .from(
-          ".hero-buttons",
-          {
-            opacity: 0,
-            y: 20,
-            duration: 0.6,
-          },
-          "-=0.4"
-        )
-        .from(
-          ".hero-stats div",
-          {
-            opacity: 0,
-            y: 20,
-            stagger: 0.2,
-            duration: 0.5,
-          },
-          "-=0.3"
-        );
-    }, heroRef);
+    // Hide elements first
+    gsap.set(
+      [".hero-tag", ".hero-title", ".hero-desc", ".hero-buttons", ".hero-stats div"],
+      { opacity: 0, y: 40 }
+    );
 
-    return () => ctx.revert();
-  }, []);
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+    tl.to(".hero-tag", {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+    })
+      .to(
+        ".hero-title",
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+        },
+        "-=0.3"
+      )
+      .to(
+        ".hero-desc",
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+        },
+        "-=0.4"
+      )
+      .to(
+        ".hero-buttons",
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+        },
+        "-=0.4"
+      )
+      .to(
+        ".hero-stats div",
+        {
+          opacity: 1,
+          y: 0,
+          stagger: 0.2,
+          duration: 0.5,
+        },
+        "-=0.3"
+      );
+
+  }, heroRef);
+
+  return () => ctx.revert();
+}, []);
 
   return (
     <section
