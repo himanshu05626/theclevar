@@ -1,45 +1,71 @@
+import Image from "next/image";
 import Link from "next/link";
 
-export default function LetsWorkTogether() {
+export default function CustomDesignSection() {
   return (
-    <section className="relative overflow-hidden bg-[#0f0f0f] py-20">
+    <section className="py-16 px-2 md:px-6">
+      <div className="max-w-7xl mx-auto">
 
-      {/* 🔥 Glow Background */}
-      <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-[#38bdf8]/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-[#0ea5e9]/20 blur-3xl" />
+        {/* CARD */}
+        <div className="relative overflow-hidden rounded-2xl border border-cyan-400/20 
+        bg-gradient-to-br from-[#020617] via-[#020617] to-[#1a0015] p-8 md:p-14">
 
-      <div className="relative mx-auto max-w-4xl px-6 text-center">
+          {/* glow */}
+          <div className="pointer-events-none absolute -top-20 -right-20 h-72 w-72 rounded-full bg-cyan-500/20 blur-3xl"/>
+          <div className="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-pink-500/20 blur-3xl"/>
 
-        {/* HEADING */}
-        <h2 className="text-2xl md:text-4xl font-extrabold tracking-tight text-white">
-          Design Your Perfect Fit
-        </h2>
+          <div className="relative grid md:grid-cols-2 gap-12 items-center">
 
-        {/* SUBTEXT */}
-        <p className="mx-auto mt-5 max-w-2xl text-xs md:text-base leading-relaxed text-gray-400">
-          From concept to stitch — we craft outfits tailored to your style.
-          <br />
-          Whether it’s custom dresses, bulk orders, or unique designs,
-          we bring your vision to life with precision and speed.
-        </p>
+            {/* LEFT CONTENT */}
+            <div className="text-center md:text-left">
 
-        {/* CTA */}
-        <Link
-          href="/contact-us"
-          className="group mt-10 inline-flex items-center gap-3 rounded-xl border border-white/10 bg-gradient-to-r from-[#0ea5e9] to-[#0284c7] px-7 py-3 text-sm font-semibold text-white transition-all duration-300 hover:shadow-[0_0_25px_rgba(56,189,248,0.35)]"
-        >
-          Start Your Custom Order
+              <p className="text-green-400 text-xs tracking-widest font-semibold">
+                MAKE IT YOURS
+              </p>
 
-          <span className="transition-transform duration-300 group-hover:translate-x-1">
-            →
-          </span>
-        </Link>
+              <h2 className="mt-4 text-3xl md:text-5xl font-extrabold text-white leading-tight">
+                DESIGN YOUR
+                <br />
+                <span className="text-cyan-400">
+                  OWN PIECE
+                </span>
+              </h2>
 
-        {/* OPTIONAL SMALL TRUST LINE */}
-        <p className="mt-6 text-xs text-gray-500">
-          Premium fabrics • Custom sizing • Fast delivery
-        </p>
+              <p className="mt-6 text-gray-400 max-w-md mx-auto md:mx-0 text-sm md:text-base leading-relaxed">
+                Upload your design, choose your garment, pick your colors.
+                We print and ship within 5–7 business days.
+                Minimum 1 piece. Maximum flex.
+              </p>
 
+              <Link
+                href="/custom"
+                className="inline-flex items-center gap-2 mt-8 px-7 py-3 
+                rounded-xl text-white font-semibold text-sm
+                bg-gradient-to-r from-pink-500 to-fuchsia-600
+                hover:shadow-[0_0_25px_rgba(236,72,153,0.5)]
+                transition-all duration-300"
+              >
+                START DESIGNING →
+              </Link>
+            </div>
+
+            {/* RIGHT IMAGE */}
+            <div className="relative">
+
+              <div className="rounded-xl  overflow-hidden">
+                <img
+                  src="/model/custom-shirt.jpg"
+                  alt="Custom T-Shirt"
+                  width={300}
+                  height={200}
+                  className=" w-full h-38 md:h-100 object-cover"
+                />
+              </div>
+
+            </div>
+
+          </div>
+        </div>
       </div>
     </section>
   );

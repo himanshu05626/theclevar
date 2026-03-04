@@ -278,11 +278,12 @@ const closeModal = () => {
   };
 
   return (
-    <section className="bg-[#0f0f0f] py-14">
+     <section className="border-b border-white/10 py-12">
+
       <div className="max-w-7xl mx-auto px-4">
 
         <h2 className="text-center text-2xl font-bold text-white mb-10">
-          Best Selling Products
+      NEW ARRIVALS
         </h2>
 
         {/* MOBILE SWIPER */}

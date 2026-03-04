@@ -1,68 +1,73 @@
-import { MapIcon, PresentationChartBarIcon, TruckIcon, UserIcon } from "@heroicons/react/24/outline";
-import Image from "next/image";
+import {
+  TruckIcon,
+  ShieldCheckIcon,
+  ArrowPathIcon,
+  BoltIcon,
+} from "@heroicons/react/24/outline";
 
 export default function ServiceHighlights() {
+  const items = [
+    {
+      icon: TruckIcon,
+      title: "FREE SHIPPING",
+      desc: "On orders above ₹999",
+      color: "text-cyan-400 border-cyan-400/30 bg-cyan-400/10",
+    },
+    {
+      icon: ShieldCheckIcon,
+      title: "PREMIUM QUALITY",
+      desc: "240–380 GSM fabrics",
+      color: "text-pink-400 border-pink-400/30 bg-pink-400/10",
+    },
+    {
+      icon: ArrowPathIcon,
+      title: "7-DAY RETURNS",
+      desc: "Hassle-free returns",
+      color: "text-green-400 border-green-400/30 bg-green-400/10",
+    },
+    {
+      icon: BoltIcon,
+      title: "FAST PRINTS",
+      desc: "5–7 day custom delivery",
+      color: "text-yellow-400 border-yellow-400/30 bg-yellow-400/10",
+    },
+  ];
+
   return (
-    <section className="bg-gradient-to-r from-[#0f0f0f] to-[#111827] py-12">
-      <div className="mx-auto max-w-7xl px-6">
+    <section className=" py-16">
+      <div className="max-w-7xl mx-auto px-6">
 
-        <div className="grid items-center gap-10 md:grid-cols-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 text-center">
 
-          {/* ITEM 1 */}
-          <div className="flex flex-col items-center text-center">
+          {items.map((item, i) => {
+            const Icon = item.icon;
 
-           <TruckIcon color="white" className="h-10 w-10 mb-2" />
+            return (
+              <div key={i} className="flex flex-col items-center">
 
-            <h4 className="font-semibold text-white">
-              Fast Dispatch
-            </h4>
+                {/* ICON BOX */}
+                <div
+                  className={`w-14 h-14 flex items-center justify-center rounded-xl border ${item.color}`}
+                >
+                  <Icon className="h-6 w-6" />
+                </div>
 
-            <p className="mt-1 text-sm text-gray-300">
-              Ready to ship with quick processing
-            </p>
+                {/* TITLE */}
+                <h4 className="mt-4 text-white text-sm tracking-widest font-semibold">
+                  {item.title}
+                </h4>
 
-          </div>
+                {/* DESCRIPTION */}
+                <p className="text-gray-400 text-sm mt-1">
+                  {item.desc}
+                </p>
 
-          {/* DIVIDER */}
-          <div className="hidden md:flex justify-center">
-            <div className="h-14 w-[1px] bg-gradient-to-b from-transparent via-sky-500 to-transparent opacity-60" />
-          </div>
-
-          {/* ITEM 2 */}
-          <div className="flex flex-col items-center text-center">
-
-           <MapIcon color="white" className="h-10 w-10 mb-2"/>
-
-            <h4 className="font-semibold text-white">
-              PAN India Delivery
-            </h4>
-
-            <p className="mt-1 text-sm text-gray-300">
-              Fast & reliable shipping across India
-            </p>
-
-          </div>
-
-          {/* DIVIDER */}
-          <div className="hidden md:flex justify-center">
-            <div className="h-14 w-[1px] bg-gradient-to-b from-transparent via-sky-500 to-transparent opacity-60" />
-          </div>
-
-          {/* ITEM 3 */}
-          <div className="flex flex-col items-center text-center">
-
-           <UserIcon color="white" className="h-10 w-10 mb-2" />
-            <h4 className="font-semibold text-white">
-              Friendly Support
-            </h4>
-
-            <p className="mt-1 text-sm text-gray-300">
-              We’re here to help anytime
-            </p>
-
-          </div>
+              </div>
+            );
+          })}
 
         </div>
+
       </div>
     </section>
   );

@@ -17,6 +17,7 @@ import {
   ShareIcon,
 } from "@heroicons/react/24/solid";
 import ProductInfoTabs from "./ProductInfoTabs";
+import ServiceHighlights from "@/app/(customer)/customer/components/home/ServiceHighlights";
 
 export default function ProductDetailClient({
   product,
@@ -330,7 +331,7 @@ Buy Now
         </div>
 
         <ProductInfoTabs />
-
+        <ServiceHighlights />
         {/* related */}
         <div className="mt-20">
           <RelatedProduct relatedProducts={relatedProducts} />

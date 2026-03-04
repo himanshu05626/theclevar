@@ -10,7 +10,7 @@ export default function Banner({ products }) {
   const topProducts = products.slice(0, 4);
 
   return (
-    <section className="bg-[#0f0f0f] py-12">
+    <section className="border border-white/10 py-12">
       <div className="mx-auto max-w-7xl px-6">
         {/* TITLE */}
         <div className="mb-10 text-center">
