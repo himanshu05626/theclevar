@@ -109,9 +109,14 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
           <span className="block w-6 h-[2px] bg-white mb-1" />
           <span className="block w-6 h-[2px] bg-white" />
         </button>
-        <div className="cursor-pointer" onClick={() => router.push("/")}>
-          <Image src="/images/logo4.png" alt="The Clevar" width={160} height={60} />
-        </div>
+      <div className="cursor-pointer" onClick={() => router.push("/")}>
+  <img
+    src="/images/logo4.png"
+    alt="The Clevar"
+    width="160"
+    height="60"
+  />
+</div>
 
 
         {/* ================= DESKTOP MENU ================= */}
