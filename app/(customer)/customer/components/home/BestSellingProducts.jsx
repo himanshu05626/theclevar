@@ -7,22 +7,16 @@ import SwipeableDrawer from "@/app/admin/UI/common/SwipeableDrawer";
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
 
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
-
-import {
-  ShoppingBagIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/solid";
+import { XMarkIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 
 export default function BestSellingProducts({ products }) {
   const { reloadCart, cartItems } = useCart();
   const { showToast } = useToast();
-  const [selectedSize, setSelectedSize] = useState(null);
 
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
   const [qty, setQty] = useState(1);
   const [loading, setLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -38,7 +32,7 @@ export default function BestSellingProducts({ products }) {
   /* ================= CART QTY ================= */
   const getCartQty = useCallback(
     (productId) => {
-      if (Array.isArray(cartItems) && cartItems.length > 0) {
+      if (Array.isArray(cartItems)) {
         const item = cartItems.find(
           (i) => i.product_list_id === productId
         );
@@ -59,7 +53,7 @@ export default function BestSellingProducts({ products }) {
   const openModal = (product) => {
     setSelectedProduct(product);
     setSelectedVariant(product.variants?.[0]?.id || null);
-    setSelectedSize(product.variants?.[0]?.size || null);
+    setSelectedSize(product.variants?.[0]?.id || null);
     setQty(1);
   };
 
@@ -81,9 +75,7 @@ export default function BestSellingProducts({ products }) {
 
       const res = await fetch("/api/cart/add", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           productId: selectedProduct.id,
           variantId: selectedVariant,
@@ -95,7 +87,6 @@ export default function BestSellingProducts({ products }) {
 
       reloadCart();
       showToast({ type: "success", message: "Added to Bag" });
-
       closeModal();
     } catch {
       showToast({ type: "error", message: "Something went wrong" });
@@ -104,242 +95,203 @@ export default function BestSellingProducts({ products }) {
     }
   };
 
-  /* ================= CONTENT ================= */
+  /* ================= TAG COLORS ================= */
+  const tagStyles = {
+    HOT: "bg-pink-500 text-black",
+    BESTSELLER: "bg-cyan-400 text-black",
+    NEW: "bg-green-400 text-black",
+    LIMITED: "bg-yellow-400 text-black",
+  };
+
+  /* ================= MODAL CONTENT ================= */
   const Content = () => (
     <div className="space-y-5 p-4">
-
-      {/* PRODUCT */}
       <div className="flex gap-3">
         <img
-          src={selectedProduct?.images?.[0]?.image_url || "/images/not-found.png"}
+          src={selectedProduct?.images?.[0]?.image_url}
           className="w-20 h-20 rounded-xl object-cover border border-white/10"
         />
 
         <div className="flex-1">
-          <h3 className="text-sm font-semibold text-white line-clamp-1">
+          <h3 className="text-sm font-semibold text-white">
             {selectedProduct?.name}
           </h3>
 
-          <p className="text-xs text-gray-400 line-clamp-2">
-            {selectedProduct?.description || "Premium quality product"}
-          </p>
+          <div className="text-yellow-400 text-xs">★★★★★</div>
 
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-[#38bdf8] font-semibold text-sm">
+          <div className="flex gap-2 mt-1">
+            <span className="text-cyan-400 font-semibold">
               ₹{selectedProduct?.price}
             </span>
-
-            {selectedProduct?.regular_price && (
-              <>
-                <span className="text-xs text-gray-500 line-through">
-                  ₹{selectedProduct?.regular_price}
-                </span>
-
-                <span className="text-xs text-green-400">
-                  {Math.round(
-                    ((selectedProduct?.regular_price - selectedProduct?.price) /
-                      selectedProduct?.regular_price) *
-                    100
-                  )}
-                  % OFF
-                </span>
-              </>
-            )}
           </div>
         </div>
       </div>
 
       {/* SIZE */}
-      <div>
-        <h4 className="text-sm font-medium text-white mb-2">
-          Select Size
-        </h4>
-
-        <div className="flex flex-wrap gap-2">
-          {selectedProduct?.variants?.map((v) => {
-            const active = selectedSize === v.id;
-
-            return (
-              <button
-                key={v.id}
-                onClick={() => setSelectedSize(v.id)}
-                className={`px-4 py-2 rounded-lg text-sm border transition-all duration-300
-                  ${active
-                    ? "bg-[#38bdf8] text-black border-[#38bdf8] shadow-[0_0_12px_rgba(56,189,248,0.5)] scale-105"
-                    : "border-white/10 text-gray-400 hover:border-[#38bdf8]/50 hover:text-white"
-                  }
-                `}
-              >
-                {v.size}
-              </button>
-            );
-          })}
-        </div>
+      <div className="flex flex-wrap gap-2">
+        {selectedProduct?.variants?.map((v) => (
+          <button
+            key={v.id}
+            onClick={() => {
+              setSelectedSize(v.id);
+              setSelectedVariant(v.id);
+            }}
+            className={`px-4 py-2 rounded-lg text-sm border transition
+              ${
+                selectedSize === v.id
+                  ? "bg-cyan-400 text-black border-cyan-400"
+                  : "border-white/10 text-gray-400"
+              }`}
+          >
+            {v.size}
+          </button>
+        ))}
       </div>
 
       {/* QTY */}
-      <div>
-        <h4 className="text-sm font-medium text-white mb-2">
-          Quantity
-        </h4>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => setQty((p) => Math.max(1, p - 1))}
+          className="w-9 h-9 bg-[#1f2937] rounded-lg text-white"
+        >
+          -
+        </button>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setQty((prev) => Math.max(1, prev - 1))}
-            className="w-9 h-9 rounded-lg bg-[#1f2937] text-white text-lg"
-          >
-            -
-          </button>
+        <span className="text-white">{qty}</span>
 
-          <span className="text-white font-semibold">{qty}</span>
-
-          <button
-            onClick={() => setQty((prev) => prev + 1)}
-            className="w-9 h-9 rounded-lg bg-[#1f2937] text-white text-lg"
-          >
-            +
-          </button>
-        </div>
+        <button
+          onClick={() => setQty((p) => p + 1)}
+          className="w-9 h-9 bg-[#1f2937] rounded-lg text-white"
+        >
+          +
+        </button>
       </div>
 
       {/* CTA */}
       <button
         onClick={handleAddToCart}
         disabled={!selectedSize || loading}
-        className={`w-full py-3 rounded-xl text-sm font-semibold transition-all duration-300
-          ${selectedSize
-            ? "bg-gradient-to-r from-[#0ea5e9] to-[#0284c7] text-white hover:shadow-[0_0_25px_rgba(56,189,248,0.35)]"
-            : "bg-[#1f2937] text-gray-500 cursor-not-allowed"
-          }
-        `}
+        className={`w-full py-3 rounded-xl font-semibold transition
+          ${
+            selectedSize
+              ? "bg-gradient-to-r from-cyan-400 to-blue-500 text-black"
+              : "bg-[#1f2937] text-gray-500"
+          }`}
       >
-        {loading
-          ? "Adding..."
-          : selectedSize
-            ? "Add to Cart"
-            : "Select Size First"}
+        {loading ? "Adding..." : "Add to Cart"}
       </button>
     </div>
   );
+
   return (
     <section className="bg-[#0f0f0f] py-14">
       <div className="max-w-7xl mx-auto px-4">
 
-  <h2 className="text-center text-2xl font-bold text-white mb-10">
-    Best Selling Products
-  </h2>
+        <h2 className="text-center text-2xl font-bold text-white mb-10">
+          Best Selling Products
+        </h2>
 
-  {/* GRID */}
-  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {products.map((product) => {
+            const qtyInCart = getCartQty(product.id);
 
-    {products.map((product) => {
-      const qtyInCart = getCartQty(product.id);
-
-      return (
-        <div
-          key={product.id}
-          className="
-            group flex flex-col
-            bg-[#151515]
-            rounded-2xl
-            border border-white/10
-            overflow-hidden
-            transition-all duration-300
-            hover:border-cyan-400/40
-            hover:shadow-[0_0_25px_rgba(34,211,238,0.15)]
-          "
-        >
-
-          {/* IMAGE */}
-          <Link
-          href={`/product/${product.slug}`}
-            className="relative w-full aspect-square cursor-pointer overflow-hidden"
-          >
-            <Image
-              src={product.images?.[0]?.image_url}
-              fill
-              className="
-                object-cover
-                transition-transform duration-500
-                group-hover:scale-105
-              "
-              alt={product.name}
-            />
-
-            {/* Glow overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition" />
-          </Link>
-
-          {/* CONTENT */}
-          <div className="flex flex-col flex-1 p-4">
-
-            {/* TITLE */}
-            <h3 className="text-sm font-semibold text-white line-clamp-1">
-              {product.name}
-            </h3>
-
-            {/* DESC */}
-            <p className="text-xs text-gray-400 line-clamp-2 mt-1">
-              {product.description || "Premium quality product"}
-            </p>
-
-            {/* PRICE */}
-            <div className="mt-3 flex items-center gap-2">
-              <span className="text-lg font-bold text-cyan-400">
-                ₹{product.regular_price}
-              </span>
-            </div>
-
-            {/* CART INFO */}
-            {qtyInCart > 0 && (
-              <span className="mt-1 text-xs text-cyan-300">
-                In Cart: {qtyInCart}
-              </span>
-            )}
-
-            {/* PUSH BUTTON TO BOTTOM */}
-            <div className="mt-auto pt-4">
-
-              <button
-                onClick={() => openModal(product)}
-                className="
-                  w-full h-10
-                  rounded-xl
-                  text-sm font-semibold
-                  bg-gradient-to-r from-[#0ea5e9] to-[#0284c7]
-                  text-white
-                  transition-all duration-300
-                  hover:shadow-[0_0_20px_rgba(56,189,248,0.4)]
-                  active:scale-95
-                "
+            return (
+              <div
+                key={product.id}
+                className="group rounded-2xl bg-[#0c0c0c] border border-white/10 overflow-hidden"
               >
-                Add to Cart
-              </button>
+                {/* IMAGE */}
+                <div className="relative aspect-square overflow-hidden">
 
-            </div>
-          </div>
+                  <Link href={`/product/${product.slug}`}>
+                    <Image
+                      src={product.images?.[0]?.image_url}
+                      fill
+                      className="object-cover md:group-hover:scale-105 transition"
+                      alt={product.name}
+                    />
+                  </Link>
+
+                  <div className="absolute inset-0 bg-black/30 md:group-hover:bg-black/50 transition pointer-events-none" />
+
+                  {/* TAG */}
+                  <span className={`absolute top-3 left-3 text-[10px] px-2 py-1 rounded-md font-bold z-10 ${tagStyles["BESTSELLER"]}`}>
+                    BESTSELLER
+                  </span>
+
+                  {/* DESKTOP BUTTON */}
+                  <button
+                    onClick={() => openModal(product)}
+                    className="hidden md:flex absolute bottom-4 left-1/2 -translate-x-1/2 
+                    bg-cyan-400 text-black text-xs font-semibold px-4 py-2 rounded-full
+                    shadow-[0_0_20px_rgba(34,211,238,0.4)]
+                    opacity-0 group-hover:opacity-100 transition"
+                  >
+                    ADD TO CART
+                  </button>
+                </div>
+
+                {/* MOBILE BUTTON */}
+                <div className="md:hidden p-3">
+                  <button
+                    onClick={() => openModal(product)}
+                    className="w-full h-10 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 text-black text-sm font-semibold active:scale-95 transition"
+                  >
+                    Add to Cart
+                  </button>
+                </div>
+
+                {/* CONTENT */}
+                <div className="px-4 pb-4 flex flex-col gap-1">
+                  <span className="text-xs text-cyan-400 uppercase">
+                    {product.category?.name || "HOODIE"}
+                  </span>
+
+                  <h3 className="text-white text-sm font-semibold">
+                    {product.name}
+                  </h3>
+
+                  <div className="text-yellow-400 text-xs">
+                    ★★★★★ <span className="text-gray-400">(234)</span>
+                  </div>
+
+                  <div className="flex gap-2 items-center">
+                    <span className="text-white font-bold">
+                      ₹{product.price || product.regular_price}
+                    </span>
+
+                    {product.regular_price && (
+                      <span className="text-gray-500 text-xs line-through">
+                        ₹{product.regular_price}
+                      </span>
+                    )}
+                  </div>
+
+                  {qtyInCart > 0 && (
+                    <span className="text-xs text-cyan-300 mt-1">
+                      In Cart: {qtyInCart}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
-      );
-    })}
+      </div>
 
-  </div>
-</div>
-
-      {/* ================= MOBILE DRAWER ================= */}
+      {/* MOBILE DRAWER */}
       {isMobile && selectedProduct && (
         <SwipeableDrawer open={true} onClose={closeModal}>
           <Content />
         </SwipeableDrawer>
       )}
 
-      {/* ================= DESKTOP MODAL ================= */}
+      {/* DESKTOP MODAL */}
       {!isMobile && selectedProduct && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-          <div className="bg-[#111] max-w-lg w-full rounded-2xl border border-white/10">
-
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="bg-[#111] rounded-2xl max-w-lg w-full border border-white/10">
             <div className="flex justify-between p-4 border-b border-white/10">
               <h2 className="text-white">{selectedProduct.name}</h2>
-
               <button onClick={closeModal}>
                 <XMarkIcon className="w-5 h-5 text-white" />
               </button>

@@ -14,6 +14,7 @@ import {
   TrashIcon,
   ShoppingBagIcon,
 } from "@heroicons/react/24/solid";
+import ProductInfoTabs from "./ProductInfoTabs";
 
 export default function ProductDetailClient({
   product,
@@ -102,215 +103,233 @@ export default function ProductDetailClient({
     }
   };
 
-  return (
-    <section className="bg-black text-white min-h-screen">
+return (
+<section className="bg-[#05070b] text-white min-h-screen">
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 py-8 sm:py-10 lg:py-14">
+<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16">
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
 
-          {/* IMAGE SECTION */}
-         {/* IMAGE SECTION */}
-<div>
+{/* LEFT IMAGE */}
+<div className="relative">
 
-  {/* MOBILE VIEW */}
-  <div className="lg:hidden">
+<span className="absolute top-4 left-4 z-10 bg-pink-500 text-xs px-3 py-1 rounded-full font-semibold">
+HOT
+</span>
 
-    {/* Swiper */}
-    <Swiper
-      spaceBetween={12}
-      onSlideChange={(swiper) =>
-        setActiveImage(product.mainImage?.[swiper.activeIndex])
-      }
-    >
-      {product.mainImage?.map((img, i) => (
-        <SwiperSlide key={i}>
-          <img
-            src={img.url}
-            className="w-full aspect-square object-cover rounded-xl"
-          />
-        </SwiperSlide>
-      ))}
-    </Swiper>
+<img
+src={activeImage?.url}
+className="w-full rounded-xl object-cover"
+/>
 
-    {/* Mobile Thumbnails */}
-    <div className="flex gap-3 mt-4 overflow-x-auto no-scrollbar">
-      {product.mainImage?.map((img, i) => (
-        <img
-          key={i}
-          src={img.url}
-          onClick={() => setActiveImage(img)}
-          className={`w-16 h-16 rounded-lg cursor-pointer object-fit border transition shrink-0
-          ${
-            activeImage?.url === img.url
-              ? "border-cyan-400"
-              : "border-white/10"
-          }`}
-        />
-      ))}
-    </div>
-  </div>
-
-  {/* DESKTOP VIEW */}
-  <div className="hidden lg:block">
-    <img
-      src={activeImage?.url}
-      className="w-full aspect-square object-cover rounded-2xl"
-    />
-
-    <div className="flex gap-4 mt-5 flex-wrap">
-      {product.mainImage?.map((img, i) => (
-        <img
-          key={i}
-          src={img.url}
-          onClick={() => setActiveImage(img)}
-          className={`w-20 h-20 rounded-lg cursor-pointer object-fit border transition
-          ${
-            activeImage?.url === img.url
-              ? "border-cyan-400"
-              : "border-white/10 hover:border-cyan-400"
-          }`}
-        />
-      ))}
-    </div>
-  </div>
+{/* thumbnails */}
+<div className="flex gap-3 mt-4">
+{product.mainImage?.map((img,i)=>(
+<img
+key={i}
+src={img.url}
+onClick={()=>setActiveImage(img)}
+className={`w-16 h-16 object-cover rounded-md cursor-pointer border
+${activeImage?.url===img.url
+? "border-cyan-400"
+: "border-white/10 hover:border-cyan-400"
+}`}
+ />
+))}
+</div>
 
 </div>
 
-          {/* DETAILS */}
-          <div className="space-y-6 md:space-y-8">
 
-            <div>
-            
+{/* RIGHT DETAILS */}
+<div className="space-y-6">
 
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mt-2">
-                {product.name}
-              </h1>
+{/* product title */}
+<div>
 
-              <p className="text-gray-400 mt-3 text-sm sm:text-base">
-                {product.description}
-              </p>
-            </div>
+<p className="text-green-400 text-xs uppercase tracking-wider">
+Oversized
+</p>
 
-            {/* PRICE */}
-            <div className="flex flex-wrap items-center gap-4">
-              <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-cyan-400">
-                ₹{price}
-              </span>
+<h1 className="text-3xl md:text-4xl font-bold mt-1">
+{product.name}
+</h1>
 
-              <span className="line-through text-gray-500 text-base sm:text-lg">
-                ₹{originalPrice}
-              </span>
+{/* rating */}
+<div className="flex items-center gap-2 mt-2 text-sm text-gray-400">
 
-              <span className="bg-cyan-500/20 text-cyan-400 text-xs px-3 py-1 rounded-full">
-                Save ₹200
-              </span>
-            </div>
+<div className="flex text-yellow-400">
+★★★★★
+</div>
 
-            {/* SIZE SELECTOR */}
-            {product.variants?.length > 0 && (
-              <div>
-                <h3 className="text-sm text-gray-400 mb-3">
-                  Select Size
-                </h3>
+<span className="text-cyan-400 font-semibold">4.8</span>
 
-                <div className="flex flex-wrap gap-3">
-                  {product.variants.map((variant) => {
-                    const isSelected =
-                      selectedVariant?.id === variant.id;
-                    const isOut = variant.stock_qty <= 0;
+<span>(234 reviews)</span>
 
-                    return (
-                      <button
-                        key={variant.id}
-                        disabled={isOut}
-                        onClick={() => setSelectedVariant(variant)}
-                        className={`px-4 py-2 rounded-lg border text-sm transition
-                        ${
-                          isSelected
-                            ? "border-cyan-400 bg-cyan-400/20 text-cyan-400"
-                            : "border-white/10 hover:border-cyan-400"
-                        }
-                        ${
-                          isOut
-                            ? "opacity-40 cursor-not-allowed"
-                            : ""
-                        }`}
-                      >
-                        {variant.size}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+</div>
 
-            {/* QTY + REMOVE */}
-            <div className="flex items-center gap-4">
-              <input
-                type="number"
-                min="1"
-                value={qty}
-                onChange={(e) =>
-                  setQty(Number(e.target.value))
-                }
-                className="w-20 sm:w-24 h-10 sm:h-11 bg-black border border-white/10 rounded-lg text-center focus:border-cyan-400 outline-none"
-              />
+</div>
 
-              {cartItem && (
-                <button
-                  onClick={handleRemove}
-                  className="p-3 rounded-lg bg-red-500/10 hover:bg-red-500/20 transition"
-                >
-                  <TrashIcon className="w-5 h-5 text-red-400" />
-                </button>
-              )}
-            </div>
 
-            {/* Desktop Add to Bag */}
-            <div className="hidden lg:block">
-              <button
-                onClick={handleAddToCart}
-                disabled={isAdding}
-                className="w-full h-14 rounded-xl flex items-center justify-center gap-3 font-semibold
-                bg-cyan-500 hover:bg-cyan-400
-                shadow-[0_0_30px_rgba(34,211,238,0.6)]
-                transition-all duration-300 hover:scale-[1.02]"
-              >
-                <ShoppingBagIcon className="w-5 h-5" />
-                {isAdding ? "Adding..." : "Add to Bag"}
-              </button>
-            </div>
+{/* PRICE */}
+<div className="flex items-center gap-4">
 
-            {/* Wishlist */}
-            <button className="flex items-center gap-2 text-gray-400 hover:text-cyan-400 transition">
-              <HeartIcon className="w-5 h-5" />
-              Add to Wishlist
-            </button>
+<span className="text-3xl font-bold">
+₹{price}
+</span>
 
-          </div>
-        </div>
+<span className="line-through text-gray-500">
+₹{originalPrice}
+</span>
 
-        <div className="mt-16 sm:mt-20">
-          <RelatedProduct relatedProducts={relatedProducts} />
-        </div>
+<span className="bg-green-500/20 text-green-400 text-xs px-3 py-1 rounded">
+32% OFF
+</span>
 
-      </div>
+</div>
 
-      {/* Mobile Sticky Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-black border-t border-white/10 p-4">
-        <button
-          onClick={handleAddToCart}
-          disabled={isAdding}
-          className="w-full h-12 rounded-xl flex items-center justify-center gap-3 font-semibold
-          bg-cyan-500 hover:bg-cyan-400
-          shadow-[0_0_25px_rgba(34,211,238,0.5)]"
-        >
-          <ShoppingBagIcon className="w-5 h-5" />
-          {isAdding ? "Adding..." : "Add to Bag"}
-        </button>
-      </div>
 
-    </section>
-  );
+{/* COLOR SELECT */}
+{/* <div>
+
+<p className="text-gray-400 text-sm mb-2">
+COLOR: SELECT
+</p>
+
+<div className="flex gap-3">
+
+<div className="w-6 h-6 rounded-full bg-black border border-white/30 cursor-pointer"/>
+
+<div className="w-6 h-6 rounded-full bg-blue-900 border border-white/30 cursor-pointer"/>
+
+<div className="w-6 h-6 rounded-full bg-indigo-900 border border-white/30 cursor-pointer"/>
+
+</div>
+
+</div> */}
+
+
+{/* SIZE */}
+{product.variants?.length > 0 && (
+<div>
+
+<div className="flex justify-between mb-2">
+
+<p className="text-gray-400 text-sm">
+SIZE: SELECT
+</p>
+
+<span className="text-xs text-gray-500 cursor-pointer">
+Size Guide
+</span>
+
+</div>
+
+<div className="flex gap-3 flex-wrap">
+
+{product.variants.map((variant)=>{
+
+const isSelected = selectedVariant?.id === variant.id
+const isOut = variant.stock_qty <=0
+
+return(
+
+<button
+key={variant.id}
+disabled={isOut}
+onClick={()=>setSelectedVariant(variant)}
+className={`px-4 py-2 text-sm rounded-md border transition
+
+${isSelected
+? "border-cyan-400 text-cyan-400"
+: "border-white/10 hover:border-cyan-400"}
+
+${isOut ? "opacity-40 cursor-not-allowed" : ""}
+`}
+>
+
+{variant.size}
+
+</button>
+
+)
+
+})}
+
+</div>
+
+</div>
+)}
+
+
+{/* QTY */}
+<div className="flex items-center gap-3">
+
+<p className="text-sm text-gray-400">
+QTY:
+</p>
+
+<div className="flex items-center border border-white/10 rounded-md overflow-hidden">
+
+<button
+onClick={()=>setQty(q=>Math.max(1,q-1))}
+className="px-3 py-2 hover:bg-white/5"
+>
+-
+</button>
+
+<span className="px-4">{qty}</span>
+
+<button
+onClick={()=>setQty(q=>q+1)}
+className="px-3 py-2 hover:bg-white/5"
+>
++
+</button>
+
+</div>
+
+</div>
+
+
+{/* BUTTONS */}
+<div className="flex gap-4 pt-2">
+
+<button
+onClick={handleAddToCart}
+disabled={isAdding}
+className="flex-1 h-12 rounded-lg border border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black transition font-semibold"
+>
+{isAdding ? "Adding..." : "Add To Cart"}
+</button>
+
+{/* <button
+className="flex-1 h-12 rounded-lg bg-pink-500 hover:bg-pink-600 transition font-semibold"
+>
+Buy Now
+</button> */}
+
+</div>
+
+
+{/* share */}
+<p className="text-xs text-gray-500 cursor-pointer">
+Share this product
+</p>
+
+</div>
+
+</div>
+
+<ProductInfoTabs />
+
+{/* related */}
+<div className="mt-20">
+<RelatedProduct relatedProducts={relatedProducts}/>
+</div>
+
+</div>
+
+</section>
+)
 }
