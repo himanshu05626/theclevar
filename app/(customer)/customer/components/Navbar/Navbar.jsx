@@ -89,10 +89,7 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
   return (
     <nav
       className="sticky top-0 z-10 w-full
-             bg-gradient-to-r
-             from-[#0f0f0f]
-             via-[#1a1a1a]
-             to-[#111827]
+             bg-black
              h-full
              border-b border-white/10
              shadow-[0_8px_30px_rgba(0,0,0,0.6)]
@@ -113,7 +110,7 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
           <span className="block w-6 h-[2px] bg-white" />
         </button>
         <div className="cursor-pointer" onClick={() => router.push("/")}>
-          <Image src="/images/logo4.png" alt="The Clevar" width={180} height={60} />
+          <Image src="/images/logo4.png" alt="The Clevar" width={160} height={60} />
         </div>
 
 

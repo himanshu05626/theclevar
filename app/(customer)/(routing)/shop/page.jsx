@@ -64,7 +64,7 @@ export default function ShopPage() {
 
       <div className="flex items-center p-2 gap-3 mb-6 overflow-x-auto">
 
-        {["", "tshirt", "hoodie", "oversized"].map((c) => {
+        {["", "t-shirt", "hoodie", "oversized"].map((c) => {
           const active = query.category === c;
 
           return (
