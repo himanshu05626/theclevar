@@ -88,6 +88,7 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
 
   return (
     <nav
+    aria-label="Primary Navigation"
       className="sticky top-0 z-10 w-full
              bg-black
              h-full
@@ -109,14 +110,14 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
           <span className="block w-6 h-[2px] bg-white mb-1" />
           <span className="block w-6 h-[2px] bg-white" />
         </button>
-      <div className="cursor-pointer" onClick={() => router.push("/")}>
+      <Link href={'/'} className="cursor-pointer" >
   <img
     src="/images/logo4.png"
     alt="The Clevar"
     width="160"
     height="60"
   />
-</div>
+</Link>
 
 
         {/* ================= DESKTOP MENU ================= */}
