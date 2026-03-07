@@ -100,14 +100,14 @@ export default async function Page() {
         <div className="lg:col-span-2">
           <MyCart
             cartData={pricedCartData}
-            isGuest={isGuest}
+            isGuest={user}
           />
         </div>
 
         <div className="lg:col-span-1">
           <CartTotal
             cartData={pricedCartData}
-            isGuest={isGuest}
+            isGuest={user}
           />
         </div>
 
