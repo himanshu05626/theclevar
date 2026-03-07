@@ -5,17 +5,15 @@ import { verifyToken } from "@/lib/jwt";
 import { cookies } from "next/headers";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { requireUser } from "@/lib/requireUser";
 
 export default async function Page() {
   /* =========================
      AUTH + CUSTOMER
   ========================= */
-  const c = await cookies();
-  const token = c.get("authToken")?.value;
 
-  if (!token) return null;
 
-  const user = verifyToken(token);
+  const user = await requireUser();
   if (!user?.id) return null;
 
   const customer = await prisma.customer_list.findUnique({
