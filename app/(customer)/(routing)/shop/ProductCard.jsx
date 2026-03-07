@@ -80,7 +80,9 @@ export default function ProductCard({ product }) {
 
         <div className="flex-1">
           <h3 className="text-sm font-semibold">{product.name}</h3>
-          <p className="text-gray-400 text-sm">{product.description}</p>
+       <p className="text-gray-400 text-sm font-semibold line-clamp-2">
+  {product.description}
+</p>
 
           <div className="flex items-center gap-1 text-yellow-400 text-xs mt-1">
             {[...Array(5)].map((_, i) => (
@@ -89,12 +91,12 @@ export default function ProductCard({ product }) {
           </div>
 
           <div className="flex gap-2 mt-2">
-            <span className="text-[#38bdf8] font-semibold">
+            <span className="text-white font-semibold">
               ₹{product.price}
             </span>
 
             {product.regular_price && (
-              <span className="text-xs text-gray-500 line-through">
+              <span className="text-xs text-white line-through">
                 ₹{product.regular_price}
               </span>
             )}
@@ -151,7 +153,7 @@ export default function ProductCard({ product }) {
       <button
         onClick={handleAddToCart}
         disabled={!selectedSize || loading}
-        className="w-full py-3 rounded-xl bg-gradient-to-r from-[#0ea5e9] to-[#0284c7]"
+        className="w-full py-3 rounded-xl bg-[#22d3ee] text-black font-semibold disabled:bg-[#22d3ee]/50 disabled:text-gray-700 transition"
       >
         {loading ? "Adding..." : "Add To Cart"}
       </button>
@@ -268,7 +270,7 @@ export default function ProductCard({ product }) {
       {/* ================= DRAWER / MODAL ================= */}
 
       {isMobile ? (
-        <SwipeableDrawer open={open} onClose={() => setOpen(false)}>
+        <SwipeableDrawer height={'60vh'} open={open} onClose={() => setOpen(false)}>
           <Content />
         </SwipeableDrawer>
       ) : (
