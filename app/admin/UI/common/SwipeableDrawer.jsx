@@ -9,56 +9,45 @@ export default function SwipeableDrawer({
   height = "55vh",
 }) {
   const drawerRef = useRef(null);
-
   const startY = useRef(0);
   const lastY = useRef(0);
   const startTime = useRef(0);
   const dragging = useRef(false);
 
-  const [visible, setVisible] = useState(open);
-
-  /* mount drawer */
+  /* 🔒 Lock body scroll */
   useEffect(() => {
-    if (open) setVisible(true);
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => (document.body.style.overflow = "");
   }, [open]);
 
-  /* lock body scroll */
-  useEffect(() => {
-    document.body.style.overflow = visible ? "hidden" : "";
-    return () => (document.body.style.overflow = "");
-  }, [visible]);
-
-  /* OPEN animation */
+  /* 🎬 OPEN ANIMATION */
   useEffect(() => {
     if (open && drawerRef.current) {
-      const drawer = drawerRef.current;
-
-      drawer.style.transform = "translateY(100%)";
-
+      drawerRef.current.style.transform = "translateY(100%)";
       requestAnimationFrame(() => {
-        drawer.style.transition =
-          "transform 300ms cubic-bezier(0.4,0,0.2,1)";
-        drawer.style.transform = "translateY(0)";
+        drawerRef.current.style.transition =
+          "transform 280ms cubic-bezier(0.4,0,0.2,1)";
+        drawerRef.current.style.transform = "translateY(0)";
       });
     }
   }, [open]);
 
-  /* CLOSE animation */
-  const animateClose = () => {
-    const drawer = drawerRef.current;
-    const drawerHeight = drawer.offsetHeight;
+  /* 🔻 CLOSE ANIMATION FUNCTION */
+  const closeWithAnimation = () => {
+    if (!drawerRef.current) return;
 
-    drawer.style.transition =
-      "transform 260ms cubic-bezier(0.4,0,0.2,1)";
-    drawer.style.transform = `translateY(${drawerHeight}px)`;
+    const drawerHeight = drawerRef.current.offsetHeight;
+
+    drawerRef.current.style.transition =
+      "transform 240ms cubic-bezier(0.4,0,0.2,1)";
+    drawerRef.current.style.transform = `translateY(${drawerHeight}px)`;
 
     setTimeout(() => {
-      setVisible(false);
       onClose();
-    }, 260);
+    }, 240);
   };
 
-  /* TOUCH START */
+  /* 👆 TOUCH START */
   const onTouchStart = (e) => {
     startY.current = e.touches[0].clientY;
     lastY.current = startY.current;
@@ -68,21 +57,25 @@ export default function SwipeableDrawer({
     drawerRef.current.style.transition = "none";
   };
 
-  /* TOUCH MOVE */
+  /* 👆 TOUCH MOVE */
   const onTouchMove = (e) => {
     if (!dragging.current) return;
 
     const currentY = e.touches[0].clientY;
     const delta = currentY - startY.current;
 
+    // Only allow swipe DOWN
     if (delta < 0) return;
 
     lastY.current = currentY;
 
-    drawerRef.current.style.transform = `translateY(${delta}px)`;
+    // Resistance after certain distance
+    const resistance = delta > 300 ? 300 + (delta - 300) * 0.3 : delta;
+
+    drawerRef.current.style.transform = `translateY(${resistance}px)`;
   };
 
-  /* TOUCH END */
+  /* 👆 TOUCH END */
   const onTouchEnd = () => {
     if (!dragging.current) return;
     dragging.current = false;
@@ -94,23 +87,24 @@ export default function SwipeableDrawer({
     const drawerHeight = drawerRef.current.offsetHeight;
 
     drawerRef.current.style.transition =
-      "transform 260ms cubic-bezier(0.4,0,0.2,1)";
+      "transform 240ms cubic-bezier(0.4,0,0.2,1)";
 
     if (delta > drawerHeight * 0.3 || velocity > 0.6) {
-      animateClose();
+      drawerRef.current.style.transform = `translateY(${drawerHeight}px)`;
+      setTimeout(onClose, 240);
     } else {
       drawerRef.current.style.transform = "translateY(0)";
     }
   };
 
-  if (!visible) return null;
+  if (!open) return null;
 
   return (
     <>
       {/* BACKDROP */}
       <div
         className="fixed inset-0 z-40 bg-black/40 transition-opacity"
-        onClick={animateClose}
+        onClick={closeWithAnimation}
       />
 
       {/* DRAWER */}
@@ -122,7 +116,7 @@ export default function SwipeableDrawer({
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        {/* HANDLE */}
+        {/* DRAG HANDLE */}
         <div className="flex justify-center py-3">
           <div className="h-1.5 w-12 rounded-full bg-gray-300" />
         </div>
