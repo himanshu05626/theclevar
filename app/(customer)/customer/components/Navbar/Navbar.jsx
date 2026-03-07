@@ -315,8 +315,8 @@ border border-white/10 rounded p-2 space-y-2 max-h-[200px] overflow-y-auto z-[99
 
           <Divider />
 
-          <button
-            onClick={() => setOpen(true)}
+          <Link
+          href={'/cart'}
             aria-label="Open cart"
             className="
     relative
@@ -371,7 +371,7 @@ border border-white/10 rounded p-2 space-y-2 max-h-[200px] overflow-y-auto z-[99
 
             </div>
 
-          </button>
+          </Link>
 
 
 
