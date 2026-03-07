@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { updateCartQty, deleteCartItem } from "./actions";
 import Image from "next/image";
 import { TrashIcon } from "@heroicons/react/24/outline";
@@ -12,8 +12,57 @@ function Spinner() {
   );
 }
 
-export default function MyCart({ cartData }) {
-  if (!cartData || cartData.length === 0) {
+/* =========================
+   HELPER
+========================= */
+
+function getGuestCart() {
+  let cart = localStorage.getItem("guest_cart");
+
+  try {
+    cart = JSON.parse(cart || "[]");
+  } catch {
+    cart = [];
+  }
+
+  if (!Array.isArray(cart)) {
+    cart = Object.values(cart);
+  }
+
+  return cart;
+}
+
+export default function MyCart({ cartData = [], isGuest = false }) {
+
+  const [cart, setCart] = useState(cartData);
+
+  /* =========================
+     LOAD GUEST CART
+  ========================= */
+
+  useEffect(() => {
+    if (!isGuest) return;
+
+    const guestCart = getGuestCart();
+
+    const formatted = guestCart.map((item) => ({
+      id: item.product_id,
+      quantity: item.quantity,
+      finalPrice: item.price,
+      variant_id: item.variant_id,
+      variant_size: item.variant_size,
+
+      product: {
+        slug: item.slug ?? "",
+        name: item.name,
+        images: [{ image_url: item.image }],
+      },
+    }));
+
+    setCart(formatted);
+  }, [isGuest]);
+
+  if (!cart || cart.length === 0) {
     return (
       <div className="text-center py-24 text-gray-400">
         Your cart is empty
@@ -21,20 +70,70 @@ export default function MyCart({ cartData }) {
     );
   }
 
-  return (
-    <div className="max-w-5xl mx-auto px-3 sm:px-4 space-y-4">
-      {cartData.map((item) => (
-        <CartRow key={item.id} item={item} />
-      ))}
-    </div>
-  );
+  const clearCart = async () => {
+
+  if (isGuest) {
+
+    localStorage.removeItem("guest_cart");
+
+    window.dispatchEvent(new Event("guestCartUpdated"));
+
+    setCart([]);
+
+    return;
+  }
+
+  /* DB CART CLEAR */
+
+  const res = await fetch("/api/cart/clear", {
+    method: "POST",
+  });
+
+  if (res.ok) {
+    setCart([]);
+  }
+};
+
+ return (
+  <div className="max-w-5xl  z-10 mx-auto px-3 sm:px-4 space-y-4" style={{zIndex:-1}}>
+
+    {/* LOGIN BANNER */}
+    {isGuest && (
+      <div className="flex items-center justify-between rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-4">
+
+        <div className="text-sm text-gray-300">
+          Login to save your cart and checkout faster.
+        </div>
+
+        <Link
+          href="/auth/login"
+          className="rounded-lg bg-cyan-400 px-4 py-2 text-sm font-semibold text-black hover:bg-cyan-300 transition"
+        >
+          LOGIN
+        </Link>
+
+      </div>
+    )}
+
+    {cart.map((item) => (
+      <CartRow
+        key={item.id}
+        item={item}
+        isGuest={isGuest}
+        setCart={setCart}
+      />
+    ))}
+
+  </div>
+);
 }
 
 /* =========================
    CART ROW
 ========================= */
 
-function CartRow({ item }) {
+function CartRow({ item, isGuest, setCart }) {
+
   const product = item.product;
   const price = item.finalPrice ?? product.sale_price;
 
@@ -44,7 +143,42 @@ function CartRow({ item }) {
 
   const debounceRef = useRef(null);
 
+  /* =========================
+     UPDATE QTY
+  ========================= */
+
   const syncQty = (newQty) => {
+
+    if (isGuest) {
+
+      const guestCart = getGuestCart();
+
+      const updated = guestCart.map((g) =>
+        g.product_id === item.id
+          ? { ...g, quantity: newQty }
+          : g
+      );
+
+      localStorage.setItem("guest_cart", JSON.stringify(updated));
+
+      /* notify other components */
+      window.dispatchEvent(new Event("guestCartUpdated"));
+
+      setCart((prev) =>
+        prev.map((p) =>
+          p.id === item.id
+            ? { ...p, quantity: newQty }
+            : p
+        )
+      );
+
+      return;
+    }
+
+    /* =========================
+       DB CART
+    ========================= */
+
     clearTimeout(debounceRef.current);
 
     debounceRef.current = setTimeout(async () => {
@@ -73,7 +207,36 @@ function CartRow({ item }) {
     syncQty(v);
   };
 
+  /* =========================
+     DELETE ITEM
+  ========================= */
+
   const removeItem = async () => {
+
+    if (isGuest) {
+
+      const guestCart = getGuestCart();
+
+      const filtered = guestCart.filter(
+        (g) => g.product_id !== item.id
+      );
+
+      localStorage.setItem(
+        "guest_cart",
+        JSON.stringify(filtered)
+      );
+
+      window.dispatchEvent(new Event("guestCartUpdated"));
+
+      setCart((prev) =>
+        prev.filter((p) => p.id !== item.id)
+      );
+
+      return;
+    }
+
+    /* DB DELETE */
+
     setIsDeleting(true);
 
     const fd = new FormData();
@@ -83,9 +246,9 @@ function CartRow({ item }) {
   };
 
   return (
-    <div className="relative flex gap-3 md:gap-4 sm:gap-6 rounded-xl border border-white/10 bg-[#1a1a1a] p-2 sm:p-5 hover:border-cyan-500/40 transition">
+    <div className="relative  flex gap-3 md:gap-4 sm:gap-6 rounded-xl border border-white/10 bg-[#1a1a1a] p-2 sm:p-5 hover:border-cyan-500/40 transition">
 
-      {/* PRODUCT IMAGE */}
+      {/* IMAGE */}
       <Link
         href={`/product/${product.slug}`}
         className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0"
@@ -98,10 +261,9 @@ function CartRow({ item }) {
         />
       </Link>
 
-      {/* CENTER INFO */}
+      {/* INFO */}
       <div className="flex flex-col flex-1 min-w-0">
 
-        {/* PRODUCT NAME */}
         <Link
           href={`/product/${product.slug}`}
           className="text-sm sm:text-base font-semibold text-white hover:text-cyan-400 transition truncate"
@@ -109,12 +271,10 @@ function CartRow({ item }) {
           {product.name}
         </Link>
 
-        {/* VARIANTS */}
         <p className="text-xs text-gray-400 mt-1">
-          Size: M • Color: Blue
+          Size: {item.variant_size ?? "-"}
         </p>
 
-        {/* QTY */}
         <div className="mt-3 flex items-center gap-3">
 
           <div className="flex items-center border border-white/10 rounded-lg overflow-hidden">
@@ -140,13 +300,13 @@ function CartRow({ item }) {
           </div>
 
           {(isSaving || isDeleting) && <Spinner />}
+
         </div>
       </div>
 
       {/* RIGHT SIDE */}
       <div className="flex flex-col items-end justify-between">
 
-        {/* DELETE */}
         <button
           onClick={removeItem}
           className="text-gray-500 hover:text-red-500 transition"
@@ -154,7 +314,6 @@ function CartRow({ item }) {
           <TrashIcon className="h-5 w-5" />
         </button>
 
-        {/* PRICE */}
         <p className="text-base sm:text-lg font-semibold text-white">
           ₹{price * qty}
         </p>

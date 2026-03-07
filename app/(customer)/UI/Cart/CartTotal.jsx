@@ -1,35 +1,97 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { TagIcon } from "@heroicons/react/24/outline";
 
-export default function CartTotal({ cartData = [] }) {
+/* =========================
+   HELPER
+========================= */
+
+function getGuestCart() {
+  let cart = localStorage.getItem("guest_cart");
+
+  try {
+    cart = JSON.parse(cart || "[]");
+  } catch {
+    cart = [];
+  }
+
+  if (!Array.isArray(cart)) {
+    cart = Object.values(cart);
+  }
+
+  return cart;
+}
+
+export default function CartTotal({ cartData = [], isGuest = false }) {
+
   const [coupon, setCoupon] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [cart, setCart] = useState(cartData);
+
+  /* =========================
+     LOAD GUEST CART
+  ========================= */
+
+  useEffect(() => {
+
+    if (!isGuest) return;
+
+    const loadCart = () => {
+
+      const guestCart = getGuestCart();
+
+      const formatted = guestCart.map((item) => ({
+        quantity: item.quantity,
+        finalPrice: item.price,
+        product: {
+          regular_price: item.price,
+        },
+      }));
+
+      setCart(formatted);
+    };
+
+    loadCart();
+
+    window.addEventListener("guestCartUpdated", loadCart);
+
+    return () => {
+      window.removeEventListener("guestCartUpdated", loadCart);
+    };
+
+  }, [isGuest]);
 
   /* =========================
      CALCULATIONS
   ========================= */
 
   const { subTotal, totalPrice } = useMemo(() => {
-    const subTotal = cartData.reduce((sum, item) => {
+
+    const subTotal = cart.reduce((sum, item) => {
+
       const price =
-        item.finalPrice ?? item.product.regular_price;
+        item.finalPrice ?? item.product?.regular_price ?? 0;
+
       const qty = item.quantity || 1;
+
       return sum + price * qty;
+
     }, 0);
 
     const totalPrice = subTotal - discount;
 
     return { subTotal, totalPrice };
-  }, [cartData, discount]);
+
+  }, [cart, discount]);
 
   /* =========================
      APPLY COUPON
   ========================= */
 
   const applyCoupon = async () => {
+
     if (!coupon) return;
 
     const res = await fetch("/api/coupon", {
@@ -48,9 +110,8 @@ export default function CartTotal({ cartData = [] }) {
   };
 
   return (
-    <div className="w-full  rounded-2xl  border border-white/10 bg-[#0f0f0f] p-6 shadow-[0_0_40px_rgba(0,0,0,0.6)]">
+    <div className="w-full rounded-2xl border border-white/10 bg-[#0f0f0f] p-6 shadow-[0_0_40px_rgba(0,0,0,0.6)]">
 
-      {/* TITLE */}
       <h2 className="text-xl font-semibold tracking-wider text-white mb-6">
         ORDER SUMMARY
       </h2>
@@ -86,7 +147,7 @@ export default function CartTotal({ cartData = [] }) {
 
       {/* SUBTOTAL */}
       <div className="flex justify-between text-sm text-gray-400 mb-2">
-        <span>Subtotal ({cartData.length} items)</span>
+        <span>Subtotal ({cart.length} items)</span>
         <span>₹{subTotal.toFixed(0)}</span>
       </div>
 
@@ -117,10 +178,10 @@ export default function CartTotal({ cartData = [] }) {
         PROCEED TO CHECKOUT
       </Link>
 
-      {/* FOOTER */}
       <p className="text-center text-xs text-gray-500 mt-3">
         Secure checkout · COD available
       </p>
+
     </div>
   );
 }

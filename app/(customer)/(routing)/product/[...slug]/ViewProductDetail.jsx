@@ -68,13 +68,14 @@ export default function ProductDetailClient({
       } else {
         const existingCart =
           JSON.parse(localStorage.getItem("guest_cart")) || {};
-
         existingCart[product.id] = {
           product_id: product.id,
           name: product.name,
           price,
+          image: product.mainImage?.[0]?.url || null,
           quantity: qty,
           variant_id: selectedVariant?.id || null,
+          variant_size: selectedVariant?.size || null,
         };
 
         localStorage.setItem("guest_cart", JSON.stringify(existingCart));
