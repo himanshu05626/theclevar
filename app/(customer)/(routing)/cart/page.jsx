@@ -100,14 +100,14 @@ let user;
         <div className="lg:col-span-2">
           <MyCart
             cartData={pricedCartData}
-            isGuest={user}
+            isGuest={user?.id ? false : true}
           />
         </div>
 
         <div className="lg:col-span-1">
           <CartTotal
             cartData={pricedCartData}
-            isGuest={user}
+            isGuest={isGuest}
           />
         </div>
 
