@@ -34,7 +34,7 @@ export default function ProfileDropdown({isLoggedIn}) {
         <UserIcon className="w-6 h-6" />
 
         <span className="text-[14px] hidden md:block font-semibold">
-          Profile
+          Profile {isLoggedIn? `(${userName || "User"})` : "Not Logged In"}
         </span>
       </div>
 
