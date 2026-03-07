@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export default function SwipeableDrawer({
   open,
@@ -9,6 +9,8 @@ export default function SwipeableDrawer({
   height = "55vh",
 }) {
   const drawerRef = useRef(null);
+  const contentRef = useRef(null);
+
   const startY = useRef(0);
   const lastY = useRef(0);
   const startTime = useRef(0);
@@ -24,6 +26,7 @@ export default function SwipeableDrawer({
   useEffect(() => {
     if (open && drawerRef.current) {
       drawerRef.current.style.transform = "translateY(100%)";
+
       requestAnimationFrame(() => {
         drawerRef.current.style.transition =
           "transform 280ms cubic-bezier(0.4,0,0.2,1)";
@@ -32,7 +35,7 @@ export default function SwipeableDrawer({
     }
   }, [open]);
 
-  /* 🔻 CLOSE ANIMATION FUNCTION */
+  /* 🔻 CLOSE ANIMATION */
   const closeWithAnimation = () => {
     if (!drawerRef.current) return;
 
@@ -42,13 +45,17 @@ export default function SwipeableDrawer({
       "transform 240ms cubic-bezier(0.4,0,0.2,1)";
     drawerRef.current.style.transform = `translateY(${drawerHeight}px)`;
 
-    setTimeout(() => {
-      onClose();
-    }, 240);
+    setTimeout(onClose, 240);
   };
 
   /* 👆 TOUCH START */
   const onTouchStart = (e) => {
+    // ❗ allow drag only if scroll is at top
+    if (contentRef.current && contentRef.current.scrollTop > 0) {
+      dragging.current = false;
+      return;
+    }
+
     startY.current = e.touches[0].clientY;
     lastY.current = startY.current;
     startTime.current = Date.now();
@@ -69,7 +76,6 @@ export default function SwipeableDrawer({
 
     lastY.current = currentY;
 
-    // Resistance after certain distance
     const resistance = delta > 300 ? 300 + (delta - 300) * 0.3 : delta;
 
     drawerRef.current.style.transform = `translateY(${resistance}px)`;
@@ -78,6 +84,7 @@ export default function SwipeableDrawer({
   /* 👆 TOUCH END */
   const onTouchEnd = () => {
     if (!dragging.current) return;
+
     dragging.current = false;
 
     const delta = lastY.current - startY.current;
@@ -122,7 +129,10 @@ export default function SwipeableDrawer({
         </div>
 
         {/* CONTENT */}
-        <div className="h-full overflow-y-auto px-4 pb-6">
+        <div
+          ref={contentRef}
+          className="h-full overflow-y-auto px-4 pb-6"
+        >
           {children}
         </div>
       </div>
