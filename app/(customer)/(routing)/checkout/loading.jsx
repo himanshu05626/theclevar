@@ -1,130 +1,111 @@
-export default function LoadingCart() {
+export default function LoadingCheckout() {
   return (
-    <div className="mx-auto bg-[#1a1a1a] max-w-7xl px-4 py-4 text-white">
+    <div className="min-h-screen bg-black text-white px-4 py-6">
+
+      {/* BACK */}
+      <div className="mb-4 h-4 w-28 bg-white/10 rounded animate-pulse" />
 
       {/* TITLE */}
-      <div className="mb-4 text-md font-semibold">
-        Shopping Cart
+      <div className="flex justify-center mb-6">
+        <div className="h-5 w-48 bg-white/10 rounded animate-pulse" />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      {/* STEP INDICATOR */}
+      <div className="flex items-center justify-center gap-6 mb-8">
+
+        {[1,2,3].map((step)=>(
+          <div key={step} className="flex items-center gap-2">
+
+            <div className="h-7 w-7 rounded-full bg-white/10 animate-pulse" />
+
+            <div className="h-3 w-16 bg-white/10 rounded animate-pulse hidden sm:block"/>
+
+            {step !== 3 && (
+              <div className="w-20 h-[1px] bg-white/10 hidden md:block"/>
+            )}
+
+          </div>
+        ))}
+
+      </div>
+
+
+      {/* MAIN GRID */}
+      <div className="grid lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
 
         {/* LEFT */}
-        <div className="space-y-4 lg:col-span-2">
+        <div className="lg:col-span-2">
 
-          {/* ADDRESS */}
-          <div className="space-y-3 rounded-xl border border-white/10 bg-[#1a1a1a] p-4">
-            <div className="flex items-center gap-2 text-sm">
-              <span className="w-16 text-gray-400">Shipping:</span>
-              <div className="h-4 w-48 animate-pulse rounded bg-[#111827]" />
-            </div>
+          <div className="rounded-xl border border-white/10 bg-[#111] p-6">
 
-            <div className="flex items-center gap-2 text-sm">
-              <span className="w-16 text-gray-400">Billing:</span>
-              <div className="h-4 w-40 animate-pulse rounded bg-[#111827]" />
-            </div>
+            {/* TITLE */}
+            <div className="h-4 w-56 bg-white/10 rounded animate-pulse mb-6"/>
 
-            <div className="border-b border-white/10" />
+            {/* ADDRESS CARD */}
+            <div className="border border-white/10 rounded-lg p-4 mb-6">
 
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-400">
-                Use my shipping address
-              </span>
-              <div className="h-8 w-24 animate-pulse rounded bg-[#111827]" />
-            </div>
-          </div>
+              <div className="flex justify-between items-center">
 
-          {/* CART */}
-          <div className="rounded-xl border border-white/10 bg-[#1a1a1a]">
+                <div className="space-y-2 w-full">
 
-            {/* HEADER */}
-            <div className="hidden grid-cols-12 gap-4 border-b border-white/10 bg-[#111827] px-4 py-3 text-xs text-gray-400 md:grid">
-              <div className="col-span-2">Code</div>
-              <div className="col-span-4">Product</div>
-              <div className="col-span-1">Unit</div>
-              <div className="col-span-2">Price</div>
-              <div className="col-span-2">Qty</div>
-              <div className="col-span-1">Remove</div>
-            </div>
+                  <div className="h-4 w-40 bg-white/10 rounded animate-pulse"/>
 
-            {[...Array(4)].map((_, i) => (
-              <div
-                key={i}
-                className="border-b border-white/10 p-4 md:grid md:grid-cols-12 md:items-center md:gap-4"
-              >
-                <div className="hidden h-4 w-20 animate-pulse rounded bg-[#111827] md:block md:col-span-2" />
+                  <div className="h-3 w-56 bg-white/10 rounded animate-pulse"/>
 
-                <div className="hidden gap-3 md:flex md:col-span-4">
-                  <div className="h-12 w-12 animate-pulse rounded bg-[#111827]" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 w-full animate-pulse rounded bg-[#111827]" />
-                    <div className="h-3 w-2/3 animate-pulse rounded bg-[#111827]" />
-                  </div>
+                  <div className="h-3 w-48 bg-white/10 rounded animate-pulse"/>
+
                 </div>
 
-                <div className="hidden h-4 w-6 animate-pulse rounded bg-[#111827] md:col-span-1 md:block" />
-                <div className="hidden h-4 w-16 animate-pulse rounded bg-[#111827] md:col-span-2 md:block" />
-                <div className="hidden h-8 w-14 animate-pulse rounded bg-[#111827] md:col-span-2 md:block" />
-                <div className="hidden h-5 w-5 animate-pulse rounded bg-[#111827] md:col-span-1 md:block" />
+                <div className="h-4 w-4 rounded-full bg-white/10 animate-pulse"/>
               </div>
-            ))}
+
+            </div>
+
+            {/* BUTTON */}
+            <div className="h-12 w-full bg-cyan-400/30 rounded-lg animate-pulse"/>
+
           </div>
+
         </div>
 
-        {/* RIGHT */}
-        <div className="space-y-4">
 
-          {/* TOTALS */}
-          <div className="space-y-3 rounded-xl border border-white/10 bg-[#1a1a1a] p-5">
-            <h3 className="border-b border-white/10 pb-2 text-lg font-semibold">
-              Cart Totals
-            </h3>
+        {/* RIGHT PRICE */}
+        <div>
 
-            <div className="space-y-2 text-sm text-gray-400">
-              <div>◉ Delivery</div>
-              <div>○ Pickup from store</div>
+          <div className="rounded-xl border border-white/10 bg-[#111] p-6">
+
+            {/* TITLE */}
+            <div className="h-4 w-32 bg-white/10 rounded animate-pulse mb-6"/>
+
+            {/* SUBTOTAL */}
+            <div className="flex justify-between mb-3">
+              <div className="h-3 w-28 bg-white/10 rounded animate-pulse"/>
+              <div className="h-3 w-16 bg-white/10 rounded animate-pulse"/>
             </div>
 
-            <div className="border-dashed border-white/10" />
-
-            <div className="flex justify-between text-sm">
-              <span>Shipping</span>
-              <div className="h-4 w-16 animate-pulse rounded bg-[#111827]" />
+            {/* SHIPPING */}
+            <div className="flex justify-between mb-4">
+              <div className="h-3 w-20 bg-white/10 rounded animate-pulse"/>
+              <div className="h-3 w-10 bg-white/10 rounded animate-pulse"/>
             </div>
 
-            <div className="flex justify-between text-sm">
-              <span>Sub Total</span>
-              <div className="h-4 w-16 animate-pulse rounded bg-[#111827]" />
+            <div className="border-t border-white/10 my-4"/>
+
+            {/* TOTAL */}
+            <div className="flex justify-between mb-6">
+              <div className="h-4 w-16 bg-white/10 rounded animate-pulse"/>
+              <div className="h-4 w-20 bg-cyan-400/40 rounded animate-pulse"/>
             </div>
 
-            <div className="flex justify-between text-sm">
-              <span>GST</span>
-              <div className="h-4 w-16 animate-pulse rounded bg-[#111827]" />
-            </div>
+            {/* SECURITY BADGE */}
+            <div className="h-10 w-full bg-green-400/20 rounded-lg animate-pulse"/>
 
-            <div className="my-3 border-t border-white/10" />
-
-            <div className="flex justify-between text-lg font-semibold">
-              <span>Total</span>
-              <div className="h-5 w-20 animate-pulse rounded bg-[#38bdf8]/40" />
-            </div>
           </div>
 
-          {/* PAYMENT */}
-          <div className="space-y-4 rounded-xl border border-white/10 bg-[#1a1a1a] p-4">
-            <div className="text-sm font-semibold">Payment</div>
-
-            <div className="space-y-1 text-sm text-gray-400">
-              <div>◉ Paypal</div>
-              <div>○ Purchase order</div>
-            </div>
-
-            <div className="h-10 w-full animate-pulse rounded bg-[#0ea5e9]/30" />
-            <div className="h-10 w-full animate-pulse rounded bg-[#111827]" />
-          </div>
         </div>
 
       </div>
+
     </div>
   );
 }

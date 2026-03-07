@@ -58,7 +58,7 @@ let user;
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-3 md:pb-8 pt-0">
+    <div className="mx-auto max-w-6xl px-4 py-3 md:pb-8 pt-0">
       <div className="py-3 sticky top-14 md:top-18 bg-black z-1 flex items-center justify-between border-b border-white/10 ">
         <div className="flex items-center gap-3 justify-between">
 

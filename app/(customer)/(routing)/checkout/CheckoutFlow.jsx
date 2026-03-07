@@ -14,7 +14,7 @@ export default function CheckoutFlow({ addresses, cartData }) {
   const [step, setStep] = useState(1);
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] text-white">
+    <div className="min-h-screen max-w-6xl mx-auto bg-[#0f0f0f] text-white">
 
       <div className="max-w-7xl mx-auto px-4 py-6">
 
