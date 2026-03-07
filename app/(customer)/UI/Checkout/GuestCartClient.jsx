@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import MyCart from "./MyCart";
+import MyCart from "./Checkout";
 import CheckoutTotal from "./CheckoutTotal";
 import CheckoutLogin from "./CheckoutLogin";
 

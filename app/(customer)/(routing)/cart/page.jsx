@@ -3,6 +3,8 @@ import MyCart from "../../UI/Cart/MyCart";
 import CartTotal from "../../UI/Cart/CartTotal";
 import { verifyToken } from "@/lib/jwt";
 import { cookies } from "next/headers";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
 
 export default async function Page() {
   /* =========================
@@ -136,17 +138,51 @@ export default async function Page() {
      RENDER
   ========================= */
   console.log('pricedCartData',pricedCartData)
-  return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
-      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <MyCart cartData={pricedCartData} />
-        </div>
 
-        <div className="lg:col-span-1">
+return (
+  <div className="mx-auto max-w-7xl px-4 py-8">
+
+    {/* HEADER */}
+    <div className="mb-8 flex items-center gap-3 border-b border-white/10 pb-4">
+
+      {/* CONTINUE SHOPPING */}
+      <Link
+        href="/shop"
+        className="flex items-center gap-2 text-sm text-gray-400 hover:text-cyan-400 transition"
+      >
+        <ArrowLeftIcon className="h-4 w-4" />
+        CONTINUE SHOPPING
+      </Link>
+
+      {/* CART TITLE */}
+      <h1 className="text-md w-full  md:text-xl font-semibold tracking-wider text-white">
+        YOUR CART
+        <span className="ml-1 text-cyan-400">
+          ({pricedCartData.length})
+        </span>
+      </h1>
+
+      {/* Spacer (keeps title centered) */}
+      <div className="w-[140px]" />
+    </div>
+
+    {/* CART LAYOUT */}
+    <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+      {/* CART ITEMS */}
+      <div className="lg:col-span-2">
+        <MyCart cartData={pricedCartData} />
+      </div>
+
+      {/* ORDER SUMMARY */}
+      <div className="lg:col-span-1">
+        <div className="sticky top-24">
           <CartTotal cartData={pricedCartData} />
         </div>
       </div>
+
     </div>
-  );
+
+  </div>
+);
 }

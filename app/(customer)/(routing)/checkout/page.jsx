@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { requireUser } from "@/lib/requireUser";
 import { prisma } from "@/lib/prisma";
 
-import MyCart from "../../UI/Checkout/MyCart";
+import MyCart from "../../UI/Checkout/Checkout";
 import CheckoutTotal from "../../UI/Checkout/CheckoutTotal";
 import GuestCartClient from "../../UI/Checkout/GuestCartClient";
 import AddressSection from "../../UI/Checkout/AddressSection";

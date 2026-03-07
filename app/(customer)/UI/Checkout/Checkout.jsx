@@ -16,7 +16,7 @@ function Spinner() {
 /* =========================
    MAIN CART
 ========================= */
-export default function MyCart({ cartData }) {
+export default function Checkout({ cartData }) {
   console.log('cartDatacartData', cartData)
   if (!cartData || cartData.length === 0) {
     return (
