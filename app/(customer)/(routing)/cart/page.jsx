@@ -12,9 +12,9 @@ export default async function Page() {
 
   let pricedCartData = [];
   let isGuest = false;
-
+let user;
   try {
-    const user = await requireUser();
+   user  = await requireUser();
 
     if (!user?.id) {
       isGuest = true;
