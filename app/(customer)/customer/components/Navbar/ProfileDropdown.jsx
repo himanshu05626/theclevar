@@ -41,7 +41,7 @@ export default function ProfileDropdown({isLoggedIn}) {
       {/* DROPDOWN */}
       <div
         className={`
-          absolute -right-20 mt-3 w-64
+        absolute right-0 mt-3 w-64
           rounded-2xl
           backdrop-blur-xl
           border border-white/10

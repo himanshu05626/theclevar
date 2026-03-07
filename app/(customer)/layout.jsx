@@ -136,7 +136,6 @@ export default async function RootLayout({ children }) {
         `}
       >
         <CartProvider isLoggedIn={isLoggedIn}>
-          {/* <TopNavbarClient isLoggedIn={isLoggedIn} /> */}
           <BNavbar isLoggedIn={isLoggedIn} />
 
           <ToastProvider>
