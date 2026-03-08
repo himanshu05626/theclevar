@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import pkg from "../../../../../package.json";
+import { HeartIcon } from "@heroicons/react/24/solid";
 
 export default function Footer({ category = [] }) {
   const filteredCategories = category.filter(
@@ -99,10 +100,13 @@ export default function Footer({ category = [] }) {
         {/* Divider */}
         <div className="border-t border-white/10 mt-14 pt-6 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600 gap-4">
 
-          <p>
-            © 2026 The Clevar. All Rights Reserved.
-          </p>
-
+ <p className="text-center">
+  © 2026 The Clevar. All Rights Reserved. 
+  Developed & Designed by{" "}
+  <a href="https://www.mizna.me/" target="_blank" rel="noopener noreferrer">
+    Mohd Mizna Ansari
+  </a>
+</p>
           <div className="flex gap-6">
             <Link href="/privacy-policy" className="hover:text-cyan-400">
               Privacy Policy
@@ -115,8 +119,8 @@ export default function Footer({ category = [] }) {
             </Link>
           </div>
 
-          <p className="text-gray-500">
-            MADE WITH <span className="text-pink-500">♥</span> FOR THE CULTURE
+          <p className="text-gray-500 flex gap-2">
+            MADE WITH <span className="text-red-500"><HeartIcon height={20} /></span> FOR THE CULTURE
           </p>
         </div>
       </div>
