@@ -65,7 +65,7 @@ export default function ProductInfoTabs({
   }, [tab]);
 
   return (
-    <div className=" text-white mt-16">
+    <div className=" text-white mt-16 px-10 max-w-7xl mx-auto ">
 
       {/* Tabs */}
     <div className="relative border-b border-white/10 mb-8">

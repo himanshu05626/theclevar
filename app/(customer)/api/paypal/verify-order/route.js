@@ -73,7 +73,7 @@ export async function POST(req) {
        const payments = await prisma.payments.findMany({
       where: {
         order_id: order.id,
-        provider: "PAYPAL",
+        provider: "razorpay",
       },
       orderBy: { created_at: "desc" },
     });
