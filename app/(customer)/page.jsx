@@ -12,6 +12,7 @@ import { requireUser } from "@/lib/requireUser";
 import Banner from "./customer/components/home/Banner";
 import LetsWorkTogether from "./customer/components/Aboutus/LetsWorkTogether";
 import AnnouncementBar from "./customer/components/home/AnnouncementBar";
+import BannerSlider from "./customer/components/home/BannerSlider";
 
 const brands = [
   { path: "/logo/SVG-1.png", alt: "Brand 1" },
@@ -100,6 +101,8 @@ export default async function Page() {
       <AnnouncementBar />
       {/* <BrandStrip brands={brands} /> */}
       {/* <Category /> */}
+       <BannerSlider />
+
       <BestSellingProducts products={products} customerId={user?.id} />
       {/* <WhyChoosetheclevar />
        */}
