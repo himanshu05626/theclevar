@@ -26,6 +26,7 @@ model customer_list {
   email                    String             @unique
   first_name               String
   is_active                Boolean            @default(true)
+
   is_blocked               Boolean            @default(false)
   is_deleted               Boolean            @default(false)
   last_name                String?
@@ -37,6 +38,8 @@ model customer_list {
   price_tier               PriceTier?
   image_gallery_id         Int?               @db.UnsignedInt
   addresses                customer_address[]
+   route_logs               customer_route_logs[]   // ✅ ADD THIS
+    page_views               page_views[]   // ✅ ADD THIS
   group                    customer_groups?   @relation(fields: [customer_group_id], references: [id])
   image_gallery            image_gallery?     @relation(fields: [image_gallery_id], references: [id])
   sessions                 customer_session[]
@@ -133,6 +136,8 @@ model product_list {
   cart_items           customer_cart[]
   order_items          order_items[]
   images               product_images[]
+    page_views               page_views[]   // ✅ ADD THIS
+
   category             product_category      @relation(fields: [category_id], references: [id])
   seo                  product_meta_data?
   pricing              product_pricing[]
@@ -415,4 +420,42 @@ enum PriceTier {
   TIER_8
   TIER_9
   TIER_10
+}
+
+
+model customer_route_logs {
+  id               Int      @id @default(autoincrement()) @db.UnsignedInt
+  customer_list_id Int      @db.UnsignedInt
+  path             String   @db.VarChar(500)
+  method           String   @db.VarChar(10)
+  user_agent       String?  @db.VarChar(255)
+  ip_address       String?  @db.VarChar(45)
+  created_at       DateTime @default(now())
+
+  customer         customer_list @relation(fields: [customer_list_id], references: [id], onDelete: Cascade)
+
+  @@index([customer_list_id])
+  @@index([created_at])
+}
+
+model page_views {
+  id              Int       @id @default(autoincrement()) @db.UnsignedInt
+  page_type       PageType
+  product_list_id Int?      @db.UnsignedInt
+  customer_id     Int?      @db.UnsignedInt
+  ip_address      String?   @db.VarChar(45)
+  user_agent      String?   @db.VarChar(255)
+  created_at      DateTime  @default(now())
+
+  product   product_list?   @relation(fields: [product_list_id], references: [id], onDelete: Cascade)
+  customer  customer_list?  @relation(fields: [customer_id], references: [id], onDelete: SetNull)
+
+  @@index([page_type])
+  @@index([product_list_id])
+  @@index([created_at])
+}
+enum PageType {
+  HOME
+  PRODUCT
+  CATEGORY
 }

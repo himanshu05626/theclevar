@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { verifyToken } from "@/lib/jwt";
 import ProductDetailClient from "./ViewProductDetail";
 import { requireUser } from "@/lib/requireUser";
@@ -90,7 +90,6 @@ export async function generateMetadata({ params }) {
 ========================= */
 export default async function Page({ params }) {
     const { slug } = await params;
-
     if (!slug || !Array.isArray(slug)) {
         notFound();
     }
@@ -106,10 +105,11 @@ export default async function Page({ params }) {
     let isLoggedIn = false;
     let customerGroupId = null;
     let priceTier = null;
-
+    let payload = null;
     if (token) {
-        const payload = await requireUser();
+        payload = await requireUser();
         console.log('==============asd======================', payload)
+
 
         if (payload?.id) {
             const customer = await prisma.customer_list.findUnique({
@@ -248,7 +248,30 @@ export default async function Page({ params }) {
     /* =========================
        SEND SAFE DATA
     ========================= */
-    console.log('relatedProducts', relatedProducts)
+    const headersList = await headers();
+
+    const ip =
+        headersList.get("x-forwarded-for") ||
+        headersList.get("x-real-ip") ||
+        "unknown";
+
+    const userAgent = headersList.get("user-agent") || "unknown";
+
+    await prisma.page_views.create({
+        data: {
+            page_type: "PRODUCT",
+            product_list_id: product.id,
+            customer_id: payload?.id || null,
+            ip_address: ip,
+            user_agent: userAgent,
+        },
+    });
+const views = await prisma.page_views.count({
+  where: {
+    page_type: "PRODUCT",
+    product_list_id: product.id
+  }
+})
     return (
         <ProductDetailClient
             isLoggedIn={isLoggedIn}
@@ -257,13 +280,14 @@ export default async function Page({ params }) {
                 id: product.id,
                 name: product.name,
                 sku: product.sku,
+                views: views,
                 description: product.description,
                 price: finalPrice,
                 regular_price: product.regular_price,
                 sale_price: product.sale_price,
                 stepper_value: product.stepper_value,
                 measure_unit: product.measure_unit,
-                mainImage:images,
+                mainImage: images,
                 category: product.category,
                 variants: product.variants, // ✅ PASS VARIANTS
             }}

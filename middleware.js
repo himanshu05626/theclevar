@@ -1,40 +1,51 @@
 // middleware.js (Node.js runtime)
-import { NextResponse } from 'next/server';
-import { verifyToken } from './lib/jwt';
-import { prisma } from './lib/prisma';
-import { cookies } from 'next/headers';
+
+import { NextResponse } from "next/server";
+import { verifyToken } from "./lib/jwt";
+import { prisma } from "./lib/prisma";
+import { cookies } from "next/headers";
 
 export async function middleware(req) {
   const { pathname } = req.nextUrl;
-  console.log(`[Middleware] Incoming request: ${pathname}`);
 
-  // -------------------------------
-  // 1️⃣ Admin Routes
-  // -------------------------------
-  if (pathname.startsWith('/admin')) {
-    console.log('[Middleware] Admin route detected');
+  console.log(`[Middleware] Request: ${pathname}`);
 
-    // /admin is public
-    if (pathname === '/admin') {
-      console.log('[Middleware] /admin is public, allowing access');
+  const c = await cookies();
+
+  // Skip static files
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/favicon") ||
+    pathname.includes(".")
+  ) {
+    return NextResponse.next();
+  }
+
+  // =====================================================
+  // 1️⃣ ADMIN ROUTES
+  // =====================================================
+
+  if (pathname.startsWith("/admin")) {
+    console.log("[Middleware] Admin route");
+
+    if (pathname === "/admin") {
       return NextResponse.next();
     }
 
-    // Public admin APIs (e.g., login)
-    const publicAdminAPIs = ['/admin/api/auth/login', '/admin/api/auth/register'];
+    const publicAdminAPIs = [
+      "/admin/api/auth/login",
+      "/admin/api/auth/register",
+    ];
+
     if (publicAdminAPIs.includes(pathname)) {
-      console.log('[Middleware] Public admin API, allowing access:', pathname);
       return NextResponse.next();
     }
 
-    // /admin/api or /admin/:path protected
-    const c = await cookies();
-    const token = c.get('adminToken')?.value;
-    if (!token) {
-  return NextResponse.redirect(new URL('/admin', req.url));
-}
+    const token = c.get("adminToken")?.value;
 
-    console.log('[Middleware] Admin token received:');
+    if (!token) {
+      return NextResponse.redirect(new URL("/admin", req.url));
+    }
 
     const adminSession = await prisma.admin_session.findFirst({
       where: {
@@ -44,108 +55,118 @@ export async function middleware(req) {
       },
     });
 
-  if (!adminSession) {
-    return NextResponse.redirect(new URL('/admin', req.url));
-  }
+    if (!adminSession) {
+      return NextResponse.redirect(new URL("/admin", req.url));
+    }
 
-    console.log(`[Middleware] Admin session valid for admin_id: ${adminSession.admin_id}`);
     return NextResponse.next();
   }
 
-  // -------------------------------
-  // 2️⃣ Customer / My Account Routes
-  // -------------------------------
-if (pathname.startsWith('/my-account')) {
-  const isCustomerAPI = pathname.startsWith('/my-account/api');
- const c = await cookies();
-    const token = c.get('authToken')?.value;
+  // =====================================================
+  // 2️⃣ CUSTOMER AUTH ROUTES (/my-account)
+  // =====================================================
 
-  console.log('[Middleware][Customer] Route:', pathname);
-  console.log('[Middleware][Customer] Is API:', isCustomerAPI);
+  if (pathname.startsWith("/my-account")) {
+    const isCustomerAPI = pathname.startsWith("/my-account/api");
+    const token = c.get("authToken")?.value;
 
-  // 1️⃣ Token missing
-  if (!token) {
-    console.warn('[Middleware][Customer] ❌ Token missing');
+    if (!token) {
+      if (isCustomerAPI) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
 
-    if (isCustomerAPI) {
-      console.warn('[Middleware][Customer] Returning 401 for API');
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.redirect(new URL("/api/auth/logout", req.url));
     }
 
-    console.warn('[Middleware][Customer] Redirecting to /api/auth/logout');
-  return NextResponse.redirect(
-  new URL('/api/auth/logout', req.url),
-  303
-);
-  }
+    let decoded;
 
-  console.log('[Middleware][Customer] ✅ Token received');
+    try {
+      decoded = verifyToken(token);
+    } catch (err) {
+      if (isCustomerAPI) {
+        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      }
 
-  // 2️⃣ Verify JWT
-  let decoded;
-  try {
-    decoded = verifyToken(token);
-    console.log('[Middleware][Customer] ✅ JWT verified', {
-      customerId: decoded.id,
+      return NextResponse.redirect(new URL("/api/auth/logout", req.url));
+    }
+
+    const session = await prisma.customer_session.findFirst({
+      where: {
+        customer_list_id: decoded.id,
+        token,
+        is_expired: false,
+        token_expiry: { gt: new Date() },
+      },
     });
-  } catch (err) {
-    console.error('[Middleware][Customer] ❌ JWT verification failed:', err.message);
 
-    if (isCustomerAPI) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    if (!session) {
+      if (isCustomerAPI) {
+        return NextResponse.json(
+          { error: "Session expired or invalid" },
+          { status: 401 }
+        );
+      }
+
+      return NextResponse.redirect(new URL("/api/auth/logout", req.url));
     }
 
-    return NextResponse.redirect(new URL('/api/auth/logout', req.url));
+    // 📊 Log route
+    await prisma.customer_route_logs.create({
+      data: {
+        customer_list_id: session.customer_list_id,
+        path: pathname,
+        method: req.method,
+        user_agent: req.headers.get("user-agent"),
+        ip_address: req.headers.get("x-forwarded-for") || "unknown",
+      },
+    });
+
+    return NextResponse.next();
   }
 
-  // 3️⃣ Check DB session
-  console.log('[Middleware][Customer] 🔍 Checking customer_session in DB');
+  // =====================================================
+  // 3️⃣ PUBLIC ROUTES
+  // =====================================================
 
-  const customerSession = await prisma.customer_session.findFirst({
-    where: {
-      customer_list_id: decoded.id,
-      token,
-      is_expired: false,
-      token_expiry: { gt: new Date() },
-    },
-  });
+  const token = c.get("authToken")?.value;
 
-  if (!customerSession) {
-    console.warn(
-      '[Middleware][Customer] ❌ Session invalid or expired for customer:',
-      decoded.id
-    );
+  if (token) {
+    try {
+      const decoded = verifyToken(token);
 
-    if (isCustomerAPI) {
-      return NextResponse.json(
-        { error: 'Session expired or invalid' },
-        { status: 401 }
-      );
+      const session = await prisma.customer_session.findFirst({
+        where: {
+          customer_list_id: decoded.id,
+          token,
+          is_expired: false,
+          token_expiry: { gt: new Date() },
+        },
+      });
+
+      if (session) {
+        await prisma.customer_route_logs.create({
+          data: {
+            customer_list_id: session.customer_list_id,
+            path: pathname,
+            method: req.method,
+            user_agent: req.headers.get("user-agent"),
+            ip_address: req.headers.get("x-forwarded-for") || "unknown",
+          },
+        });
+      }
+    } catch (err) {
+      console.log("[Middleware] Public route token invalid");
     }
-
-    console.warn('[Middleware][Customer] Redirecting to /api/auth/logout');
-    return NextResponse.redirect(new URL('/api/auth/logout', req.url));
   }
 
-  console.log(
-    '[Middleware][Customer] ✅ Session valid for customer:',
-    customerSession.customer_list_id
-  );
-
-  // ✅ Authenticated
   return NextResponse.next();
 }
 
-
-  // -------------------------------
-  // 3️⃣ All other routes public
-  // -------------------------------
-  console.log('[Middleware] Public route, allowing access');
-  return NextResponse.next();
-}
-
-// Node.js runtime so Prisma works
 export const config = {
-  matcher: ['/admin/:path*', '/my-account/:path*', '/admin', '/my-account'],
-  runtime: 'nodejs',
+  matcher: [
+    "/admin/:path*",
+    "/my-account/:path*",
+    "/((?!_next/static|_next/image|favicon.ico).*)",
+  ],
+  runtime: "nodejs",
 };

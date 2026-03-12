@@ -16,6 +16,7 @@ import { verifyToken } from "@/lib/jwt";
 import TopNavbarClient from "./customer/components/Navbar/TopNavbarClient";
 import { requireUser } from "@/lib/requireUser";
 import { clientFetch } from "@/lib/clientFetch";
+import ClarityInit from "@/lib/ClarityInit";
 
 /* =========================
    FONTS
@@ -137,7 +138,7 @@ export default async function RootLayout({ children }) {
       >
         <CartProvider isLoggedIn={isLoggedIn}>
           <BNavbar isLoggedIn={isLoggedIn} />
-
+<ClarityInit />
           <ToastProvider>
             <CartDrawer isLoggedIn={isLoggedIn} />
             <NextTopLoader showSpinner={false} />

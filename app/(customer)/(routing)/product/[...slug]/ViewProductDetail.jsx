@@ -216,7 +216,9 @@ COLOR: SELECT
 </div>
 
 </div> */}
-
+<div className="text-sm text-gray-400">
+  👁 {product.views} views
+</div>
 
             {/* SIZE */}
             {product.variants?.length > 0 && (
