@@ -100,7 +100,7 @@ export default function Home() {
           className="mt-14 flex items-center justify-center gap-10 text-gray-300 text-sm"
         >
           <motion.div variants={item}>
-            <p className="text-xl font-bold text-white">50K+</p>
+            <p className="text-xl font-bold text-white">1K+</p>
             <p className="text-gray-400 text-xs">CUSTOMERS</p>
           </motion.div>
 
@@ -110,7 +110,7 @@ export default function Home() {
           </motion.div>
 
           <motion.div variants={item}>
-            <p className="text-xl font-bold text-white">200+</p>
+            <p className="text-xl font-bold text-white">20+</p>
             <p className="text-gray-400 text-xs">DESIGNS</p>
           </motion.div>
         </motion.div>

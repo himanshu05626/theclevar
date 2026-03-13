@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { addProduct } from "./actions";
 import { useToast } from "@/app/admin/context/ToastProvider";
 import UploadImage from "@/app/component/UploadImage";
@@ -8,349 +8,488 @@ import CategorySelect from "./CategorySelect";
 import { useRouter } from "next/navigation";
 import FormInput from "./FormInput";
 
+import {
+  SparklesIcon,
+  PencilSquareIcon
+} from "@heroicons/react/24/outline";
+
 const initialState = {
   success: false,
   errors: {},
-  values: {},
+  values: {}
 };
 
 export default function AddProductForm({ categories }) {
+
   const router = useRouter();
+  const { showToast } = useToast();
 
   const [state, action, pending] = React.useActionState(
     addProduct,
     initialState
   );
-const [variants, setVariants] = React.useState([
-  { size: "", stock_qty: 0 },
-]);
 
-  const [category, setCategory] = React.useState(
-    state.values?.category || ""
-  );
+  const [mode, setMode] = useState("ai");
+  const [aiLoading, setAiLoading] = useState(false);
 
-  const [images, setImages] = React.useState([]);
+  const [variants, setVariants] = useState([
+    { size: "", stock_qty: 0 }
+  ]);
 
-  const { showToast } = useToast();
+  const [category, setCategory] = useState("");
+
+  const [images, setImages] = useState([]);
+
+  const [formValues, setFormValues] = useState({});
 
   useEffect(() => {
     if (state.success) {
       showToast({
         type: "success",
-        message: "Product added successfully",
+        message: "Product added successfully"
       });
+
       router.push(`/admin/product/add/${state.productId}/tier-price`);
     }
 
     if (state.errors && Object.keys(state.errors).length > 0) {
       showToast({
         type: "error",
-        message: state.errors.general || "Failed to add product",
+        message: state.errors.general || "Failed to add product"
       });
     }
-  }, [state.success, state.errors, showToast, router]);
-const addVariantRow = () => {
-  setVariants((prev) => [...prev, { size: "", stock_qty: 0 }]);
-};
 
-const removeVariantRow = (index) => {
-  setVariants((prev) => prev.filter((_, i) => i !== index));
-};
+  }, [state.success, state.errors]);
 
-const updateVariant = (index, field, value) => {
-  setVariants((prev) =>
-    prev.map((v, i) =>
-      i === index ? { ...v, [field]: value } : v
-    )
-  );
-};
+
+
+  /* ---------------- AI IMAGE UPLOAD ---------------- */
+
+  const handleAiUpload = async (e) => {
+
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+
+      setAiLoading(true);
+
+      const res = await fetch("/admin/api/fetch-product", {
+        method: "POST",
+        headers: {
+          "Content-Type": file.type
+        },
+        body: file
+      });
+
+      const result = await res.json();
+
+      if (result.status === "success") {
+
+        const data = result.data;
+
+        setFormValues(data);
+
+        setCategory(data.category || "");
+
+        if (data.variants) {
+          setVariants(data.variants);
+        }
+
+        showToast({
+          type: "success",
+          message: "AI filled product information"
+        });
+
+      }
+
+    } catch (err) {
+
+      showToast({
+        type: "error",
+        message: "AI processing failed"
+      });
+
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+
+
+  /* ---------------- VARIANT LOGIC ---------------- */
+
+  const addVariantRow = () => {
+    setVariants(prev => [...prev, { size: "", stock_qty: 0 }]);
+  };
+
+  const removeVariantRow = (index) => {
+    setVariants(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const updateVariant = (index, field, value) => {
+
+    setVariants(prev =>
+      prev.map((v, i) =>
+        i === index ? { ...v, [field]: value } : v
+      )
+    );
+  };
+
+
 
   return (
     <div>
+
+      {/* MODE SELECTOR */}
+
+      <div className="flex gap-4 mb-6 mt-2">
+
+        <button
+          type="button"
+          onClick={() => setMode("manual")}
+          className={`flex items-center gap-2 px-4 py-2 rounded border border-gray-300 ${
+            mode === "manual"
+              ? "bg-blue-600 text-white"
+              : "bg-white"
+          }`}
+        >
+          <PencilSquareIcon className="w-5 h-5"/>
+          Manual Fill
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setMode("ai")}
+          className={`flex items-center gap-2 px-4 py-2 rounded border border-gray-300 ${
+            mode === "ai"
+              ? "bg-purple-600 text-white"
+              : "bg-white"
+          }`}
+        >
+          <SparklesIcon className="w-5 h-5"/>
+          AI Fill
+        </button>
+
+      </div>
+
+
+      {/* AI IMAGE UPLOAD */}
+
+      {mode === "ai" && (
+        <div className="mb-6 border border-gray-300 p-4 rounded bg-gray-50">
+
+          <h3 className="font-semibold mb-3">
+            Upload product image for AI
+          </h3>
+
+          <input
+            type="file"
+            accept="image/*"
+            className="block w-full text-sm text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:bg-blue-500 file:text-white
+                      file:border-0 cursor-pointer file:rounded
+                      hover:file:bg-blue-600"
+            onChange={handleAiUpload}
+          />
+
+          {aiLoading && (
+            <p className="text-sm mt-2 text-gray-500">
+              AI analyzing image...
+            </p>
+          )}
+
+        </div>
+      )}
+
+
+
       <div className="bg-white border border-gray-300 rounded shadow-sm">
-        {/* HEADER */}
+
         <div className="border-b border-gray-300 px-6 py-4">
           <h1 className="text-xl font-semibold">Add Product</h1>
         </div>
 
+
         <form action={action} noValidate>
+
           <div className="p-6 space-y-8">
 
-            {/* BASIC INFORMATION */}
+
+            {/* BASIC INFO */}
+
             <section className="space-y-4">
-              <h2 className="text-xl font-semibold">Basic Information</h2>
+
+              <h2 className="text-xl font-semibold">
+                Basic Information
+              </h2>
 
               <div className="grid md:grid-cols-2 gap-6">
+
                 <FormInput
+                  key={formValues.name}
                   label="Product Name"
                   name="name"
                   required
-                  defaultValue={state.values?.name}
-                  error={state.errors?.name}
+                  defaultValue={formValues.name}
                 />
 
                 <div className="space-y-1">
+
                   <label className="text-sm font-medium">
-                    Category <span className="text-red-500">*</span>
+                    Category
                   </label>
+
                   <CategorySelect
                     categories={categories}
                     value={category}
                     onChange={setCategory}
-                    error={state.errors?.category}
                   />
-                  <input type="hidden" name="category" value={category} />
+
+                  <input
+                    type="hidden"
+                    name="category"
+                    value={category}
+                  />
+
                 </div>
+
               </div>
 
               <FormInput
+                key={formValues.sku}
                 label="SKU"
                 name="sku"
-                defaultValue={state.values?.sku}
-                error={state.errors?.sku}
+                defaultValue={formValues.sku}
               />
 
               <FormInput
+                key={formValues.description}
                 label="Description"
                 name="description"
                 textarea
-                defaultValue={state.values?.description}
+                defaultValue={formValues.description}
               />
+
             </section>
 
+
+
             {/* PRICING */}
+
             <section className="space-y-4">
+
               <h2 className="text-xl font-semibold">Pricing</h2>
 
               <div className="grid md:grid-cols-2 gap-6">
+
                 <FormInput
+                  key={formValues.regular_price}
                   label="Regular Price"
                   name="regular_price"
                   type="number"
                   required
-                  defaultValue={state.values?.regular_price}
-                  error={state.errors?.regular_price}
+                  defaultValue={formValues.regular_price}
                 />
 
                 <FormInput
+                  key={formValues.sale_price}
                   label="Sale Price"
                   name="sale_price"
                   type="number"
-                  defaultValue={state.values?.sale_price}
+                  defaultValue={formValues.sale_price}
                 />
+
               </div>
+
             </section>
 
+
+
             {/* INVENTORY */}
+
             <section className="space-y-4">
+
               <h2 className="text-xl font-semibold">Inventory</h2>
 
               <div className="grid md:grid-cols-3 gap-6">
+
                 <FormInput
+                  key={formValues.stock_qty}
                   label="Stock Quantity"
                   name="stock_qty"
                   type="number"
-                  required
-                  defaultValue={state.values?.stock_qty}
-                  error={state.errors?.stock_qty}
+                  defaultValue={formValues.stock_qty}
                 />
 
                 <FormInput
+                  key={formValues.low_stock_threshold}
                   label="Low Stock Threshold"
                   name="low_stock_threshold"
                   type="number"
-                  defaultValue={state.values?.low_stock_threshold}
-                  error={state.errors?.low_stock_threshold}
+                  defaultValue={formValues.low_stock_threshold}
                 />
 
-           
-
                 <FormInput
+                  key={formValues.stepper_value}
                   label="Stepper Value"
                   name="stepper_value"
                   type="number"
-                  required
-                  defaultValue={state.values?.stepper_value}
-                  error={state.errors?.stepper_value}
+                  defaultValue={formValues.stepper_value}
                 />
+
               </div>
+
             </section>
+
+
+
             {/* VARIANTS */}
-<section className="space-y-4">
-  <h2 className="text-xl font-semibold">Product Variants (Sizes)</h2>
 
-  <div className="space-y-3">
-    {variants.map((variant, index) => (
-      <div key={index} className="grid grid-cols-3 gap-3">
-        <input
-          type="text"
-          placeholder="Size (S, M, L)"
-          className="border rounded px-3 py-2"
-          value={variant.size}
-          onChange={(e) =>
-            updateVariant(index, "size", e.target.value)
-          }
-        />
+            <section className="space-y-4">
 
-        <input
-          type="number"
-          placeholder="Stock"
-          className="border rounded px-3 py-2"
-          value={variant.stock_qty}
-          onChange={(e) =>
-            updateVariant(index, "stock_qty", e.target.value)
-          }
-        />
+              <h2 className="text-xl font-semibold">
+                Product Variants
+              </h2>
 
-        <button
-          type="button"
-          onClick={() => removeVariantRow(index)}
-          className="bg-red-500 text-white rounded px-3"
-        >
-          Remove
-        </button>
-      </div>
-    ))}
-  </div>
+              {variants.map((variant, index) => (
 
-  <button
-    type="button"
-    onClick={addVariantRow}
-    className="bg-gray-200 px-4 py-2 rounded"
-  >
-    + Add Size
-  </button>
+                <div key={index} className="grid grid-cols-3 gap-3">
 
-  {/* hidden input */}
-  <input
-    type="hidden"
-    name="variants"
-    value={JSON.stringify(variants)}
-  />
-</section>
+                  <input
+                    type="text"
+                    placeholder="Size"
+                    className="border rounded px-3 py-2"
+                    value={variant.size}
+                    onChange={(e) =>
+                      updateVariant(index,"size",e.target.value)
+                    }
+                  />
+
+                  <input
+                    type="number"
+                    placeholder="Stock"
+                    className="border rounded px-3 py-2"
+                    value={variant.stock_qty}
+                    onChange={(e) =>
+                      updateVariant(index,"stock_qty",e.target.value)
+                    }
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => removeVariantRow(index)}
+                    className="bg-red-500 text-white rounded"
+                  >
+                    Remove
+                  </button>
+
+                </div>
+
+              ))}
+
+              <button
+                type="button"
+                onClick={addVariantRow}
+                className="bg-gray-200 px-4 py-2 rounded"
+              >
+                + Add Size
+              </button>
+
+              <input
+                type="hidden"
+                name="variants"
+                value={JSON.stringify(variants)}
+              />
+
+            </section>
 
 
-            {/* PRODUCT IMAGES */}
-           {/* ───────── PRODUCT IMAGES ───────── */}
-<section className="space-y-4">
-  <h2 className="text-xl font-semibold">Product Images</h2>
 
-  <UploadImage
-    uploadType="productImage"
-    onSuccess={(urls) => {
-      setImages((prev) => [
-        ...prev,
-        ...urls.map((url) => ({
-          url,
-          is_default: prev.length === 0, // first image default
-        })),
-      ]);
-    }}
-  />
+            {/* IMAGES */}
 
-  {/* IMAGE PREVIEW GRID */}
-  {images.length > 0 && (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {images.map((img, index) => (
-        <div
-          key={index}
-          className={`relative rounded-lg  overflow-hidden cursor-pointer
-            ${
-              img.is_default
-                ? "ring-2 ring-blue-500"
-                : "border-gray-200"
-            }`}
-          onClick={() =>
-            setImages((prev) =>
-              prev.map((p, i) => ({
-                ...p,
-                is_default: i === index,
-              }))
-            )
-          }
-        >
-          <img
-            src={img.url}
-            alt="Product"
-            className="h-32 w-full object-cover"
-          />
+            <section className="space-y-4">
 
-          {/* PRIMARY BADGE */}
-          {img.is_default && (
-            <span className="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
-              Primary
-            </span>
-          )}
+              <h2 className="text-xl font-semibold">
+                Product Images
+              </h2>
 
-          {/* REMOVE BUTTON */}
-          <button
-            type="button"
-            className="absolute top-1 right-1 h-6 w-6 rounded-full bg-black/60 text-white flex items-center justify-center"
-            onClick={(e) => {
-              e.stopPropagation();
-              setImages((prev) =>
-                prev.filter((_, i) => i !== index)
-              );
-            }}
-          >
-            ✕
-          </button>
-        </div>
-      ))}
-    </div>
-  )}
+              <UploadImage
+                uploadType="productImage"
+                onSuccess={(urls) => {
 
-  {/* HIDDEN INPUT FOR SERVER ACTION */}
-  <input
-    type="hidden"
-    name="images"
-    value={JSON.stringify(images)}
-  />
-</section>
+                  setImages(prev => [
+                    ...prev,
+                    ...urls.map(url => ({
+                      url,
+                      is_default: prev.length === 0
+                    }))
+                  ]);
+
+                }}
+              />
+
+              <input
+                type="hidden"
+                name="images"
+                value={JSON.stringify(images)}
+              />
+
+            </section>
+
 
 
             {/* SEO */}
+
             <section className="space-y-4">
-              <h2 className="text-xl font-semibold">SEO Metadata</h2>
+
+              <h2 className="text-xl font-semibold">
+                SEO Metadata
+              </h2>
 
               <FormInput
+                key={formValues.meta_title}
                 label="Meta Title"
                 name="meta_title"
-                required
-                defaultValue={state.values?.meta_title}
-                error={state.errors?.meta_title}
+                defaultValue={formValues.meta_title}
               />
 
               <FormInput
+                key={formValues.meta_description}
                 label="Meta Description"
                 name="meta_description"
                 textarea
-                required
-                defaultValue={state.values?.meta_description}
-                error={state.errors?.meta_description}
+                defaultValue={formValues.meta_description}
               />
 
               <FormInput
+                key={formValues.focus_keyword}
                 label="Focus Keyword"
                 name="focus_keyword"
-                required
-                defaultValue={state.values?.focus_keyword}
-                error={state.errors?.focus_keyword}
+                defaultValue={formValues.focus_keyword}
               />
+
             </section>
+
           </div>
 
-          {/* FOOTER */}
+
           <div className="border-t border-gray-300 px-6 py-4">
+
             <button
               disabled={pending}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg disabled:opacity-60"
+              className="bg-blue-600 text-white px-6 py-2 rounded"
             >
               {pending ? "Saving..." : "Save Product"}
             </button>
+
           </div>
+
         </form>
+
       </div>
+
     </div>
   );
 }

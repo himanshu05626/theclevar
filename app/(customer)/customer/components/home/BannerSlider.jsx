@@ -9,7 +9,7 @@ import "swiper/css/pagination";
 
 export default function BannerSlider() {
   return (
-    <div className="mt-5">
+    <div className="mt-5 ">
       <Swiper
         modules={[Navigation, Pagination, Autoplay]}
         spaceBetween={20}
@@ -23,7 +23,7 @@ export default function BannerSlider() {
           <img
             src="/images/banner/Bnnernew2.jpeg"
             alt="banner"
-            className="w-full rounded-lg"
+            className="w-full  rounded-lg"
           />
         </SwiperSlide>
 

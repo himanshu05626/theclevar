@@ -129,7 +129,7 @@ export default function Home() {
         <div className="hero-stats mt-14 flex items-center justify-center gap-10 text-gray-300 text-sm">
 
           <div>
-            <p className="text-xl font-bold text-white">50K+</p>
+            <p className="text-xl font-bold text-white">1K+</p>
             <p className="text-gray-400 text-xs">CUSTOMERS</p>
           </div>
 
@@ -139,7 +139,7 @@ export default function Home() {
           </div>
 
           <div>
-            <p className="text-xl font-bold text-white">200+</p>
+            <p className="text-xl font-bold text-white">20+</p>
             <p className="text-gray-400 text-xs">DESIGNS</p>
           </div>
 
