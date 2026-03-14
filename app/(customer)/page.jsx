@@ -55,28 +55,31 @@ export default async function Page() {
     });
   }
   console.log('skus', skus)
-  const products = await prisma.product_list.findMany({
-    where: {
-      sku: { in: skus },
-      is_deleted: false,
-      is_active: true,
+ const products = await prisma.product_list.findMany({
+  where: {
+    is_deleted: false,
+    is_active: true,
+  },
+  orderBy: {
+    created_at: "desc", // latest products first
+  },
+  take: 8, // only 8 items
+  include: {
+    variants: true,
+    images: {
+      where: { is_primary: true },
     },
-    include: {
-      variants: true,
-      images: {
-        where: { is_primary: true },
-      },
-      category: true,
+    category: true,
 
-      pricing: customer?.customer_group_id
-        ? {
+    pricing: customer?.customer_group_id
+      ? {
           where: { customer_group_id: customer.customer_group_id },
           take: 1,
         }
-        : false,
+      : false,
 
-      tier_product_pricing: isLoggedIn
-        ? {
+    tier_product_pricing: isLoggedIn
+      ? {
           select: {
             tier_1_price: true,
             tier_2_price: true,
@@ -90,9 +93,9 @@ export default async function Page() {
             tier_10_price: true,
           },
         }
-        : false,
-    },
-  });
+      : false,
+  },
+});
 
 
   return (

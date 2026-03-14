@@ -16,7 +16,8 @@ import "swiper/css";
 export default function BestSellingProducts({ products }) {
   const { reloadCart, cartItems } = useCart();
   const { showToast } = useToast();
-const [showModal, setShowModal] = useState(false);
+
+  const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -53,24 +54,23 @@ const [showModal, setShowModal] = useState(false);
   );
 
   /* OPEN MODAL */
-const openModal = (product) => {
-  setSelectedProduct(product);
-  setSelectedVariant(product.variants?.[0]?.id || null);
-  setSelectedSize(product.variants?.[0]?.id || null);
-  setQty(1);
-
-  setTimeout(() => setShowModal(true), 10);
-};
-
-const closeModal = () => {
-  setShowModal(false);
-
-  setTimeout(() => {
-    setSelectedProduct(null);
-    setSelectedVariant(null);
+  const openModal = (product) => {
+    setSelectedProduct(product);
+    setSelectedVariant(product.variants?.[0]?.id || null);
+    setSelectedSize(product.variants?.[0]?.id || null);
     setQty(1);
-  }, 250);
-};
+    setTimeout(() => setShowModal(true), 10);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+
+    setTimeout(() => {
+      setSelectedProduct(null);
+      setSelectedVariant(null);
+      setQty(1);
+    }, 250);
+  };
 
   /* ADD TO CART */
   const handleAddToCart = async () => {
@@ -145,11 +145,11 @@ const closeModal = () => {
               setSelectedVariant(v.id);
             }}
             className={`px-4 py-2 rounded-lg text-sm border transition
-              ${
-                selectedSize === v.id
-                  ? "bg-cyan-400 text-black border-cyan-400"
-                  : "border-white/10 text-gray-400"
-              }`}
+            ${
+              selectedSize === v.id
+                ? "bg-cyan-400 text-black border-cyan-400"
+                : "border-white/10 text-gray-400"
+            }`}
           >
             {v.size}
           </button>
@@ -175,16 +175,15 @@ const closeModal = () => {
         </button>
       </div>
 
-      {/* CTA */}
       <button
         onClick={handleAddToCart}
         disabled={!selectedSize || loading}
         className={`w-full py-3 rounded-xl cursor-pointer font-semibold transition
-          ${
-            selectedSize
-              ? "bg-gradient-to-r from-cyan-400 to-blue-500 text-black"
-              : "bg-[#1f2937] text-gray-500"
-          }`}
+        ${
+          selectedSize
+            ? "bg-gradient-to-r from-cyan-400 to-blue-500 text-black"
+            : "bg-[#1f2937] text-gray-500"
+        }`}
       >
         {loading ? "Adding..." : "Add to Cart"}
       </button>
@@ -196,60 +195,39 @@ const closeModal = () => {
     const qtyInCart = getCartQty(product.id);
 
     return (
-      <div className="group rounded-2xl bg-[#0c0c0c] border border-white/10 overflow-hidden">
+      <div className="group flex flex-col h-full min-h-[360px] rounded-2xl bg-[#0c0c0c] border border-white/10 hover:border-cyan-400/40 overflow-hidden">
 
         {/* IMAGE */}
         <div className="relative aspect-square overflow-hidden">
-
           <Link href={`/product/${product.slug}`}>
             <Image
               src={product.images?.[0]?.image_url}
               fill
-              className="object-cover md:group-hover:scale-105 transition"
+              className="object-cover transition md:group-hover:scale-105"
               alt={product.name}
             />
           </Link>
 
-          <div className="absolute inset-0 bg-black/30 md:group-hover:bg-black/50 transition pointer-events-none" />
-
-          {/* TAG */}
           <span
-            className={`absolute top-3 left-3 text-[10px] px-2 py-1 rounded-md font-bold z-10 ${tagStyles["BESTSELLER"]}`}
+            className={`absolute top-3 left-3 text-[10px] px-2 py-1 rounded-md font-bold ${tagStyles["BESTSELLER"]}`}
           >
             BESTSELLER
           </span>
-
-          {/* DESKTOP BUTTON */}
-          <button
-            onClick={() => openModal(product)}
-            className="hidden md:flex absolute bottom-4 left-1/2 -translate-x-1/2 
-            bg-cyan-400 text-black text-xs font-semibold px-4 py-2 rounded-full
-            shadow-[0_0_20px_rgba(34,211,238,0.4)]
-            opacity-0 group-hover:opacity-100 transition cursor-pointer"
-          >
-            ADD TO CART
-          </button>
-        </div>
-
-        {/* MOBILE BUTTON */}
-        <div className="md:hidden p-3">
-          <button
-            onClick={() => openModal(product)}
-            className="w-full h-10 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 text-black text-sm font-semibold active:scale-95 transition"
-          >
-            Add to Cart
-          </button>
         </div>
 
         {/* CONTENT */}
-        <div className="px-4 pb-4 flex flex-col gap-1">
+        <div className="flex flex-col flex-1 p-4 gap-2">
+
           <span className="text-xs text-cyan-400 uppercase">
             {product.category?.name || "HOODIE"}
           </span>
 
-          <h3 className="text-white text-sm font-semibold">
+          <h3 className="text-white text-sm font-semibold line-clamp-1">
             {product.name}
           </h3>
+        <p className="text-gray-400 text-sm line-clamp-2">
+  {product.description}
+</p>
 
           <div className="text-yellow-400 text-xs">
             ★★★★★ <span className="text-gray-400">(234)</span>
@@ -268,37 +246,46 @@ const closeModal = () => {
           </div>
 
           {qtyInCart > 0 && (
-            <span className="text-xs text-cyan-300 mt-1">
+            <span className="text-xs text-cyan-300">
               In Cart: {qtyInCart}
             </span>
           )}
+
+          <button
+            onClick={() => openModal(product)}
+            className="mt-auto w-full h-11 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 text-black text-sm font-semibold hover:opacity-90 active:scale-95 transition"
+          >
+            Add to Cart
+          </button>
+
         </div>
       </div>
     );
   };
 
   return (
-     <section className="border-b border-white/10 py-12">
-
+    <section className="border-b border-white/10 py-12">
       <div className="max-w-7xl mx-auto px-4">
 
         <h2 className="text-center text-2xl font-bold text-white mb-10">
-      NEW ARRIVALS
+          NEW ARRIVALS
         </h2>
 
         {/* MOBILE SWIPER */}
         <div className="md:hidden">
           <Swiper slidesPerView={1.2} spaceBetween={14} grabCursor>
             {products.map((product) => (
-              <SwiperSlide key={product.id}>
-                <ProductCard product={product} />
+              <SwiperSlide key={product.id} className="flex h-auto">
+                <div className="flex-1">
+                  <ProductCard product={product} />
+                </div>
               </SwiperSlide>
             ))}
           </Swiper>
         </div>
 
         {/* DESKTOP GRID */}
-        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-fr">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
@@ -313,34 +300,32 @@ const closeModal = () => {
       )}
 
       {/* DESKTOP MODAL */}
-    {!isMobile && selectedProduct && (
-  <div
-    className={`fixed inset-0 z-50 flex items-center justify-center transition-all duration-300
-    ${showModal ? "bg-black/80 opacity-100" : "bg-black/0 opacity-0"}
-    `}
-  >
-    <div
-      className={`bg-[#111] rounded-2xl max-w-lg w-full border border-white/10
-      transform transition-all duration-300
-      ${
-        showModal
-          ? "scale-100 translate-y-0 opacity-100"
-          : "scale-95 translate-y-6 opacity-0"
-      }
-      `}
-    >
-      <div className="flex justify-between p-4 border-b border-white/10">
-        <h2 className="text-white">{selectedProduct.name}</h2>
+      {!isMobile && selectedProduct && (
+        <div
+          className={`fixed inset-0 z-50 flex items-center justify-center transition-all duration-300
+          ${showModal ? "bg-black/80 opacity-100" : "bg-black/0 opacity-0"}`}
+        >
+          <div
+            className={`bg-[#111] rounded-2xl max-w-lg w-full border border-white/10
+            transform transition-all duration-300
+            ${
+              showModal
+                ? "scale-100 translate-y-0 opacity-100"
+                : "scale-95 translate-y-6 opacity-0"
+            }`}
+          >
+            <div className="flex justify-between p-4 border-b border-white/10">
+              <h2 className="text-white">{selectedProduct.name}</h2>
 
-        <button onClick={closeModal}>
-          <XMarkIcon className="w-5 h-5 text-white" />
-        </button>
-      </div>
+              <button onClick={closeModal}>
+                <XMarkIcon className="w-5 h-5 text-white" />
+              </button>
+            </div>
 
-      <Content />
-    </div>
-  </div>
-)}
+            <Content />
+          </div>
+        </div>
+      )}
     </section>
   );
 }
