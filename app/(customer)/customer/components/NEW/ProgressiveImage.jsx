@@ -9,9 +9,8 @@ export default function ProgressiveImage({
 }) {
   // choose smallest available placeholder
   const placeholder =
-    image?.variants?.v64 ||
-    image?.variants?.v144 ||
     image?.variants?.v240 ||
+    image?.variants?.v360 ||
     image?.url ||
     null;
 

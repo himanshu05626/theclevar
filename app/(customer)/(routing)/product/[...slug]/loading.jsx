@@ -1,15 +1,15 @@
 export default function Loading() {
   return (
     <section className="bg-[#05070b] min-h-screen">
-      <div className="mx-auto max-w-7xl md:px-6 py-3 md:py-12 animate-pulse">
+      <div className="mx-auto max-w-7xl px-4 md:px-6 md:py-12 animate-pulse">
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
 
           {/* ================= LEFT IMAGE SIDE ================= */}
-          <div className="flex flex-col md:flex-row    gap-4">
+          <div className="flex flex-col md:flex-row gap-4">
 
-            {/* Thumbnails */}
-            <div className="flex hidden md:flex flex-col gap-3">
+            {/* Desktop Thumbnails */}
+            <div className="hidden md:flex flex-col gap-3">
               {[...Array(2)].map((_, i) => (
                 <div
                   key={i}
@@ -19,11 +19,13 @@ export default function Loading() {
             </div>
 
             {/* Main Image */}
-            <div className="flex-1">
-              <div className="h-100 md:h-130 w-full rounded-xl bg-[#151a1e] border border-white/10" />
+            <div className="w-full md:flex-1">
+              <div className="w-full h-[520px]   bg-[#151a1e] border border-white/10" />
             </div>
-                <div className="flex flex md:hidden  gap-3">
-              {[...Array(2)].map((_, i) => (
+
+            {/* Mobile Thumbnails */}
+            <div className="flex md:hidden gap-3 mt-3">
+              {[...Array(5)].map((_, i) => (
                 <div
                   key={i}
                   className="w-16 h-16 rounded-md bg-[#0f1720] border border-white/10"
@@ -54,7 +56,7 @@ export default function Loading() {
               <div className="h-4 w-20 bg-[#0f1720] rounded" />
             </div>
 
-            {/* Price Row */}
+            {/* Price */}
             <div className="flex items-center gap-4">
               <div className="h-8 w-20 bg-[#0f1720] rounded" />
               <div className="h-6 w-16 bg-[#0f1720] rounded" />
@@ -97,6 +99,7 @@ export default function Loading() {
           </div>
 
         </div>
+
       </div>
     </section>
   );
