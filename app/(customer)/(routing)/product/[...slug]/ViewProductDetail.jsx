@@ -18,12 +18,13 @@ import {
 import Zoom from "react-medium-image-zoom";
 import { EyeIcon } from "@heroicons/react/24/outline";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
+import ProgressiveImage from "@/app/(customer)/customer/components/NEW/ProgressiveImage";
 export default function ProductDetailClient({
   product,
   isLoggedIn,
   relatedProducts,
 }) {
-
+console.log('product',product)
   const { showToast } = useToast();
   const { cartItems, reloadCart } = useCart();
 
@@ -44,11 +45,11 @@ export default function ProductDetailClient({
 
   const [cartItem, setCartItem] = useState(null);
 
-const [emblaRef, emblaApi] = useEmblaCarousel({
-  loop: false,
-  dragFree: false,
-  containScroll: "trimSnaps",
-});
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: false,
+    dragFree: false,
+    containScroll: "trimSnaps",
+  });
 
   // sync swipe with selected thumbnail
   const onSelect = useCallback(() => {
@@ -261,38 +262,37 @@ const [emblaRef, emblaApi] = useEmblaCarousel({
                         className="min-w-full flex justify-center"
                         key={i}
                       >
-<TransformWrapper
-  wheel={{ step: 0.2 }}
-  pinch={{ step: 5 }}
-  minScale={1}
-  maxScale={4}
-  doubleClick={{ disabled: true }}
-  panning={{ disabled: true }}
-  onZoom={(ref) => {
-    const scale = ref.state.scale
+                        <TransformWrapper
+                          wheel={{ step: 0.05 }}
+                          pinch={{ step: 5 }}
+                          minScale={1}
+                          maxScale={4}
+                          doubleClick={{ disabled: true }}
+                          panning={{ disabled: true }}
+                          onZoom={(ref) => {
+                            const scale = ref.state.scale
 
-    ref.setTransform(
-      ref.state.positionX,
-      ref.state.positionY,
-      scale
-    )
+                            ref.setTransform(
+                              ref.state.positionX,
+                              ref.state.positionY,
+                              scale
+                            )
 
-    if (scale > 1) {
-      ref.instance.setPanning(true)
-    } else {
-      ref.instance.setPanning(false)
-    }
-  }}
->
-  <TransformComponent wrapperClass="!overflow-visible">
-    <img
-      src={main}
-      alt={product.name}
-      className="w-full h-[500px] object-contain rounded-xl select-none"
-      draggable={false}
-    />
-  </TransformComponent>
-</TransformWrapper>
+                            if (scale > 1) {
+                              ref.instance.setPanning(true)
+                            } else {
+                              ref.instance.setPanning(false)
+                            }
+                          }}
+                        >
+                          <TransformComponent wrapperClass="!overflow-visible">
+                          <ProgressiveImage
+  image={img}
+  alt={product.name}
+  className="h-[500px] rounded-xl"
+/>
+                          </TransformComponent>
+                        </TransformWrapper>
                       </div>
 
                     );
@@ -362,10 +362,10 @@ const [emblaRef, emblaApi] = useEmblaCarousel({
             </div>
 
 
-       <div className="flex items-center gap-1 text-sm text-gray-400">
-  <EyeIcon className="w-4 h-4" />
-  <span>{product.views} views</span>
-</div>
+            <div className="flex items-center gap-1 text-sm text-gray-400">
+              <EyeIcon className="w-4 h-4" />
+              <span>{product.views} views</span>
+            </div>
 
 
 
