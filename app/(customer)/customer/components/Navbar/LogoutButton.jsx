@@ -13,7 +13,7 @@ function Spinner() {
   );
 }
 
-export default function LogoutButton() {
+export default function LogoutButton({ setOpen, open }) {
   const [pending, startTransition] = useTransition();
 
   return (
@@ -21,6 +21,7 @@ export default function LogoutButton() {
       action={() => {
         startTransition(async () => {
           await logout();
+          setOpen(false);
         });
       }}
     >

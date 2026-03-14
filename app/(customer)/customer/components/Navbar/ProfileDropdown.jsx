@@ -98,7 +98,7 @@ export default function ProfileDropdown({isLoggedIn}) {
             </>
           ) : (
              <div className="border-t border-white/10">
-                    <LogoutButton />
+                    <LogoutButton setOpen={setOpen} open={open} />
                   </div>
           )}
       </div>
