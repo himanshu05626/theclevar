@@ -289,7 +289,7 @@ console.log('product',product)
                           <ProgressiveImage
   image={img}
   alt={product.name}
-  className=" w-full h-[500px] rounded-xl"
+  className=" h-[500px] rounded-xl"
 />
                           </TransformComponent>
                         </TransformWrapper>
