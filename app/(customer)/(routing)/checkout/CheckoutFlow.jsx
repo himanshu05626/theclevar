@@ -9,6 +9,7 @@ import ReviewStep from "./ReviewStep";
 import CheckoutTotal from "./CheckoutTotal";
 import PaymentStep from "./PaymentStep";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
 
 export default function CheckoutFlow({ addresses, cartData }) {
 
