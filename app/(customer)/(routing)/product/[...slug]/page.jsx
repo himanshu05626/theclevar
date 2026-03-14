@@ -185,7 +185,7 @@ export default async function Page({ params }) {
     /* =========================
        MAIN IMAGE
     ========================= */
-    console.log('product.imagesproduct.images', product.images)
+    // console.log('product.imagesproduct.images', product.images)
   const images =
   product.images?.map((img) => ({
     url: img.image_url,
@@ -230,7 +230,7 @@ export default async function Page({ params }) {
        FINAL PRICE
     ========================= */
     let finalPrice = product.sale_price ?? product.regular_price;
-    console.log('finalPricefinalPricefinalPricefinalPrice', product)
+    // console.log('finalPricefinalPricefinalPricefinalPrice', product)
     let pricingSource = "DEFAULT_PRICE";
 
     if (isLoggedIn) {

@@ -16,6 +16,8 @@ import {
   ShareIcon,
 } from "@heroicons/react/24/solid";
 import Zoom from "react-medium-image-zoom";
+import { EyeIcon } from "@heroicons/react/24/outline";
+import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 export default function ProductDetailClient({
   product,
   isLoggedIn,
@@ -42,9 +44,11 @@ export default function ProductDetailClient({
 
   const [cartItem, setCartItem] = useState(null);
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    loop: false,
-  });
+const [emblaRef, emblaApi] = useEmblaCarousel({
+  loop: false,
+  dragFree: false,
+  containScroll: "trimSnaps",
+});
 
   // sync swipe with selected thumbnail
   const onSelect = useCallback(() => {
@@ -257,17 +261,38 @@ export default function ProductDetailClient({
                         className="min-w-full flex justify-center"
                         key={i}
                       >
+<TransformWrapper
+  wheel={{ step: 0.2 }}
+  pinch={{ step: 5 }}
+  minScale={1}
+  maxScale={4}
+  doubleClick={{ disabled: true }}
+  panning={{ disabled: true }}
+  onZoom={(ref) => {
+    const scale = ref.state.scale
 
-                    <Zoom>
+    ref.setTransform(
+      ref.state.positionX,
+      ref.state.positionY,
+      scale
+    )
 
-  <img
-    src={main}
-    alt={product.name}
-    className="w-full h-[500px] object-contain rounded-xl cursor-zoom-in"
-    draggable={false}
-  />
-
-</Zoom>
+    if (scale > 1) {
+      ref.instance.setPanning(true)
+    } else {
+      ref.instance.setPanning(false)
+    }
+  }}
+>
+  <TransformComponent wrapperClass="!overflow-visible">
+    <img
+      src={main}
+      alt={product.name}
+      className="w-full h-[500px] object-contain rounded-xl select-none"
+      draggable={false}
+    />
+  </TransformComponent>
+</TransformWrapper>
                       </div>
 
                     );
@@ -337,9 +362,11 @@ export default function ProductDetailClient({
             </div>
 
 
-            <div className="text-sm text-gray-400">
-              👁 {product.views} views
-            </div>
+       <div className="flex items-center gap-1 text-sm text-gray-400">
+  <EyeIcon className="w-4 h-4" />
+  <span>{product.views} views</span>
+</div>
+
 
 
             {/* SIZE */}
