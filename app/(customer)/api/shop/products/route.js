@@ -122,7 +122,7 @@ export async function GET(req) {
   name: p.name,
   slug: p.slug,
   description: p.description,
-  image: p.images[0]?.image_url || null,
+  image: p.images[0] || null,
   price,
   rating: 4.5,
 

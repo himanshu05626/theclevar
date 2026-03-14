@@ -13,7 +13,7 @@ import {
   Bars3Icon,
 } from "@heroicons/react/24/outline";
 import ShopHeader from "./ShopHeader";
-
+import ProductCardSkeleton from "./ProductCardSkeleton";
 export default function ShopPage() {
   const params = useSearchParams();
   const router = useRouter();
@@ -153,13 +153,17 @@ export default function ShopPage() {
 
       {/* ================= GRID ================= */}
 
-      <div className="grid p-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+    <div className="grid p-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
 
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
-        ))}
+  {loading
+    ? [1,2,3,4 ].map((_, i) => (
+        <ProductCardSkeleton key={i} />
+      ))
+    : products.map((p) => (
+        <ProductCard key={p.id} product={p} />
+      ))}
 
-      </div>
+</div>
 
       {/* ================= PAGINATION ================= */}
 

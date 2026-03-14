@@ -10,6 +10,7 @@ import {
   ShoppingCartIcon,
   StarIcon,
 } from "@heroicons/react/24/solid";
+import ProgressiveImage from "./ProgressiveImage";
 
 export default function ProductCard({ product }) {
   const [open, setOpen] = useState(false);
@@ -76,6 +77,11 @@ export default function ProductCard({ product }) {
         <img
           src={product.image || "/images/not-found.png"}
           className="w-20 h-20 rounded-xl object-cover border border-white/10"
+        />
+                                <ProgressiveImage
+          image={product.image}
+          alt={product.name}
+          className=" w-20 h-20 rounded-xl object-cover border border-white/10"
         />
 
         <div className="flex-1">
@@ -172,10 +178,15 @@ export default function ProductCard({ product }) {
 
           <div className="relative">
 
-            <img
+             {/* <img
               src={product.image || "/images/not-found.png"}
               className="w-full aspect-square object-cover"
-            />
+            /> */}
+                                   <ProgressiveImage 
+          image={product.image}
+          alt={product.name}
+          className=" w-full aspect-square object-cover"
+        />
 
             {/* BADGE */}
             <span
