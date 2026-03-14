@@ -105,16 +105,15 @@ function ProductCard({ product, index }) {
       <Link href={`/product/${product.slug}`}>
         <div className="relative aspect-[4/5] overflow-hidden">
 
-          <Image
-            src={
-              product.images?.[0]?.image_url ||
-              "/images/not-found.png"
-            }
-            alt={product.name}
-            fill
-            priority={index === 0}
-            className="object-cover transition duration-500 group-hover:scale-110"
-          />
+        <img
+  src={
+    product.images?.[0]?.image_url ||
+    "/images/not-found.png"
+  }
+  alt={product.name}
+  loading={index === 0 ? "eager" : "lazy"}
+  className="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+/>
 
           <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition" />
 
