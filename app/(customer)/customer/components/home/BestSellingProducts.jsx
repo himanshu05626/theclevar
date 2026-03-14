@@ -10,8 +10,7 @@ import { useState, useEffect, useCallback } from "react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
+import useEmblaCarousel from "embla-carousel-react";
 
 export default function BestSellingProducts({ products }) {
   const { reloadCart, cartItems } = useCart();
@@ -24,6 +23,12 @@ export default function BestSellingProducts({ products }) {
   const [qty, setQty] = useState(1);
   const [loading, setLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+const [emblaRef] = useEmblaCarousel({
+  align: "start",
+  containScroll: "trimSnaps",
+  skipSnaps: false
+});
 
   /* MOBILE DETECT */
   useEffect(() => {
@@ -197,7 +202,6 @@ export default function BestSellingProducts({ products }) {
     return (
       <div className="group flex flex-col h-full min-h-[360px] rounded-2xl bg-[#0c0c0c] border border-white/10 hover:border-cyan-400/40 overflow-hidden">
 
-        {/* IMAGE */}
         <div className="relative aspect-square overflow-hidden">
           <Link href={`/product/${product.slug}`}>
             <Image
@@ -215,7 +219,6 @@ export default function BestSellingProducts({ products }) {
           </span>
         </div>
 
-        {/* CONTENT */}
         <div className="flex flex-col flex-1 p-4 gap-2">
 
           <span className="text-xs text-cyan-400 uppercase">
@@ -225,9 +228,10 @@ export default function BestSellingProducts({ products }) {
           <h3 className="text-white text-sm font-semibold line-clamp-1">
             {product.name}
           </h3>
-        <p className="text-gray-400 text-sm line-clamp-2">
-  {product.description}
-</p>
+
+          <p className="text-gray-400 text-sm line-clamp-2">
+            {product.description}
+          </p>
 
           <div className="text-yellow-400 text-xs">
             ★★★★★ <span className="text-gray-400">(234)</span>
@@ -271,17 +275,18 @@ export default function BestSellingProducts({ products }) {
           NEW ARRIVALS
         </h2>
 
-        {/* MOBILE SWIPER */}
-        <div className="md:hidden">
-          <Swiper slidesPerView={1.2} spaceBetween={14} grabCursor>
+        {/* MOBILE EMBLA */}
+        <div className="md:hidden overflow-hidden" ref={emblaRef}>
+          <div className="flex gap-4">
             {products.map((product) => (
-              <SwiperSlide key={product.id} className="flex h-auto">
-                <div className="flex-1">
-                  <ProductCard product={product} />
-                </div>
-              </SwiperSlide>
+              <div
+                key={product.id}
+                className="flex-[0_0_80%]"
+              >
+                <ProductCard product={product} />
+              </div>
             ))}
-          </Swiper>
+          </div>
         </div>
 
         {/* DESKTOP GRID */}
