@@ -59,13 +59,17 @@ const [emblaRef] = useEmblaCarousel({
   );
 
   /* OPEN MODAL */
-  const openModal = (product) => {
-    setSelectedProduct(product);
-    setSelectedVariant(product.variants?.[0]?.id || null);
-    setSelectedSize(product.variants?.[0]?.id || null);
-    setQty(1);
-    setTimeout(() => setShowModal(true), 10);
-  };
+const openModal = (product) => {
+  const img = new window.Image();
+  img.src = product.images?.[0]?.image_url;
+
+  setSelectedProduct(product);
+  setSelectedVariant(product.variants?.[0]?.id || null);
+  setSelectedSize(product.variants?.[0]?.id || null);
+  setQty(1);
+
+  setTimeout(() => setShowModal(true), 10);
+};
 
   const closeModal = () => {
     setShowModal(false);
@@ -305,7 +309,7 @@ const [emblaRef] = useEmblaCarousel({
       )}
 
       {/* DESKTOP MODAL */}
-      {!isMobile && selectedProduct && (
+  {!isMobile && selectedProduct && showModal && (
         <div
           className={`fixed inset-0 z-50 flex items-center justify-center transition-all duration-300
           ${showModal ? "bg-black/80 opacity-100" : "bg-black/0 opacity-0"}`}
