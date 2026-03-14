@@ -429,7 +429,7 @@ model customer_route_logs {
   path             String   @db.VarChar(500)
   method           String   @db.VarChar(10)
   user_agent       String?  @db.VarChar(255)
-  ip_address       String?  @db.VarChar(45)
+  ip_address       String?  @db.VarChar(255)
   created_at       DateTime @default(now())
 
   customer         customer_list @relation(fields: [customer_list_id], references: [id], onDelete: Cascade)
