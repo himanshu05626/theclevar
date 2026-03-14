@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import CheckoutSteps from "./CheckoutSteps";
 import AddressStep from "./AddressStep";
@@ -8,32 +8,42 @@ import ReviewStep from "./ReviewStep";
 
 import CheckoutTotal from "./CheckoutTotal";
 import PaymentStep from "./PaymentStep";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 export default function CheckoutFlow({ addresses, cartData }) {
 
   const [step, setStep] = useState(1);
 
+  /* =========================
+     SCROLL TO TOP ON STEP CHANGE
+  ========================= */
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, [step]);
+
   return (
-    <div className="min-h-screen max-w-6xl mx-auto bg-[#0f0f0f] text-white">
+    <div className="min-h-screen max-w-6xl mx-auto  text-white">
 
       <div className="max-w-7xl mx-auto px-4 py-6">
 
-        {/* HEADER */}
-        <div className="flex items-center justify-between mb-8">
+    <div className="flex items-center gap-4 mb-8 justify-between">
 
-          <button
-            onClick={() => window.history.back()}
-            className="text-sm text-gray-400 hover:text-cyan-400"
-          >
-            ← BACK TO CART
-          </button>
+  <button
+    onClick={() => window.history.back()}
+    className="flex items-center gap-2 text-sm text-gray-400 hover:text-cyan-400 transition"
+  >
+    <ArrowLeftIcon className="w-4 h-4" />
+    Back
+  </button>
 
-          <h1 className="text-xl font-semibold tracking-wide">
-            SECURE CHECKOUT
-          </h1>
+  <h1 className="text-lg font-semibold">
+    Secure Checkout
+  </h1>
 
-          <div />
-        </div>
+</div>
 
         {/* STEPS */}
         <CheckoutSteps step={step} />
