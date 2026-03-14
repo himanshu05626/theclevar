@@ -53,7 +53,7 @@ const ProductCard = memo(function ProductCard({ product, openModal, qtyInCart })
           {product.category?.name || "HOODIE"}
         </span>
 
-        <h3 className="text-white text-sm font-semibold line-clamp-1">
+        <h3 className="text-white md:text-sm text-xl   font-semibold line-clamp-1">
           {product.name}
         </h3>
 
