@@ -7,7 +7,6 @@ export default function ProgressiveImage({
   alt,
   className = "",
 }) {
-  console.log('image',image)
   const [loaded, setLoaded] = useState(false);
   const [src, setSrc] = useState("");
 
@@ -42,13 +41,13 @@ export default function ProgressiveImage({
   }, [image]);
 
   return (
-    <div className="relative overflow-hidden">
+    <div className={`relative overflow-hidden ${className}`}>
 
-      {/* low quality placeholder */}
+      {/* placeholder */}
       <img
         src={placeholder}
         alt={alt}
-        className={`absolute inset-0 w-full h-full object-contain blur-md scale-105 transition-opacity duration-500 ${
+        className={`absolute inset-0 w-full h-full object-contain blur-md scale-110 transition-opacity duration-500 ${
           loaded ? "opacity-0" : "opacity-100"
         }`}
         draggable={false}
@@ -58,9 +57,9 @@ export default function ProgressiveImage({
       <img
         src={src}
         alt={alt}
-        className={`w-full h-full object-contain transition-opacity duration-500 ${
+        className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-500 ${
           loaded ? "opacity-100" : "opacity-0"
-        } ${className}`}
+        }`}
         draggable={false}
       />
 
