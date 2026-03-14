@@ -1,22 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import useEmblaCarousel from "embla-carousel-react";
+
 import { addToCartDB, deleteCartItem } from "./actions";
 import { useToast } from "@/app/admin/context/ToastProvider";
 import { useCart } from "@/app/context/CartContext";
-import RelatedProduct from "./RelatedProduct";
 
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
+import RelatedProduct from "./RelatedProduct";
+import ProductInfoTabs from "./ProductInfoTabs";
+import ServiceHighlights from "@/app/(customer)/customer/components/home/ServiceHighlights";
 
 import {
   StarIcon,
   ShareIcon,
 } from "@heroicons/react/24/solid";
-
-import ProductInfoTabs from "./ProductInfoTabs";
-import ServiceHighlights from "@/app/(customer)/customer/components/home/ServiceHighlights";
-
+import Zoom from "react-medium-image-zoom";
 export default function ProductDetailClient({
   product,
   isLoggedIn,
@@ -32,15 +31,36 @@ export default function ProductDetailClient({
   const [qty, setQty] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
-  const [activeImage, setActiveImage] = useState(
-    product?.mainImage?.[0] || null
-  );
+  const images = product?.mainImage || [];
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const activeImage = images[activeIndex];
 
   const [selectedVariant, setSelectedVariant] = useState(
     product?.variants?.[0] || null
   );
 
   const [cartItem, setCartItem] = useState(null);
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: false,
+  });
+
+  // sync swipe with selected thumbnail
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setActiveIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.on("select", onSelect);
+  }, [emblaApi, onSelect]);
+
+  const scrollTo = (index) => {
+    if (!emblaApi) return;
+    emblaApi.scrollTo(index);
+  };
 
   // SAFE CART ITEM CHECK
   useEffect(() => {
@@ -64,6 +84,7 @@ export default function ProductDetailClient({
     }
 
   }, [cartItems, product.id, isLoggedIn]);
+
 
   // ADD TO CART
   const handleAddToCart = async () => {
@@ -93,7 +114,10 @@ export default function ProductDetailClient({
           product_id: product.id,
           name: product.name,
           price,
-          image: product?.mainImage?.[0]?.url || null,
+          image:
+            activeImage?.variants?.v240 ||
+            activeImage?.url ||
+            null,
           quantity: qty,
           variant_id: selectedVariant?.id || null,
           variant_size: selectedVariant?.size || null,
@@ -124,6 +148,7 @@ export default function ProductDetailClient({
 
     }
   };
+
 
   // REMOVE FROM CART
   const handleRemove = async () => {
@@ -167,6 +192,8 @@ export default function ProductDetailClient({
     }
   };
 
+
+
   return (
 
     <section className="bg-[#05070b] text-white min-h-screen">
@@ -178,38 +205,78 @@ export default function ProductDetailClient({
           {/* LEFT IMAGE AREA */}
           <div className="flex justify-evenly flex-wrap-reverse gap-6">
 
-            {/* thumbnails */}
+            {/* THUMBNAILS */}
             <div className="flex flex-row md:flex-col gap-3 mt-4">
 
-              {product?.mainImage?.length > 0 &&
-                product.mainImage.map((img, i) => (
+              {images.map((img, i) => {
+
+                const thumb =
+                  img?.variants?.v64 || img?.url;
+
+                return (
 
                   <img
-                    key={img.id || i}
-                    src={img.url}
-                    onClick={() => setActiveImage(img)}
+                    key={i}
+                    src={thumb}
+                    onClick={() => scrollTo(i)}
                     className={`w-16 h-16 object-cover rounded-md cursor-pointer border
-                      ${activeImage?.url === img.url
+                    ${activeIndex === i
                         ? "border-cyan-400"
                         : "border-white/10 hover:border-cyan-400"
                       }`}
                   />
 
-                ))}
+                );
+
+              })}
 
             </div>
 
-            {/* main image */}
-            <div className="relative">
+
+            {/* MAIN IMAGE SLIDER */}
+            <div className="relative overflow-hidden w-full max-w-[500px]">
 
               <span className="absolute top-4 left-4 z-10 bg-pink-500 text-xs px-3 py-1 rounded-full font-semibold">
                 HOT
               </span>
 
-              <img
-                src={activeImage?.url || "/images/not-found.png"}
-                className="w-full h-120 rounded-xl object-contain"
-              />
+              <div className="overflow-hidden" ref={emblaRef}>
+
+                <div className="flex">
+
+                  {images.map((img, i) => {
+
+                    const main =
+                      img?.variants?.v720 ||
+                      img?.variants?.v1080 ||
+                      img?.url;
+
+                    return (
+
+                      <div
+                        className="min-w-full flex justify-center"
+                        key={i}
+                      >
+
+                    <Zoom>
+
+  <img
+    src={main}
+    alt={product.name}
+    className="w-full h-[500px] object-contain rounded-xl cursor-zoom-in"
+    draggable={false}
+  />
+
+</Zoom>
+                      </div>
+
+                    );
+
+                  })}
+
+                </div>
+
+              </div>
 
             </div>
 
@@ -219,7 +286,6 @@ export default function ProductDetailClient({
           {/* RIGHT DETAILS */}
           <div className="space-y-6">
 
-            {/* TITLE */}
             <div>
 
               <p className="text-green-400 text-xs uppercase tracking-wider">
@@ -234,15 +300,12 @@ export default function ProductDetailClient({
                 {product.description}
               </p>
 
-              {/* rating */}
               <div className="flex items-center gap-2 mt-2 text-sm text-gray-400">
 
                 <div className="flex items-center gap-1 text-yellow-400">
-
                   {[...Array(5)].map((_, i) => (
                     <StarIcon key={i} className="w-4 h-4" />
                   ))}
-
                 </div>
 
                 <span className="text-cyan-400 font-semibold">
@@ -390,7 +453,6 @@ export default function ProductDetailClient({
             </div>
 
 
-            {/* SHARE */}
             <p className="flex items-center gap-2 text-xs text-gray-500 cursor-pointer hover:text-white transition">
 
               <ShareIcon className="w-4 h-4" />

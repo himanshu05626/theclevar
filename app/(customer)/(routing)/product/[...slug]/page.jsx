@@ -186,11 +186,22 @@ export default async function Page({ params }) {
        MAIN IMAGE
     ========================= */
     console.log('product.imagesproduct.images', product.images)
-    const images =
-        product.images?.map((img) => ({
-            url: img.image_url,
-            isPrimary: img.is_primary,
-        })) || [];
+  const images =
+  product.images?.map((img) => ({
+    url: img.image_url,
+    isPrimary: img.is_primary,
+    isVariant: img.is_variant,
+
+    variants: {
+      v64: img.url_64,
+      v144: img.url_144,
+      v240: img.url_240,
+      v360: img.url_360,
+      v480: img.url_480,
+      v720: img.url_720,
+      v1080: img.url_1080,
+    },
+  })) || [];
 
 
     /* =========================
