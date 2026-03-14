@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <section className="bg-[#05070b] min-h-screen">
+    <section className="bg-black min-h-screen">
       <div className="mx-auto max-w-7xl px-4 md:px-6 md:py-12 animate-pulse">
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -13,14 +13,14 @@ export default function Loading() {
               {[...Array(2)].map((_, i) => (
                 <div
                   key={i}
-                  className="w-16 h-16 rounded-md bg-[#0f1720] border border-white/10"
+                  className="w-16 h-16 rounded-md bg-[#212121] border border-white/10"
                 />
               ))}
             </div>
 
-            {/* Main Image */}
-            <div className="w-full md:flex-1">
-              <div className="w-full h-[520px]   bg-[#151a1e] border border-white/10" />
+            {/* Main Image Skeleton */}
+            <div className="w-full">
+              <div className="w-full h-[500px] rounded bg-[#212121] border border-white/10" />
             </div>
 
             {/* Mobile Thumbnails */}
@@ -28,7 +28,7 @@ export default function Loading() {
               {[...Array(5)].map((_, i) => (
                 <div
                   key={i}
-                  className="w-16 h-16 rounded-md bg-[#0f1720] border border-white/10"
+                  className="w-16 h-16 rounded-md bg-[#212121] border border-white/10"
                 />
               ))}
             </div>
@@ -39,34 +39,34 @@ export default function Loading() {
           <div className="space-y-6">
 
             {/* Category */}
-            <div className="h-3 w-20 bg-[#0f1720] rounded" />
+            <div className="h-3 w-20 bg-[#212121] rounded" />
 
             {/* Title */}
             <div className="space-y-2">
-              <div className="h-7 w-4/5 bg-[#0f1720] rounded" />
-              <div className="h-7 w-3/5 bg-[#0f1720] rounded" />
+              <div className="h-7 w-4/5 bg-[#212121] rounded" />
+              <div className="h-7 w-3/5 bg-[#212121] rounded" />
             </div>
 
             {/* Description */}
-            <div className="h-4 w-2/3 bg-[#0f1720] rounded" />
+            <div className="h-4 w-2/3 bg-[#212121] rounded" />
 
             {/* Rating */}
             <div className="flex items-center gap-3">
-              <div className="h-4 w-28 bg-[#0f1720] rounded" />
-              <div className="h-4 w-20 bg-[#0f1720] rounded" />
+              <div className="h-4 w-28 bg-[#212121] rounded" />
+              <div className="h-4 w-20 bg-[#212121] rounded" />
             </div>
 
             {/* Price */}
             <div className="flex items-center gap-4">
-              <div className="h-8 w-20 bg-[#0f1720] rounded" />
-              <div className="h-6 w-16 bg-[#0f1720] rounded" />
-              <div className="h-6 w-16 bg-[#0f1720] rounded" />
+              <div className="h-8 w-20 bg-[#212121] rounded" />
+              <div className="h-6 w-16 bg-[#212121] rounded" />
+              <div className="h-6 w-16 bg-[#212121] rounded" />
             </div>
 
             {/* Size Label */}
             <div className="flex justify-between">
-              <div className="h-4 w-24 bg-[#0f1720] rounded" />
-              <div className="h-4 w-20 bg-[#0f1720] rounded" />
+              <div className="h-4 w-24 bg-[#212121] rounded" />
+              <div className="h-4 w-20 bg-[#212121] rounded" />
             </div>
 
             {/* Size Buttons */}
@@ -74,27 +74,27 @@ export default function Loading() {
               {[...Array(3)].map((_, i) => (
                 <div
                   key={i}
-                  className="w-12 h-10 rounded-md bg-[#0f1720] border border-white/10"
+                  className="w-12 h-10 rounded-md bg-[#212121] border border-white/10"
                 />
               ))}
             </div>
 
             {/* Quantity */}
             <div className="flex items-center gap-4">
-              <div className="h-4 w-10 bg-[#0f1720] rounded" />
+              <div className="h-4 w-10 bg-[#212121] rounded" />
 
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-[#0f1720] rounded border border-white/10" />
-                <div className="w-10 h-8 bg-[#0f1720] rounded border border-white/10" />
-                <div className="w-8 h-8 bg-[#0f1720] rounded border border-white/10" />
+                <div className="w-8 h-8 bg-[#212121] rounded border border-white/10" />
+                <div className="w-10 h-8 bg-[#212121] rounded border border-white/10" />
+                <div className="w-8 h-8 bg-[#212121] rounded border border-white/10" />
               </div>
             </div>
 
             {/* Add to Cart */}
-            <div className="h-12 w-full bg-[#0f1720] rounded-xl border border-white/10" />
+            <div className="h-12 w-full bg-[#212121] rounded-xl border border-white/10" />
 
             {/* Share */}
-            <div className="h-4 w-32 bg-[#0f1720] rounded" />
+            <div className="h-4 w-32 bg-[#212121] rounded" />
 
           </div>
 
