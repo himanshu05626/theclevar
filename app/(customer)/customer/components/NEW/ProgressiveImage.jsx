@@ -12,8 +12,8 @@ export default function ProgressiveImage({
   const [src, setSrc] = useState("");
 
   const placeholder =
-    image?.variants?.v64 ||
     image?.variants?.v144 ||
+    image?.variants?.v240 ||
     image?.url;
 
   const mobile =
