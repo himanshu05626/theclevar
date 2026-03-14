@@ -61,7 +61,9 @@ export default function ProfileDropdown({isLoggedIn}) {
           </p>
           {!isLoggedIn && (
           <Link href="/auth/login" className="text-blue-400 hover:text-blue-300">
-            <button className="
+            <button
+            onClick={() => setOpen(!open)}
+            className="
             mt-3 w-full py-2 rounded-lg
             bg-gradient-to-r from-[#0ea5e9] to-[#38bdf8]
             text-black font-semibold
