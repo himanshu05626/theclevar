@@ -1,7 +1,7 @@
 export default function Loading() {
   return (
     <section className="bg-[#05070b] min-h-screen">
-      <div className="mx-auto max-w-7xl px-6 py-12 animate-pulse">
+      <div className="mx-auto max-w-7xl md:px-6 py-3 md:py-12 animate-pulse">
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
 
