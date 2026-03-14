@@ -31,13 +31,13 @@ export default function CheckoutFlow({ addresses, cartData }) {
 
     <div className="flex items-center gap-4 mb-8 justify-between">
 
-  <button
-    onClick={() => window.history.back()}
+  <Link
+  href="/cart"
     className="flex items-center gap-2 text-sm text-gray-400 hover:text-cyan-400 transition"
   >
     <ArrowLeftIcon className="w-4 h-4" />
     Back
-  </button>
+  </Link>
 
   <h1 className="text-lg font-semibold">
     Secure Checkout
