@@ -4,6 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { auth, googleProvider } from "@/lib/firebase";
+import { signInWithPopup } from "firebase/auth";
+
 function Spinner() {
   return (
     <div className="w-4 h-4 border-2 border-gray-300 border-t-[#347eb3] rounded-full animate-spin" />
@@ -16,6 +19,44 @@ export default function LoginPage({isLoggedIn}) {
       router.replace("/");
     }
   }, [isLoggedIn, router]);
+  const handleGoogleLogin = async () => {
+  try {
+    setLoading(true);
+
+    const result = await signInWithPopup(auth, googleProvider);
+
+    const user = result.user;
+
+    const res = await fetch("/api/auth/google-login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: user.displayName,
+        email: user.email,
+        photo: user.photoURL,
+        uid: user.uid,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.message || "Google login failed");
+      return;
+    }
+
+    localStorage.setItem("userName", data.user.name);
+
+    router.replace(redirectTo);
+    router.refresh();
+  } catch (err) {
+    setError("Google login failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
 if (isLoggedIn) {
   return (

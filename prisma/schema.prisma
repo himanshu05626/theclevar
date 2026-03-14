@@ -25,6 +25,8 @@ model customer_list {
   customer_group_id        Int?                  @db.UnsignedInt
   email                    String                @unique
   first_name               String
+  google_uid               String?            @unique   // ✅ ADD THIS
+
   is_active                Boolean               @default(true)
   is_blocked               Boolean               @default(false)
   is_deleted               Boolean               @default(false)
