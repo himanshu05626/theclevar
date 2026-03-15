@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { createAddress } from "./actions";
+import { useToast } from "@/app/admin/context/ToastProvider";
 
 export default function AddressStep({ addresses, onNext }) {
 
   const [selected, setSelected] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const {showToast} = useToast();
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -86,8 +87,11 @@ export default function AddressStep({ addresses, onNext }) {
      NEXT STEP
   ========================= */
   const handleNext = () => {
-
-    if (!selected) return;
+console.log('selectedselected',selected)
+    if (!selected) {
+      showToast({ type: "error", message: "Please select a delivery address" });
+    return;
+  }
 
     localStorage.setItem("shipping_address_id", selected);
     localStorage.setItem("billing_address_id", selected);
@@ -249,7 +253,6 @@ export default function AddressStep({ addresses, onNext }) {
       {/* CONTINUE */}
       <button
         onClick={handleNext}
-        disabled={!selected}
         className="w-full mt-8 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold py-3 rounded-lg transition disabled:opacity-50"
       >
         CONTINUE TO REVIEW
