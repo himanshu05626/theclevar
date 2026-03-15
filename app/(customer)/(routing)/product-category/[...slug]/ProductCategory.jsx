@@ -5,7 +5,8 @@ import { cookies } from "next/headers";
 import { requireUser } from "@/lib/requireUser";
 import ProductGrid from "./ProductGrid";
 import { CubeIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-
+import CategoryHero from "./CategoryHero";
+import ProductGridAnimated from "./ProductGridAnimated";
 export default async function ProductCategory({ slugPath }) {
 
   /* =========================
@@ -57,24 +58,24 @@ export default async function ProductCategory({ slugPath }) {
     },
   });
 
-if (!category) {
-  return (
-    <div className="flex min-h-[300px] bg-[#1a1a1a] items-center justify-center">
-      <div className="flex flex-col items-center gap-3 rounded-xl border border-white/10 bg-[#1a1a1a] px-8 py-10 text-center shadow-[0_10px_30px_rgba(0,0,0,0.6)]">
-        
-        <ExclamationTriangleIcon className="h-10 w-10 text-[#38bdf8]" />
+  if (!category) {
+    return (
+      <div className="flex min-h-[300px]  items-center justify-center">
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-white/10 px-8 py-10 text-center shadow-[0_10px_30px_rgba(0,0,0,0.6)]">
 
-        <h3 className="text-lg font-semibold text-white">
-          Category not found
-        </h3>
+          <ExclamationTriangleIcon className="h-10 w-10 text-[#38bdf8]" />
 
-        <p className="max-w-sm text-sm text-gray-400">
-          The category you are looking for may have been removed or does not exist.
-        </p>
+          <h3 className="text-lg font-semibold text-white">
+            Category not found
+          </h3>
+
+          <p className="max-w-sm text-sm text-gray-400">
+            The category you are looking for may have been removed or does not exist.
+          </p>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   /* =========================
      FETCH PRODUCTS
@@ -97,19 +98,19 @@ if (!category) {
         : false,
       tier_product_pricing: isLoggedIn
         ? {
-            select: {
-              tier_1_price: true,
-              tier_2_price: true,
-              tier_3_price: true,
-              tier_4_price: true,
-              tier_5_price: true,
-              tier_6_price: true,
-              tier_7_price: true,
-              tier_8_price: true,
-              tier_9_price: true,
-              tier_10_price: true,
-            },
-          }
+          select: {
+            tier_1_price: true,
+            tier_2_price: true,
+            tier_3_price: true,
+            tier_4_price: true,
+            tier_5_price: true,
+            tier_6_price: true,
+            tier_7_price: true,
+            tier_8_price: true,
+            tier_9_price: true,
+            tier_10_price: true,
+          },
+        }
         : false,
     },
     orderBy: { name: "asc" },
@@ -118,11 +119,11 @@ if (!category) {
   /* =========================
      PREPARE PRODUCTS
   ========================= */
+  console.log('productsproducts', products)
   const preparedProducts = products.map((product) => {
-    const mainImage =
-      product.images.find((i) => i.is_primary)?.image_url ||
-      product.images[0]?.image_url ||
+    const mainImage = product.images ||
       "/images/not-found.png";
+
 
     let finalPrice =
       product.sale_price ?? product.regular_price;
@@ -165,6 +166,7 @@ if (!category) {
       id: product.id,
       slug: product.slug,
       name: product.name,
+      description: product.description,
       image: mainImage,
       price: finalPrice,
       stepper_value: product.stepper_value,
@@ -198,19 +200,12 @@ if (!category) {
      UI (DARK CONVERTED)
   ========================= */
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0f0f0f] to-[#111827]">
-      
-      <div className="mx-auto max-w-7xl px-4 py-10">
+    <div className="min-h-screen ">
+
+      <div className="mx-auto max-w-7xl ">
 
         {/* CATEGORY TITLE */}
-        <h1
-          className="
-            mb-10 text-center text-3xl font-semibold
-            text-white
-          "
-        >
-          {category.name}
-        </h1>
+        <CategoryHero category={category} products={products} />
 
         {/* ================= CHILD CATEGORIES ================= */}
         {childrenWithCount.length > 0 && (
@@ -251,27 +246,30 @@ if (!category) {
         )}
 
         {/* ================= PRODUCT GRID ================= */}
-        {preparedProducts.length > 0 ? (
-          <ProductGrid
-            products={preparedProducts}
-            customerId={customerId}
-          />
-        ) : (
-        <div className="flex items-center justify-center py-16">
-  <div className="flex flex-col items-center gap-3 rounded-xl border border-white/10 bg-[#1a1a1a] px-8 py-10 text-center shadow-[0_10px_30px_rgba(0,0,0,0.6)]">
-    
-    <CubeIcon className="h-10 w-10 text-[#38bdf8]" />
 
-    <h3 className="text-lg font-semibold text-white">
-      No products found
-    </h3>
+      {/* ================= PRODUCT GRID ================= */}
 
-    <p className="text-sm text-gray-400">
-      There are currently no products available in this category.
-    </p>
+{preparedProducts.length > 0 ? (
+  <ProductGridAnimated
+    preparedProducts={preparedProducts}
+    customerId={customerId}
+  />
+) : (
+  <div className="flex items-center justify-center py-16">
+    <div className="flex flex-col items-center gap-3 rounded-xl border border-white/10 bg-[#1a1a1a] px-8 py-10 text-center shadow-[0_10px_30px_rgba(0,0,0,0.6)]">
+
+      <CubeIcon className="h-10 w-10 text-[#38bdf8]" />
+
+      <h3 className="text-lg font-semibold text-white">
+        No products found
+      </h3>
+
+      <p className="text-sm text-gray-400">
+        There are currently no products available in this category.
+      </p>
+    </div>
   </div>
-</div>
-        )}
+)}
 
       </div>
     </div>

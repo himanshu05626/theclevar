@@ -7,7 +7,6 @@ export default function ProgressiveImage({
   alt = "",
   className = "",
 }) {
-
   const placeholder =
     image?.url_64 ||
     image?.url_144 ||

@@ -1,288 +1,305 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useState, useTransition, useCallback } from "react";
-import ScrollReveal from "scrollreveal";
-import { addToCartAction, deleteCartItem } from "./action";
-import { useToast } from "@/app/admin/context/ToastProvider";
+import SwipeableDrawer from "@/app/admin/UI/common/SwipeableDrawer";
 import { useCart } from "@/app/context/CartContext";
+import Link from "next/link";
+import { useState, useEffect } from "react";
 
-export default function ProductGrid({ products, customerId }) {
-  const { showToast } = useToast();
-  const { reloadCart, cartItems } = useCart();
+import {
+  HeartIcon,
+  ShoppingCartIcon,
+  StarIcon,
+} from "@heroicons/react/24/solid";
+import ProgressiveImage from "../../shop/ProgressiveImage";
 
-  const [isPending, startTransition] = useTransition();
-  const [loadingProductId, setLoadingProductId] = useState(null);
+export default function ProductCard({ product }) {
+  console.log('prodasdasduct',product)
+  const [open, setOpen] = useState(false);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [qty, setQty] = useState(1);
+  const [isMobile, setIsMobile] = useState(false);
 
-  /* ================= IMAGE FADE ================= */
+  const { reloadCart } = useCart();
+
   useEffect(() => {
-    ScrollReveal().reveal(".sr-image", {
-      opacity: 0,
-      duration: 400,
-      easing: "ease-out",
-      reset: false,
-    });
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
-  /* ================= CART QTY ================= */
-  const getCartQty = useCallback(
-    (productId) => {
-      if (Array.isArray(cartItems) && cartItems.length > 0) {
-        const item = cartItems.find(
-          (i) => i.product_list_id === productId
-        );
-        return item?.quantity || 0;
-      }
+  const handleAddToCart = async () => {
+    if (!selectedSize) return;
 
-      if (typeof window === "undefined") return 0;
+    try {
+      setLoading(true);
 
-      const guestCart =
-        JSON.parse(localStorage.getItem("guest_cart")) || {};
-
-      return guestCart[productId]?.quantity || 0;
-    },
-    [cartItems]
-  );
-
-  /* ================= ADD ================= */
-  const handleAddToCart = (product) => {
-    const step = Number(product.stepper_value ?? 1);
-    setLoadingProductId(product.id);
-
-    startTransition(async () => {
-      const payload = { [product.id]: step };
-      const res = await addToCartAction({
-        customerId,
-        quantities: payload,
+      const res = await fetch("/api/cart/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: product.id,
+          variantId: selectedSize,
+          quantity: qty,
+        }),
       });
 
-      if (res?.success) {
-        reloadCart();
-        showToast({
-          type: "success",
-          message: "Product added to cart",
-        });
-        setLoadingProductId(null);
-        return;
-      }
-
-      if (res?.message === "Customer not found") {
-        if (typeof window !== "undefined") {
-          const existingCart =
-            JSON.parse(localStorage.getItem("guest_cart")) || {};
-
-          const updatedCart = { ...existingCart };
-
-          if (updatedCart[product.id]) {
-            updatedCart[product.id].quantity += step;
-          } else {
-            updatedCart[product.id] = {
-              product_id: product.id,
-              product_list_id: product.id,
-              name: product.name,
-              price: product.price,
-              image: product.image,
-              stepper_value: product.stepper_value,
-              quantity: step,
-            };
-          }
-
-          localStorage.setItem(
-            "guest_cart",
-            JSON.stringify(updatedCart)
-          );
-        }
-
-        reloadCart();
-        showToast({
-          type: "success",
-          message: "Saved to cart.",
-        });
-        setLoadingProductId(null);
-        return;
-      }
-
-      showToast({
-        type: "error",
-        message: res?.message || "Something went wrong",
-      });
-
-      setLoadingProductId(null);
-    });
-  };
-
-  /* ================= REMOVE ================= */
-  const handleRemoveFromCart = (product) => {
-    const cartItem = cartItems?.find(
-      (i) => i.product_list_id === product.id
-    );
-    if (!cartItem) return;
-
-    startTransition(async () => {
-      if (customerId) {
-        const fd = new FormData();
-        fd.append("cartId", cartItem.id);
-        await deleteCartItem(null, fd);
-      } else {
-        const cart =
-          JSON.parse(localStorage.getItem("guest_cart")) || {};
-        delete cart[product.id];
-        localStorage.setItem(
-          "guest_cart",
-          JSON.stringify(cart)
-        );
-      }
+      if (!res.ok) throw new Error();
 
       reloadCart();
-    });
+      setOpen(false);
+      setSelectedSize(null);
+      setQty(1);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  /* ================= UI ================= */
+  /* ================= BADGE ================= */
+
+  const badge = product?.badge || "NEW";
+
+  const badgeColors = {
+    HOT: "bg-pink-500",
+    NEW: "bg-green-400 text-black",
+    BESTSELLER: "bg-cyan-400 text-black",
+    LIMITED: "bg-yellow-400 text-black",
+  };
+
+  /* ================= MODAL ================= */
+
+  const Content = () => (
+    <div className="space-y-6 p-5">
+
+      <div className="flex gap-4">
+        <img
+          src={product.image || "/images/not-found.png"}
+          className="w-20 h-20 rounded-xl object-cover border border-white/10"
+        />
+                                <ProgressiveImage
+          image={product.image[0]}
+          alt={product.name}
+          className=" w-20 h-20 rounded-xl object-cover border border-white/10"
+        />
+
+        <div className="flex-1">
+          <h3 className="text-sm font-semibold text-white">{product.name}</h3>
+       <p className="text-gray-400 text-sm font-semibold line-clamp-2">
+  {product.description}
+</p>
+
+          <div className="flex items-center gap-1 text-yellow-400 text-xs mt-1">
+            {[...Array(5)].map((_, i) => (
+              <StarIcon key={i} className="w-3 h-3" />
+            ))}
+          </div>
+
+          <div className="flex gap-2 mt-2">
+            <span className="text-white font-semibold">
+              ₹{product.price}
+            </span>
+
+            {product.regular_price && (
+              <span className="text-xs text-white line-through">
+                ₹{product.regular_price}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* SIZE */}
+      <div>
+        <p className="text-sm mb-2">Select Size</p>
+
+        <div className="flex gap-2 flex-wrap">
+          {product.variants?.map((v) => {
+            const active = selectedSize === v.id;
+
+            return (
+              <button
+                key={v.id}
+                onClick={() => setSelectedSize(v.id)}
+                className={`px-4 py-2 rounded-lg text-sm border transition
+                  ${
+                    active
+                      ? "bg-[#38bdf8] text-black border-[#38bdf8]"
+                      : "border-white/10 text-gray-400 hover:border-[#38bdf8]"
+                  }
+                `}
+              >
+                {v.size}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* QTY */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => setQty((p) => Math.max(1, p - 1))}
+          className="w-9 h-9 rounded-lg bg-[#1f2937]"
+        >
+          -
+        </button>
+
+        <span>{qty}</span>
+
+        <button
+          onClick={() => setQty((p) => p + 1)}
+          className="w-9 h-9 rounded-lg bg-[#1f2937]"
+        >
+          +
+        </button>
+      </div>
+
+      <button
+        onClick={handleAddToCart}
+        disabled={!selectedSize || loading}
+        className="w-full py-3 rounded-xl bg-[#22d3ee] text-black font-semibold disabled:bg-[#22d3ee]/50 disabled:text-gray-700 transition"
+      >
+        {loading ? "Adding..." : "Add To Cart"}
+      </button>
+    </div>
+  );
+
   return (
-    <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
+    <>
+      {/* ================= CARD ================= */}
 
-      {products.map((product) => {
-        const qty = getCartQty(product.id);
-        const isThisLoading =
-          isPending && loadingProductId === product.id;
+      <div className="group relative rounded-2xl border border-white/10 bg-[#0f0f0f] overflow-hidden hover:border-[#22d3ee]/40 transition">
 
-        return (
-          <div
-            key={product.id}
-            className="
-              group flex flex-col overflow-hidden
-              rounded-xl
-              border border-white/10
-              bg-[#1a1a1a]
-              shadow-[0_10px_30px_rgba(0,0,0,0.6)]
-              transition-all duration-300
-              hover:border-[#38bdf8]
-              hover:shadow-[0_0_25px_rgba(56,189,248,0.25)]
-            "
-          >
-            {/* IMAGE */}
-            <Link href={`/product/${product.slug}`}>
-              <div className="sr-image relative aspect-square w-full bg-[#111827]">
+        {/* IMAGE + LINK */}
 
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  loading="lazy"
-                  className="
-                    w-full h-full
-                    object-cover
-                    transition-transform duration-500
-                    group-hover:scale-105
-                  "
-                />
+        <Link href={`/product/${product?.slug}`}>
 
-              </div>
-            </Link>
+          <div className="relative">
 
-            {/* CONTENT */}
-            <div className="flex flex-1 flex-col gap-2 p-4">
+             {/* <img
+              src={product.image || "/images/not-found.png"}
+              className="w-full aspect-square object-cover"
+            /> */}
+                                   <ProgressiveImage 
+          image={product?.image[0]}
+          alt={product?.name}
+          className=" w-full aspect-square object-cover"
+        />
 
-              {/* NAME */}
-              <Link href={`/product/${product.slug}`}>
-                <p
-                  className="
-                    line-clamp-2 text-sm font-medium
-                    text-white
-                    group-hover:text-[#38bdf8]
-                    transition
-                  "
-                >
-                  {product.name}
-                </p>
-              </Link>
+            {/* BADGE */}
+            <span
+              className={`absolute top-3 left-3 text-xs px-2 py-1 rounded font-semibold ${badgeColors[badge]}`}
+            >
+              {badge}
+            </span>
 
-              {/* PRICE */}
-              <div className="flex mt-auto items-center justify-between">
+            {/* WISHLIST */}
+            <button
+              onClick={(e) => e.preventDefault()}
+              className="absolute top-3 right-3 bg-black/40 p-1.5 rounded-full"
+            >
+              <HeartIcon className="w-4 h-4 text-white" />
+            </button>
 
-                <p className="text-lg font-semibold text-white">
-                  ₹{product.price}
-                  <span className="ml-1 text-xs text-[#9ca3af]">
-                    ex. GST
-                  </span>
-                </p>
-
-                {qty > 0 && (
-                  <span
-                    className="
-                      rounded-md
-                      bg-[#0ea5e9]/20
-                      px-2 py-0.5
-                      text-xs font-medium
-                      text-[#38bdf8]
-                      border border-[#38bdf8]/30
-                    "
-                  >
-                    Qty {qty}
-                  </span>
-                )}
-              </div>
-
-              {/* BUTTONS */}
-              <div className="mt-3 flex flex-col gap-2">
-
-                {qty > 0 && (
-                  <button
-                    onClick={() =>
-                      handleRemoveFromCart(product)
-                    }
-                    className="
-                      w-full py-2 text-sm font-medium
-                      rounded-lg
-                      border border-red-500/30
-                      text-red-400
-                      hover:bg-red-500/10
-                      transition
-                    "
-                  >
-                    Remove
-                  </button>
-                )}
+            {/* DESKTOP ADD CART */}
+            {!isMobile && (
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
 
                 <button
-                  disabled={isThisLoading}
-                  onClick={() =>
-                    handleAddToCart(product)
-                  }
-                  className={`
-                    w-full py-2 text-sm font-semibold
-                    rounded-lg
-                    transition
-                    disabled:opacity-60
-
-                    ${
-                      qty > 0
-                        ? `
-                          border border-[#38bdf8]/40
-                          text-[#38bdf8]
-                          hover:bg-[#38bdf8]/10
-                        `
-                        : `
-                          bg-[#0ea5e9]
-                          text-white
-                          shadow-[0_0_15px_rgba(14,165,233,0.35)]
-                          hover:bg-[#38bdf8]
-                        `
-                    }
-                  `}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setOpen(true);
+                  }}
+                  className="flex items-center gap-2 bg-[#22d3ee] text-black px-4 py-2 rounded-full text-xs font-semibold"
                 >
-                  {isThisLoading
-                    ? "Adding…"
-                    : qty > 0
-                    ? "Add More"
-                    : "Add to Cart"}
+                  <ShoppingCartIcon className="w-4 h-4" />
+                  ADD TO CART
                 </button>
 
               </div>
+            )}
+          </div>
+
+        </Link>
+
+        {/* CONTENT */}
+
+        <div className="p-3 space-y-1">
+
+          <p className="text-[10px] uppercase text-[#22d3ee]">
+            {product?.category || "T-SHIRT"}
+          </p>
+
+          <h3 className="text-sm font-semibold text-white line-clamp-1">
+            {product?.name}
+          </h3>
+          <p className="text-gray-400 text-sm font-semibold line-clamp-1">{product?.description}</p>
+
+
+          <div className="flex items-center gap-1 text-yellow-400">
+            {[...Array(5)].map((_, i) => (
+              <StarIcon key={i} className="w-3 h-3" />
+            ))}
+
+            <span className="text-xs text-gray-400 ml-1">
+              ({product?.reviews || 0})
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 mt-1">
+
+            <span className="text-white font-semibold">
+              ₹{product?.price}
+            </span>
+
+            {product?.regular_price && (
+              <span className="text-xs text-gray-500 line-through">
+                ₹{product?.regular_price}
+              </span>
+            )}
+
+          </div>
+
+        </div>
+
+        {/* MOBILE ADD CART */}
+
+        {isMobile && (
+          <button
+            onClick={() => setOpen(true)}
+            className="w-full py-2 bg-[#22d3ee] text-black text-sm font-semibold"
+          >
+            Add to Cart
+          </button>
+        )}
+
+      </div>
+
+      {/* ================= DRAWER / MODAL ================= */}
+
+      {isMobile ? (
+        <SwipeableDrawer height={'60vh'} open={open} onClose={() => setOpen(false)}>
+          <Content />
+        </SwipeableDrawer>
+      ) : (
+        open && (
+          <div
+            onClick={() => setOpen(false)}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md rounded-2xl bg-[#111] border border-white/10 shadow-2xl animate-[scaleIn_.2s_ease]"
+            >
+              <Content />
             </div>
           </div>
-        );
-      })}
-    </div>
+        )
+      )}
+    </>
   );
 }

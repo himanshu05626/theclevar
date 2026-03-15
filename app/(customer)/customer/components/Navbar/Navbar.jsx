@@ -88,7 +88,7 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
 
   return (
     <nav
-    aria-label="Primary Navigation"
+      aria-label="Primary Navigation"
       className="sticky top-0 z-10 w-full
              bg-black
              h-full
@@ -110,14 +110,14 @@ export default function Navbar({ menuData = [], isLoggedIn }) {
           <span className="block w-6 h-[2px] bg-white mb-1" />
           <span className="block w-6 h-[2px] bg-white" />
         </button>
-      <Link href={'/'} className="cursor-pointer" >
-  <img
-    src="/images/logo4.png"
-    alt="The Clevar"
-    width="160"
-    height="60"
-  />
-</Link>
+        <Link href={'/'} className="cursor-pointer" >
+          <img
+            src="/images/logo4.png"
+            alt="The Clevar"
+            width="160"
+            height="60"
+          />
+        </Link>
 
 
         {/* ================= DESKTOP MENU ================= */}
@@ -316,7 +316,7 @@ border border-white/10 rounded p-2 space-y-2 max-h-[200px] overflow-y-auto z-[99
           <Divider />
 
           <Link
-          href={'/cart'}
+            href={'/cart'}
             aria-label="Open cart"
             className="
     relative
@@ -427,6 +427,16 @@ border border-white/10 rounded p-2 space-y-2 max-h-[200px] overflow-y-auto z-[99
     transition-all"
               >
                 Home
+              </Link>
+              <Link
+                href="/shop"
+                onClick={() => setDrawerOpen(false)}
+                className="block px-4 py-3 rounded-xl
+    
+    text-white text-[15px] font-semibold
+    transition-all"
+              >
+                THE SHOP
               </Link>
 
               {/* MENU */}

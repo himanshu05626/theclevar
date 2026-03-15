@@ -14,6 +14,7 @@ import {
 } from "@heroicons/react/24/outline";
 import ShopHeader from "./ShopHeader";
 import ProductCardSkeleton from "./ProductCardSkeleton";
+import CategoryHero from "../product-category/[...slug]/CategoryHero";
 export default function ShopPage() {
   const params = useSearchParams();
   const router = useRouter();
@@ -59,7 +60,7 @@ export default function ShopPage() {
 
   return (
     <div className="bg-[#0f0f0f] max-w-7xl mx-auto min-h-screen text-white  ">
-      <ShopHeader count={products.length} />
+      <CategoryHero category={{ name: "THE SHOP" }} products={products} />
       {/* ================= CATEGORY TABS ================= */}
 
       <div className="flex items-center p-2 gap-3 mb-6 overflow-x-auto">
