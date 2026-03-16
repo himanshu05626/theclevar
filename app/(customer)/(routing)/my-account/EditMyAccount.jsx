@@ -12,6 +12,7 @@ import {
 
 import UploadImage from "./UploadImage";
 import { updateCustomerProfile } from "./newaction";
+import Link from "next/link";
 export default function EditMyyAccount({
   customer,
   totalOrders,
@@ -250,7 +251,7 @@ const handleSave = async () => {
           {lastOrder && (
             <Card title="LAST TRANSACTION">
 
-              <div className="flex items-center gap-4 border border-white/10 rounded-lg p-4">
+              <Link href={`/order/${lastOrder.id}`} className="flex items-center gap-4 border border-white/10 rounded-lg p-4">
 
                 <img
                   src="/images/not-found.png"
@@ -279,7 +280,7 @@ const handleSave = async () => {
 
                 </div>
 
-              </div>
+              </Link>
 
             </Card>
           )}
@@ -290,7 +291,7 @@ const handleSave = async () => {
             <div className="space-y-3">
 
               {orders?.map((order) => (
-                <div
+                <Link href={`/order/${order.id}`}
                   key={order.id}
                   className="flex items-center gap-4 border border-white/10 rounded-lg p-4"
                 >
@@ -314,7 +315,7 @@ const handleSave = async () => {
                     {order.status}
                   </span>
 
-                </div>
+                </Link>
               ))}
 
             </div>
@@ -351,7 +352,7 @@ function Card({ title, children }) {
           {title}
         </h3>
 
-        <span className="text-xs text-cyan-400 cursor-pointer">
+        <span className="text-xs text-cyan-400 cursor-pointer" >
           View →
         </span>
       </div>
