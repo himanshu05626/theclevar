@@ -40,19 +40,31 @@ export default async function MyAccountPage() {
 
   /* ORDERS */
   const orders = await prisma.order_list.findMany({
-    where: {
-      customer_list_id: customer.id,
-    },
-    orderBy: {
-      created_at: "desc",
-    },
-    take: 5,
-    include: {
-      items: {
-        take: 1,
+  where: {
+    customer_list_id: customer.id,
+  },
+  orderBy: {
+    created_at: "desc",
+  },
+  take: 5,
+  include: {
+    items: {
+      include: {
+        product: {
+          include: {
+            images: {
+              where: {
+                is_primary: true,
+                is_deleted: false,
+              },
+              take: 1,
+            },
+          },
+        },
       },
     },
-  });
+  },
+});
 
   /* STATS */
   const totalOrders = orders.length;

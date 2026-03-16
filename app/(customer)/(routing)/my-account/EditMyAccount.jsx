@@ -255,7 +255,7 @@ const handleSave = async () => {
               <Link href={`/order/${lastOrder.id}`} className="flex items-center gap-4 border border-white/10 rounded-lg p-4">
 
                 <img
-                  src="/images/not-found.png"
+                  src={lastOrder.items?.[0]?.product.images[0].url_144 || `/images/not-found.png`}
                   className="w-14 h-14 rounded object-cover"
                 />
 
@@ -298,7 +298,7 @@ const handleSave = async () => {
                 >
 
                   <img
-                    src="/images/not-found.png"
+                    src={order.items?.[0]?.product.images[0].url_144 || `/images/not-found.png`}
                     className="w-14 h-14 rounded object-cover"
                   />
 
