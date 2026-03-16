@@ -16,7 +16,7 @@ export default function ProfileDropdown({ isLoggedIn }) {
       localStorage.getItem("userName")
 
     if (name) setUserName(name);
-  }, []);
+  }, [isLoggedIn]);
 
   return (
     <div
