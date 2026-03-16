@@ -134,7 +134,7 @@ const handleSave = async () => {
               {/* IMAGE */}
               <div className="flex flex-col items-center gap-3">
 
-                <div className="relative">
+                <div className="flex flex-col items-center gap-2 w-full">
 
                   <div className="w-28 h-28 rounded-full border border-cyan-500/40 flex items-center justify-center bg-[#111] shadow-[0_0_20px_rgba(14,165,233,0.25)]">
                     <img
@@ -143,7 +143,7 @@ const handleSave = async () => {
                     />
                   </div>
 
-                  <div className="absolute -bottom-2 right-0">
+                  <div className="">
                     <UploadImage
                       uploadType="userImage"
                       onSuccess={(urls) => setImageUrls(urls)}
@@ -159,6 +159,7 @@ const handleSave = async () => {
 
                 <Input
                   label="FIRST NAME"
+                  
                   value={form.first_name}
                   onChange={(e) =>
                     setForm({ ...form, first_name: e.target.value })
@@ -376,7 +377,7 @@ function Input({ label, value, onChange, disabled }) {
         value={value}
         onChange={onChange}
         disabled={disabled}
-        className="w-full mt-1 bg-[#111] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none"
+        className="w-full text-base mt-1 bg-[#111] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none"
       />
 
     </div>

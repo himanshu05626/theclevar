@@ -55,13 +55,20 @@ export default function UploadImage({
 
   return (
     <div className="space-y-3">
-   <label
-      className={`inline-flex items-center gap-2 px-4 py-2 rounded 
-      bg-[#00AEEF] text-white text-sm font-medium 
-      hover:bg-indigo-700 transition 
-      cursor-pointer
-      ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
-    >
+<label
+  className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg
+  bg-[#111]
+  border border-cyan-400/40
+  text-cyan-300 text-sm font-medium
+  shadow-[0_0_10px_rgba(6,182,212,0.25)]
+  hover:bg-cyan-500/10
+  hover:border-cyan-400
+  hover:text-white
+  hover:shadow-[0_0_18px_rgba(6,182,212,0.55)]
+  transition-all duration-200
+  cursor-pointer
+  ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
+>
       <ArrowUpTrayIcon className="w-5 h-5" />
       Upload Images
 
