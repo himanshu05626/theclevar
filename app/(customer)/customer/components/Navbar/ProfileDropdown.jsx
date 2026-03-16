@@ -60,6 +60,7 @@ export default function ProfileDropdown({isLoggedIn}) {
             To access your theclevar account
           </p>
           {!isLoggedIn && (
+<>         
           <Link href="/auth/login" className="text-blue-400 hover:text-blue-300">
             <button
             onClick={() => setOpen(!open)}
@@ -73,12 +74,26 @@ export default function ProfileDropdown({isLoggedIn}) {
               Sign Up / Log In
             </button>
           </Link>
+          </>
+  
           )}
 
         </div>
 
         {/* MENU ITEMS */}
         {isLoggedIn && (
+          <>
+            <Link href="/my-account"    className="
+            block px-4 py-3 text-sm text-gray-300
+            hover:bg-white/5 hover:text-[#38bdf8]
+            transition border-b border-white/10
+          ">
+            <button
+            onClick={() => setOpen(!open)}
+          >
+             Dashboard
+            </button>
+          </Link>
             <Link
         onClick={()=>setOpen(false)}
           href="/my-account/orders"
@@ -90,6 +105,7 @@ export default function ProfileDropdown({isLoggedIn}) {
         >
           My Orders
         </Link>
+        </>
         )}
       
 

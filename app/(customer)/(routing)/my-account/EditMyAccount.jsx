@@ -1,240 +1,383 @@
 "use client";
 
-import { useActionState, useState, useMemo, useEffect } from "react";
+import { useState } from "react";
 import {
-  updateCustomerAction,
-  changePasswordAction,
-} from "./action";
+  CubeIcon,
+  CurrencyRupeeIcon,
+  CheckCircleIcon,
+  PencilSquareIcon,
+  EnvelopeIcon,
+  PhoneIcon,
+} from "@heroicons/react/24/outline";
+
 import UploadImage from "./UploadImage";
-import { useToast } from "@/app/admin/context/ToastProvider";
+import { updateCustomerProfile } from "./newaction";
+export default function EditMyyAccount({
+  customer,
+  totalOrders,
+  totalSpent,
+  lastOrder,
+  orders
+}) {
 
-export default function EditMyAccount({ customer }) {
-  const { showToast } = useToast();
+  console.log("Dashboard Data", {
+    customer,
+    totalOrders,
+    totalSpent,
+    lastOrder,
+    orders,
+  });
 
-  /* ACTION STATES */
-  const [profileState, profileAction, profilePending] =
-    useActionState(updateCustomerAction, {
-      success: false,
-      message: "",
-      errors: {},
-    });
+  const fullName = `${customer.first_name ?? ""} ${customer.last_name ?? ""}`;
 
-  const [passwordState, passwordAction, passwordPending] =
-    useActionState(changePasswordAction, {
-      success: false,
-      message: "",
-      errors: {},
-    });
+  const [editing, setEditing] = useState(false);
 
-  /* INITIAL STATES */
-  const initialProfile = useMemo(
-    () => ({
-      first_name: customer.first_name || "",
-      last_name: customer.last_name || "",
-      phone: customer.phone || "",
-      whatsapp: customer.whatsapp || "",
-    }),
-    [customer]
+  const [imageUrls, setImageUrls] = useState(
+    customer.image_gallery?.url ? [customer.image_gallery.url] : []
   );
 
-  const initialImage = useMemo(
-    () => (customer.image_gallery?.url ? [customer.image_gallery.url] : []),
-    [customer]
-  );
+  const [form, setForm] = useState({
+    first_name: customer.first_name ?? "",
+    last_name: customer.last_name ?? "",
+    phone: customer.phone ?? "",
+    whatsapp: customer.whatsapp ?? "",
+  });
+const handleSave = async () => {
 
-  /* FORM STATES */
-  const [profileForm, setProfileForm] = useState(initialProfile);
-  const [imageUrls, setImageUrls] = useState(initialImage);
+  const res = await updateCustomerProfile({
+    ...form,
+    imageUrls,
+  });
 
-  /* CHANGE DETECTION */
-  const isProfileChanged =
-    JSON.stringify(profileForm) !== JSON.stringify(initialProfile);
+  if (res.success) {
+    alert(res.message);
+    setEditing(false);
+  } else {
+    alert(res.message);
+  }
 
-  const isImageChanged =
-    JSON.stringify(imageUrls) !== JSON.stringify(initialImage);
-
-  const errors = profileState.errors || {};
-
-  /* TOASTS */
-  useEffect(() => {
-    if (!profileState.message) return;
-
-    showToast({
-      type: profileState.success ? "success" : "error",
-      message: profileState.message,
-    });
-  }, [profileState.success, profileState.message]);
-
-  useEffect(() => {
-    if (!passwordState.message) return;
-
-    showToast({
-      type: passwordState.success ? "success" : "error",
-      message: passwordState.message,
-    });
-  }, [passwordState.success, passwordState.message]);
-
+};
   return (
-    <div className="space-y-10 p-6 text-white">
+    <div className="p-6 text-white min-h-screen">
 
-      {/* PROFILE */}
-      <form
-        action={profileAction}
-        className="space-y-6 rounded-xl border border-white/10 bg-[#1a1a1a] pb-6"
-      >
-        <h2 className="border-b border-white/10 px-6 py-4 text-lg font-semibold">
-          Personal Details
-        </h2>
+      {/* HEADER */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-wide">
+          MY DASHBOARD
+        </h1>
 
-        <div className="grid grid-cols-1 gap-6 px-6 md:grid-cols-[220px_1fr]">
+        <p className="text-gray-400 text-sm">
+          Manage your profile, orders, and preferences
+        </p>
+      </div>
 
-          {/* IMAGE */}
-          <div className="flex flex-col items-center gap-3">
-            <div className="h-56 w-40 overflow-hidden rounded-lg border border-white/10 bg-[#111827]">
-              <img
-                src={imageUrls?.[0] || "/images/not-found.png"}
-                alt="Profile"
-                className="h-full w-full object-cover"
-              />
-            </div>
+      <div className="grid lg:grid-cols-[320px_1fr] gap-6">
 
-            <UploadImage
-              uploadType="userImage"
-              onSuccess={(urls) => setImageUrls(urls)}
-            />
-          </div>
+        {/* PROFILE CARD */}
+        <div className="bg-[#0f0f0f] border border-white/10 rounded-xl p-6">
 
-          {/* FORM */}
-          <div className="space-y-4">
-            <input type="hidden" name="imageUrls" value={JSON.stringify(imageUrls)} />
-            <input type="hidden" name="customerId" value={customer.id} />
+          {!editing ? (
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="space-y-4">
 
-              <InputDark
-                label="First Name"
-                name="first_name"
-                value={profileForm.first_name}
-                error={errors.first_name}
-                onChange={(e) =>
-                  setProfileForm({ ...profileForm, first_name: e.target.value })
-                }
-              />
+              {/* Avatar */}
+              <div className="flex flex-col items-center gap-4">
 
-              <InputDark
-                label="Last Name"
-                name="last_name"
-                value={profileForm.last_name}
-                onChange={(e) =>
-                  setProfileForm({ ...profileForm, last_name: e.target.value })
-                }
-              />
+                <div className="w-28 h-28 rounded-full border border-cyan-500/40 flex items-center justify-center bg-[#111] shadow-[0_0_20px_rgba(14,165,233,0.25)]">
+                  <img
+                    src={imageUrls?.[0] || "/images/not-found.png"}
+                    className="w-24 h-24 rounded-full object-cover"
+                  />
+                </div>
 
-              {/* EMAIL */}
-              <div>
-                <label className="text-sm text-gray-400">Email</label>
-                <input
-                  value={customer.email}
-                  disabled
-                  className="w-full rounded border border-white/10 bg-[#111827] px-3 py-2 text-sm text-gray-400"
-                />
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold">{fullName}</h3>
+                  <p className="text-xs text-gray-500">
+                    Member since 2026
+                  </p>
+                </div>
+
               </div>
 
-              <InputDark
-                label="Phone"
-                name="phone"
-                value={profileForm.phone}
-                error={errors.phone}
-                onChange={(e) =>
-                  setProfileForm({ ...profileForm, phone: e.target.value })
-                }
-              />
+              {/* Info */}
+              <div className="space-y-3 text-sm text-gray-300">
 
-              <InputDark
-                label="WhatsApp"
-                name="whatsapp"
-                value={profileForm.whatsapp}
-                error={errors.whatsapp}
-                onChange={(e) =>
-                  setProfileForm({ ...profileForm, whatsapp: e.target.value })
-                }
-              />
+                <div className="flex items-center gap-2">
+                  <EnvelopeIcon className="w-4 h-4 text-cyan-400" />
+                  {customer.email}
+                </div>
+
+                {customer.phone && (
+                  <div className="flex items-center gap-2">
+                    <PhoneIcon className="w-4 h-4 text-pink-400" />
+                    {customer.phone}
+                  </div>
+                )}
+
+              </div>
+
+              <button
+                onClick={() => setEditing(true)}
+                className="w-full flex items-center justify-center gap-2 border border-cyan-500/30 rounded-lg py-2 text-sm hover:bg-cyan-500/10 transition"
+              >
+                <PencilSquareIcon className="w-4 h-4" />
+                EDIT PROFILE
+              </button>
+
             </div>
 
-            <button
-              disabled={profilePending || (!isProfileChanged && !isImageChanged)}
-              className="mt-4 rounded-lg bg-[#0ea5e9] px-6 py-2 text-sm font-medium text-white"
-            >
-              {profilePending ? "Saving..." : "Save Changes"}
-            </button>
-          </div>
+          ) : (
+
+            <div className="space-y-5">
+
+              {/* IMAGE */}
+              <div className="flex flex-col items-center gap-3">
+
+                <div className="relative">
+
+                  <div className="w-28 h-28 rounded-full border border-cyan-500/40 flex items-center justify-center bg-[#111] shadow-[0_0_20px_rgba(14,165,233,0.25)]">
+                    <img
+                      src={imageUrls?.[0] || "/images/not-found.png"}
+                      className="w-24 h-24 rounded-full object-cover"
+                    />
+                  </div>
+
+                  <div className="absolute -bottom-2 right-0">
+                    <UploadImage
+                      uploadType="userImage"
+                      onSuccess={(urls) => setImageUrls(urls)}
+                    />
+                  </div>
+
+                </div>
+
+              </div>
+
+              {/* FORM */}
+              <div className="space-y-4">
+
+                <Input
+                  label="FIRST NAME"
+                  value={form.first_name}
+                  onChange={(e) =>
+                    setForm({ ...form, first_name: e.target.value })
+                  }
+                />
+
+                <Input
+                  label="LAST NAME"
+                  value={form.last_name}
+                  onChange={(e) =>
+                    setForm({ ...form, last_name: e.target.value })
+                  }
+                />
+
+                <Input
+                  label="EMAIL"
+                  value={customer.email}
+                  disabled
+                />
+
+                <Input
+                  label="PHONE"
+                  value={form.phone}
+                  onChange={(e) =>
+                    setForm({ ...form, phone: e.target.value })
+                  }
+                />
+
+                <Input
+                  label="WHATSAPP"
+                  value={form.whatsapp}
+                  onChange={(e) =>
+                    setForm({ ...form, whatsapp: e.target.value })
+                  }
+                />
+
+              </div>
+
+              {/* ACTION BUTTONS */}
+              <div className="flex gap-3 pt-2">
+
+                <button
+                  onClick={handleSave}
+                className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold py-2 rounded-lg transition">
+                  SAVE
+                </button>
+
+                <button
+                  onClick={() => setEditing(false)}
+                  className="flex-1 border border-white/20 rounded-lg py-2 text-sm hover:bg-white/5 transition"
+                >
+                  CANCEL
+                </button>
+
+              </div>
+
+            </div>
+
+          )}
+
         </div>
-      </form>
 
-      {/* PASSWORD */}
-      <div className="rounded-xl border border-white/10 bg-[#1a1a1a]">
-        <h2 className="border-b border-white/10 px-6 py-4 text-lg font-semibold">
-          Reset Password
-        </h2>
+        {/* RIGHT SIDE */}
+        <div className="space-y-6">
 
-        <form action={passwordAction} className="space-y-4 px-6 py-6">
-          <PasswordDark
-            label="Current Password"
-            name="current_password"
-            error={passwordState.errors.current_password}
-          />
+          {/* STATS */}
+          <div className="grid md:grid-cols-3 gap-4">
 
-          <PasswordDark
-            label="New Password"
-            name="new_password"
-            error={passwordState.errors.new_password}
-          />
+            <StatCard
+              icon={<CubeIcon className="w-5 h-5 text-cyan-400" />}
+              value={totalOrders}
+              label="TOTAL ORDERS"
+            />
 
-          <PasswordDark
-            label="Confirm Password"
-            name="confirm_password"
-            error={passwordState.errors.confirm_password}
-          />
+            <StatCard
+              icon={<CurrencyRupeeIcon className="w-5 h-5 text-pink-400" />}
+              value={`₹${totalSpent}`}
+              label="TOTAL SPENT"
+            />
 
-          <button
-            disabled={passwordPending}
-            className="rounded-lg bg-[#0ea5e9] px-6 py-2 text-sm font-medium text-white"
-          >
-            {passwordPending ? "Updating..." : "Save Changes"}
-          </button>
-        </form>
+            <StatCard
+              icon={<CheckCircleIcon className="w-5 h-5 text-green-400" />}
+              value={orders?.filter(o => o.status === "DELIVERED").length}
+              label="COMPLETED"
+            />
+
+          </div>
+
+          {/* LAST TRANSACTION */}
+          {lastOrder && (
+            <Card title="LAST TRANSACTION">
+
+              <div className="flex items-center gap-4 border border-white/10 rounded-lg p-4">
+
+                <img
+                  src="/images/not-found.png"
+                  className="w-14 h-14 rounded object-cover"
+                />
+
+                <div className="flex-1">
+                  <p className="text-sm font-medium">
+                    {lastOrder.items?.[0]?.product_title}
+                  </p>
+
+                  <p className="text-xs text-gray-400">
+                    Qty: {lastOrder.items?.[0]?.quantity}
+                  </p>
+                </div>
+
+                <div className="text-right">
+
+                  <p className="text-pink-400 text-xs font-semibold bg-pink-500/20 px-3 py-1 rounded-full">
+                    {lastOrder.status}
+                  </p>
+
+                  <p className="text-sm font-semibold mt-2">
+                    ₹{lastOrder.total}
+                  </p>
+
+                </div>
+
+              </div>
+
+            </Card>
+          )}
+
+          {/* RECENT ORDERS */}
+          <Card title="RECENT ORDERS">
+
+            <div className="space-y-3">
+
+              {orders?.map((order) => (
+                <div
+                  key={order.id}
+                  className="flex items-center gap-4 border border-white/10 rounded-lg p-4"
+                >
+
+                  <img
+                    src="/images/not-found.png"
+                    className="w-14 h-14 rounded object-cover"
+                  />
+
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">
+                      {order.order_number}
+                    </p>
+
+                    <p className="text-xs text-gray-400">
+                      {order.items.length} item(s) · ₹{order.total}
+                    </p>
+                  </div>
+
+                  <span className="text-xs text-pink-400 bg-pink-500/20 px-3 py-1 rounded-full">
+                    {order.status}
+                  </span>
+
+                </div>
+              ))}
+
+            </div>
+
+          </Card>
+
+        </div>
+
       </div>
     </div>
   );
 }
 
-/* INPUT */
-function InputDark({ label, name, value, onChange, error }) {
+/* STAT CARD */
+function StatCard({ icon, value, label }) {
   return (
-    <div>
-      <label className="text-sm text-gray-400">{label}</label>
-      <input
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="w-full rounded border border-white/10 bg-[#111827] px-3 py-2 text-sm text-white"
-      />
-      {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
+    <div className="bg-[#0f0f0f] border border-white/10 rounded-xl p-4 flex items-center justify-between hover:border-cyan-500/40 transition">
+      <div>
+        <p className="text-xl font-bold">{value}</p>
+        <p className="text-xs text-gray-400">{label}</p>
+      </div>
+      {icon}
     </div>
   );
 }
 
-/* PASSWORD */
-function PasswordDark({ label, name, error }) {
+/* CARD */
+function Card({ title, children }) {
+  return (
+    <div className="bg-[#0f0f0f] border border-white/10 rounded-xl p-5">
+
+      <div className="flex justify-between mb-4">
+        <h3 className="font-semibold tracking-wide">
+          {title}
+        </h3>
+
+        <span className="text-xs text-cyan-400 cursor-pointer">
+          View →
+        </span>
+      </div>
+
+      {children}
+
+    </div>
+  );
+}
+
+/* INPUT */
+function Input({ label, value, onChange, disabled }) {
   return (
     <div>
-      <label className="text-sm text-gray-400">{label}</label>
+
+      <label className="text-xs text-gray-400">
+        {label}
+      </label>
+
       <input
-        type="password"
-        name={name}
-        className="w-full rounded border border-white/10 bg-[#111827] px-3 py-2 text-sm text-white"
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+        className="w-full mt-1 bg-[#111] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-cyan-500 outline-none"
       />
-      {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
+
     </div>
   );
 }
