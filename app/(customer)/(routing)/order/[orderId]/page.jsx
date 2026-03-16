@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import StatusChip from "@/app/admin/UI/common/StatusChip";
 import { Accordion } from "./Accordion";
+import { ReviewModal } from "./ReviewModal";
 
 const POLL_INTERVAL = 5000;
 const MAX_POLL_TIME = 30000;
@@ -12,7 +13,15 @@ const MAX_POLL_TIME = 30000;
 export default function OrderDetailsPage() {
   const { orderId } = useParams();
   const router = useRouter();
+const [reviewItem, setReviewItem] = useState(null);
 
+const openReview = (item) => {
+  setReviewItem(item);
+};
+
+const closeReview = () => {
+  setReviewItem(null);
+};
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isPolling, setIsPolling] = useState(false);
@@ -248,6 +257,12 @@ export default function OrderDetailsPage() {
                     <p className="text-xs text-gray-400">
                       Qty: {item.quantity}
                     </p>
+                      <button
+    onClick={() => openReview(item)}
+    className="text-xs mt-1 text-[#38bdf8] hover:underline"
+  >
+    Write Review
+  </button>
                   </div>
                 </div>
 
@@ -326,6 +341,9 @@ export default function OrderDetailsPage() {
 
         </div>
       </div>
+      {reviewItem && (
+  <ReviewModal item={reviewItem} close={closeReview} />
+)}
     </div>
   );
 }

@@ -46,7 +46,7 @@ model customer_list {
   orders                   order_list[]
   page_views               page_views[]
   wishlists                wishlist[]
-
+reviews product_reviews[]
   @@index([customer_group_id])
   @@index([image_gallery_id], map: "customer_list_image_gallery_id_fkey")
 }
@@ -144,7 +144,7 @@ model product_list {
   variants             product_variant[]
   tier_product_pricing tier_product_pricing?
   wishlists            wishlist_product[]
-
+  reviews             product_reviews[]
   @@index([category_id], map: "product_list_category_id_fkey")
 }
 
@@ -243,6 +243,7 @@ model order_list {
   id                Int            @id @default(autoincrement()) @db.UnsignedInt
   order_number      String         @unique
   customer_list_id  Int            @db.UnsignedInt
+  payment_method    String?         
   status            OrderStatus    @default(PENDING)
   shipping_address  String
   billing_address   String
@@ -436,6 +437,7 @@ enum DeliveryMethod {
 }
 
 enum OrderStatus {
+  PLACED
   CREATED
   PENDING
   PAYMENT_FAILED
@@ -464,4 +466,28 @@ enum PageType {
   HOME
   PRODUCT
   CATEGORY
+}
+
+model product_reviews {
+  id               Int            @id @default(autoincrement()) @db.UnsignedInt
+  product_list_id  Int            @db.UnsignedInt
+  customer_id      Int            @db.UnsignedInt
+
+  rating           Int            // 1-5 stars
+  title            String?        @db.VarChar(200)
+  review           String?        @db.Text
+
+  is_verified      Boolean        @default(false)
+  is_approved      Boolean        @default(false)
+  is_deleted       Boolean        @default(false)
+
+  created_at       DateTime       @default(now())
+  updated_at       DateTime       @updatedAt
+
+  product          product_list   @relation(fields: [product_list_id], references: [id], onDelete: Cascade)
+  customer         customer_list  @relation(fields: [customer_id], references: [id], onDelete: Cascade)
+
+  @@unique([product_list_id, customer_id]) // one review per product per customer
+  @@index([product_list_id])
+  @@index([customer_id])
 }
