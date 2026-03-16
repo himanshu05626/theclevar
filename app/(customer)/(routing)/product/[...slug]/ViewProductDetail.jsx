@@ -494,7 +494,7 @@ console.log('product',product)
 
       </div>
 
-      <ProductInfoTabs />
+      <ProductInfoTabs product={product} />
 
       <ServiceHighlights />
 

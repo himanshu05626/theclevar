@@ -182,6 +182,52 @@ export default async function Page({ params }) {
     //   console.log('productproductproductproductproduct', product)
     if (!product) notFound();
 
+    const reviews = await prisma.product_reviews.findMany({
+  where: {
+    product_list_id: product.id,
+    is_approved: true,
+    is_deleted: false,
+  },
+  orderBy: {
+    created_at: "desc",
+  },
+  take: 5,
+  select: {
+    id: true,
+    rating: true,
+    title: true,
+    review: true,
+    is_verified: true,
+    created_at: true,
+
+    customer: {
+      select: {
+        first_name: true,
+        last_name: true,
+      },
+    },
+
+    review_images: {
+      select: {
+        image_url: true,
+      },
+    },
+  },
+});
+const ratingStats = await prisma.product_reviews.aggregate({
+  where: {
+    product_list_id: product.id,
+    is_approved: true,
+    is_deleted: false,
+  },
+  _avg: {
+    rating: true,
+  },
+  _count: {
+    id: true,
+  },
+});
+
     /* =========================
        MAIN IMAGE
     ========================= */
@@ -301,6 +347,8 @@ const views = await prisma.page_views.count({
                 mainImage: images,
                 category: product.category,
                 variants: product.variants, // ✅ PASS VARIANTS
+                reviews,
+                ratingStats,
             }}
         />
     );

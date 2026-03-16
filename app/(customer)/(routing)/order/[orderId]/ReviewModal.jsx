@@ -1,11 +1,14 @@
+import UploadImage from "@/app/component/UploadImage";
 import { useState } from "react";
 
 export function ReviewModal({ item, close }) {
-
+  const [imageUrls, setImageUrls] = useState([]);
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const removeImage = (index) => {
+    setImageUrls((prev) => prev.filter((_, i) => i !== index));
+  };
   const submitReview = async () => {
     setLoading(true);
 
@@ -18,6 +21,7 @@ export function ReviewModal({ item, close }) {
         productId: item.product_list_id,
         rating,
         review,
+        images: imageUrls
       }),
     });
 
@@ -40,26 +44,50 @@ export function ReviewModal({ item, close }) {
 
         {/* PRODUCT */}
         <div className="flex gap-3 items-center mb-4">
-     <img
-  src={
-    item.product?.images?.[0]?.image_url ||
-    "/images/not-found.png"
-  }
-  alt=""
-  width="60"
-  height="60"
-  className="rounded object-cover"
-/>
+          <img
+            src={
+              item.product?.images?.[0]?.image_url ||
+              "/images/not-found.png"
+            }
+            alt=""
+            width="60"
+            height="60"
+            className="rounded object-cover"
+          />
 
           <p className="font-semibold">{item.product_title}</p>
         </div>
+        {imageUrls.length > 0 && (
+          <div className="flex gap-3 flex-wrap mt-3 my-3">
+            {imageUrls.map((url, index) => (
+              <div key={index} className="relative">
 
+                <img
+                  src={url}
+                  className="w-20 h-20 object-cover rounded-lg border border-white/10"
+                />
+
+                <button
+                  onClick={() => removeImage(index)}
+                  className="absolute -top-2 -right-2 bg-black/80 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center hover:bg-red-500"
+                >
+                  ✕
+                </button>
+
+              </div>
+            ))}
+          </div>
+        )}
+        <UploadImage
+          uploadType="reviewImages"
+          onSuccess={(urls) => setImageUrls(urls)}
+        />
         {/* STARS */}
         <div className="flex gap-2 text-2xl mb-4">
-          {[1,2,3,4,5].map((star)=>(
+          {[1, 2, 3, 4, 5].map((star) => (
             <button
               key={star}
-              onClick={()=>setRating(star)}
+              onClick={() => setRating(star)}
             >
               {star <= rating ? "⭐" : "☆"}
             </button>
@@ -70,8 +98,8 @@ export function ReviewModal({ item, close }) {
         <textarea
           placeholder="Write review (optional)"
           value={review}
-          onChange={(e)=>setReview(e.target.value)}
-          className="w-full bg-[#0f0f0f] border border-white/10 rounded p-2 text-sm"
+          onChange={(e) => setReview(e.target.value)}
+          className="w-full bg-[#0f0f0f] text-base border border-white/10 rounded p-2 text-sm"
           rows={4}
         />
 

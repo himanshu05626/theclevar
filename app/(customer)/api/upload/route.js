@@ -48,7 +48,7 @@ export async function POST(req) {
       );
     }
 
-    const allowedTypes = ["productImage", "userImage", "adminImage"];
+    const allowedTypes = ["productImage", "userImage", "adminImage",'reviewImages'];
     if (!allowedTypes.includes(uploadType)) {
       console.error("❌ Invalid uploadType:", uploadType);
       return NextResponse.json(

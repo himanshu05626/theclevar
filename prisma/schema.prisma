@@ -486,8 +486,19 @@ model product_reviews {
 
   product          product_list   @relation(fields: [product_list_id], references: [id], onDelete: Cascade)
   customer         customer_list  @relation(fields: [customer_id], references: [id], onDelete: Cascade)
-
+  review_images    review_images[]
   @@unique([product_list_id, customer_id]) // one review per product per customer
   @@index([product_list_id])
   @@index([customer_id])
+}
+model review_images {
+  id          Int             @id @default(autoincrement()) @db.UnsignedInt
+  review_id   Int             @db.UnsignedInt
+  image_url   String          @db.VarChar(500)
+
+  review      product_reviews @relation(fields: [review_id], references: [id], onDelete: Cascade)
+
+  created_at  DateTime        @default(now())
+
+  @@index([review_id])
 }
