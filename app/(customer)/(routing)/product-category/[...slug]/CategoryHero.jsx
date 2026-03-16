@@ -24,7 +24,7 @@ export default function CategoryHero({ category, products }) {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.25),transparent_70%)]" />
 
       {/* CONTENT */}
-      <div className="relative py-16 text-center space-y-3">
+      <div className="relative py-6 md:py-16 text-center space-y-3">
 
         <motion.p
           initial={{ opacity: 0, y: 10 }}
