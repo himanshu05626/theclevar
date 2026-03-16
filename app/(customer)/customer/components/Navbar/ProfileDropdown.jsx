@@ -6,15 +6,14 @@ import { UserIcon } from "@heroicons/react/24/outline";
 import AccountMenu from "./AccountMenu";
 import LogoutButton from "./LogoutButton";
 
-export default function ProfileDropdown({isLoggedIn}) {
+export default function ProfileDropdown({ isLoggedIn }) {
   const [open, setOpen] = useState(false);
   const [userName, setUserName] = useState(null);
 
   /* READ USER NAME FROM LOCALSTORAGE */
   useEffect(() => {
     const name =
-      localStorage.getItem("user_name") ||
-      localStorage.getItem("userName");
+      localStorage.getItem("userName")
 
     if (name) setUserName(name);
   }, []);
@@ -31,10 +30,18 @@ export default function ProfileDropdown({isLoggedIn}) {
         onClick={() => setOpen(!open)} // mobile click
         className="flex items-center gap-2 text-white hover:text-[#38bdf8] transition cursor-pointer"
       >
-        <UserIcon className="w-6 h-6" />
-
+        <div className="flex flex-col relative items-center">
+          <UserIcon className="w-6 h-6" />
+          <span className="text-[8px] absolute -bottom-3 black md:hidden font-400">
+            {isLoggedIn && userName
+              ? `${userName.trim().split(" ")[0]}`
+              : "Profile"}
+          </span>
+        </div>
         <span className="text-[14px] hidden md:block font-semibold">
-          Profile {isLoggedIn? `(${userName || "User"})` : ""}
+          {isLoggedIn && userName
+            ? `Profile (${userName.trim().split(" ")[0]})`
+            : "Profile"}
         </span>
       </div>
 
@@ -60,22 +67,22 @@ export default function ProfileDropdown({isLoggedIn}) {
             To access your theclevar account
           </p>
           {!isLoggedIn && (
-<>         
-          <Link href="/auth/login" className="text-blue-400 hover:text-blue-300">
-            <button
-            onClick={() => setOpen(!open)}
-            className="
+            <>
+              <Link href="/auth/login" className="text-blue-400 hover:text-blue-300">
+                <button
+                  onClick={() => setOpen(!open)}
+                  className="
             mt-3 w-full py-2 rounded-lg
             bg-gradient-to-r from-[#0ea5e9] to-[#38bdf8]
             text-black font-semibold
             hover:shadow-[0_0_15px_rgba(56,189,248,0.6)]
             transition cursor-pointer
           ">
-              Sign Up / Log In
-            </button>
-          </Link>
-          </>
-  
+                  Sign Up / Log In
+                </button>
+              </Link>
+            </>
+
           )}
 
         </div>
@@ -83,40 +90,40 @@ export default function ProfileDropdown({isLoggedIn}) {
         {/* MENU ITEMS */}
         {isLoggedIn && (
           <>
-            <Link href="/my-account"    className="
+            <Link href="/my-account" className="
             block px-4 py-3 text-sm text-gray-300
             hover:bg-white/5 hover:text-[#38bdf8]
             transition border-b border-white/10
           ">
-            <button
-            onClick={() => setOpen(!open)}
-          >
-             Dashboard
-            </button>
-          </Link>
+              <button
+                onClick={() => setOpen(!open)}
+              >
+                Dashboard
+              </button>
+            </Link>
             <Link
-        onClick={()=>setOpen(false)}
-          href="/my-account/orders"
-          className="
+              onClick={() => setOpen(false)}
+              href="/my-account/orders"
+              className="
             block px-4 py-3 text-sm text-gray-300
             hover:bg-white/5 hover:text-[#38bdf8]
             transition
           "
-        >
-          My Orders
-        </Link>
-        </>
+            >
+              My Orders
+            </Link>
+          </>
         )}
-      
 
-         {!isLoggedIn ? (
-            <>
-            </>
-          ) : (
-             <div className="border-t border-white/10">
-                    <LogoutButton setOpen={setOpen} open={open} />
-                  </div>
-          )}
+
+        {!isLoggedIn ? (
+          <>
+          </>
+        ) : (
+          <div className="border-t border-white/10">
+            <LogoutButton setOpen={setOpen} open={open} />
+          </div>
+        )}
       </div>
     </div>
   );
