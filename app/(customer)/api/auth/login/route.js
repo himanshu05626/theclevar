@@ -100,6 +100,7 @@ export async function POST(req) {
           id: customer.id,
           email: customer.email,
           name: customer.first_name,
+          token
         },
       },
       { status: 200 }
