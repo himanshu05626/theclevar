@@ -40,9 +40,9 @@ export async function POST(req) {
           include: {
             pricing: customerGroupId
               ? {
-                  where: { customer_group_id: customerGroupId },
-                  take: 1,
-                }
+                where: { customer_group_id: customerGroupId },
+                take: 1,
+              }
               : false,
             tier_product_pricing: true,
           },

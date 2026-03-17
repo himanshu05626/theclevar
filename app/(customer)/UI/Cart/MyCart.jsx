@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, use } from "react";
 import { updateCartQty, deleteCartItem } from "./actions";
 import Image from "next/image";
 import { TrashIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { useCart } from "@/app/context/CartContext";
 
 function Spinner() {
   return (
@@ -33,8 +34,12 @@ function getGuestCart() {
 }
 
 export default function MyCart({ cartData = [], isGuest = false }) {
+  const {cartItems} = useCart();
+  const [cart, setCart] = useState(cartItems);
+  useEffect(() => {
+    setCart(cartItems);
+  }, [cartItems]);
 
-  const [cart, setCart] = useState(cartData);
 
   /* =========================
      LOAD GUEST CART
@@ -50,7 +55,7 @@ export default function MyCart({ cartData = [], isGuest = false }) {
       quantity: item.quantity,
       finalPrice: item.price,
       variant_id: item.variant_id,
-      variant_size: item.variant_size,
+      variant_size: item.variant.size,
 
       product: {
         slug: item.slug ?? "",
@@ -272,7 +277,7 @@ function CartRow({ item, isGuest, setCart }) {
         </Link>
 
         <p className="text-xs text-gray-400 mt-1">
-          Size: {item.variant_size ?? "-"}
+          Size: {item.variant.size ?? "-"}
         </p>
 
         <div className="mt-3 flex items-center gap-3">

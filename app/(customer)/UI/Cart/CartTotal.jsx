@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, useEffect } from "react";
 import { TagIcon } from "@heroicons/react/24/outline";
+import { useCart } from "@/app/context/CartContext";
 
 /* =========================
    HELPER
@@ -28,7 +29,12 @@ export default function CartTotal({ cartData = [], isGuest = false }) {
 
   const [coupon, setCoupon] = useState("");
   const [discount, setDiscount] = useState(0);
-  const [cart, setCart] = useState(cartData);
+  const {cartItems} = useCart();
+  const [cart, setCart] = useState(cartItems);
+  useEffect(() => {
+    console.log('cartcartcartcart',cart)
+    setCart(cartItems);
+  }, [cartItems]);
 
   /* =========================
      LOAD GUEST CART

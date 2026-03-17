@@ -142,113 +142,113 @@ export default function ProductInfoTabs({
         </div>
       )}
 
-    
-{tab === "reviews" && (
-  <div className="space-y-10">
 
-    {/* rating summary */}
-    <div className="flex items-center gap-6 bg-white/[0.03] border border-white/10 rounded-2xl p-6">
+      {tab === "reviews" && (
+        <div className="space-y-10">
 
-      <div className="text-6xl font-bold tracking-tight">
-        {avgRating.toFixed(1)}
-      </div>
+          {/* rating summary */}
+          <div className="flex items-center gap-6 bg-white/[0.03] border border-white/10 rounded-2xl p-6">
 
-      <div className="flex flex-col gap-1">
+            <div className="text-6xl font-bold tracking-tight">
+              {avgRating.toFixed(1)}
+            </div>
 
-        <Stars rating={Math.round(avgRating)} />
+            <div className="flex flex-col gap-1">
 
-        <p className="text-gray-400 text-sm">
-          {reviewCount} customer reviews
-        </p>
+              <Stars rating={Math.round(avgRating)} />
 
-      </div>
-
-    </div>
-
-
-    {/* NO REVIEWS UI */}
-    {reviews.length === 0 && (
-      <div className="flex flex-col items-center justify-center text-center py-16 border border-white/10 rounded-2xl bg-white/[0.02]">
-
-        <ChatBubbleLeftRightIcon className="w-14 h-14 text-gray-500 mb-4"/>
-
-        <h3 className="text-lg font-semibold">
-          No reviews yet
-        </h3>
-
-        <p className="text-gray-400 text-sm mt-1">
-          Be the first to review this product
-        </p>
-
-      </div>
-    )}
-
-
-    {/* review list */}
-    {reviews.length > 0 && (
-      <div className="space-y-5">
-
-        {reviews.map((r) => (
-          <div
-            key={r.id}
-            className="border border-white/10 rounded-2xl p-6 bg-white/[0.02] hover:bg-white/[0.04] transition"
-          >
-
-            {/* top */}
-            <div className="flex justify-between items-start mb-3">
-
-              <div>
-
-                <p className="font-semibold text-white">
-                  {r.customer.first_name} {r.customer.last_name || ""}
-                </p>
-
-                {r.is_verified && (
-                  <div className="flex items-center gap-1 text-green-400 text-xs mt-1">
-
-                    <CheckBadgeIcon className="w-4 h-4"/>
-
-                    Verified Purchase
-
-                  </div>
-                )}
-
-              </div>
-
-              <Stars rating={r.rating} />
+              <p className="text-gray-400 text-sm">
+                {reviewCount} customer reviews
+              </p>
 
             </div>
 
-
-            {/* review text */}
-            <p className="text-gray-400 text-sm leading-relaxed">
-              {r.review}
-            </p>
-
-
-            {/* review images */}
-            {r.review_images?.length > 0 && (
-              <div className="flex gap-2 mt-4">
-
-                {r.review_images.map((img, i) => (
-                  <img
-                    key={i}
-                    src={img.image_url}
-                    className="w-16 h-16 object-cover rounded-lg border border-white/10 cursor-pointer hover:scale-105 transition"
-                  />
-                ))}
-
-              </div>
-            )}
-
           </div>
-        ))}
 
-      </div>
-    )}
 
-  </div>
-)}
+          {/* NO REVIEWS UI */}
+          {reviews.length === 0 && (
+            <div className="flex flex-col items-center justify-center text-center py-16 border border-white/10 rounded-2xl bg-white/[0.02]">
+
+              <ChatBubbleLeftRightIcon className="w-14 h-14 text-gray-500 mb-4" />
+
+              <h3 className="text-lg font-semibold">
+                No reviews yet
+              </h3>
+
+              <p className="text-gray-400 text-sm mt-1">
+                Be the first to review this product
+              </p>
+
+            </div>
+          )}
+
+
+          {/* review list */}
+          {reviews.length > 0 && (
+            <div className="space-y-5">
+
+              {reviews.map((r) => (
+                <div
+                  key={r.id}
+                  className="border border-white/10 rounded-2xl p-6 bg-white/[0.02] hover:bg-white/[0.04] transition"
+                >
+
+                  {/* top */}
+                  <div className="flex justify-between items-start mb-3">
+
+                    <div>
+
+                      <p className="font-semibold text-white">
+                        {r.customer.first_name} {r.customer.last_name || ""}
+                      </p>
+
+                      {r.is_verified && (
+                        <div className="flex items-center gap-1 text-green-400 text-xs mt-1">
+
+                          <CheckBadgeIcon className="w-4 h-4" />
+
+                          Verified Purchase
+
+                        </div>
+                      )}
+
+                    </div>
+
+                    <Stars rating={r.rating} />
+
+                  </div>
+
+
+                  {/* review text */}
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                    {r.review}
+                  </p>
+
+
+                  {/* review images */}
+                  {r.review_images?.length > 0 && (
+                    <div className="flex gap-2 mt-4">
+
+                      {r.review_images.map((img, i) => (
+                        <img
+                          key={i}
+                          src={img.image_url}
+                          className="w-16 h-16 object-cover rounded-lg border border-white/10 cursor-pointer hover:scale-105 transition"
+                        />
+                      ))}
+
+                    </div>
+                  )}
+
+                </div>
+              ))}
+
+            </div>
+          )}
+
+        </div>
+      )}
 
     </div>
   );
