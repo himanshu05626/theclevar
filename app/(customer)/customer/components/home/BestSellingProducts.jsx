@@ -65,22 +65,22 @@ const ProductCard = memo(function ProductCard({ product, openModal, qtyInCart })
           ★★★★★ <span className="text-gray-400">(234)</span>
         </div>
 
-  <div className="flex gap-2 items-center">
-  {product.sale_price ? (
-    <>
-      <span className="text-white font-bold">
-        ₹{product.sale_price}
-      </span>
-      <span className="text-gray-500 text-xs line-through">
-        ₹{product.regular_price}
-      </span>
-    </>
-  ) : (
-    <span className="text-white font-bold">
-      ₹{product.regular_price}
-    </span>
-  )}
-</div>
+        <div className="flex gap-2 items-center">
+          {product.sale_price ? (
+            <>
+              <span className="text-white font-bold">
+                ₹{product.sale_price}
+              </span>
+              <span className="text-gray-500 text-xs line-through">
+                ₹{product.regular_price}
+              </span>
+            </>
+          ) : (
+            <span className="text-white font-bold">
+              ₹{product.regular_price}
+            </span>
+          )}
+        </div>
 
         {qtyInCart > 0 && (
           <span className="text-xs text-cyan-300">
@@ -101,7 +101,7 @@ const ProductCard = memo(function ProductCard({ product, openModal, qtyInCart })
 
 /* ---------------- MAIN COMPONENT ---------------- */
 
-export default function BestSellingProducts({ products }) {
+export default function BestSellingProducts({ products,isLoggedIn }) {
 
   const { reloadCart, cartItems } = useCart();
   const { showToast } = useToast();
@@ -109,9 +109,9 @@ export default function BestSellingProducts({ products }) {
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  useEffect(()=>{
-console.log('selectedProduct',selectedProduct)
-  },[selectedProduct])
+  useEffect(() => {
+    console.log('selectedProduct', selectedProduct)
+  }, [selectedProduct])
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
   const [qty, setQty] = useState(1);
@@ -176,49 +176,81 @@ console.log('selectedProduct',selectedProduct)
 
   /* ADD TO CART */
 
-  const handleAddToCart = async () => {
+ const handleAddToCart = async () => {
 
-    if (!selectedVariant) {
-      showToast({ type: "error", message: "Select size first" });
-      return;
-    }
+  if (!selectedVariant) {
+    showToast({ type: "error", message: "Select size first" });
+    return;
+  }
 
-    try {
+  /* ================= GUEST USER ================= */
+  if (!isLoggedIn) {
+    const existingCart =
+      JSON.parse(localStorage.getItem("guest_cart")) || {};
 
-      setLoading(true);
+    const price =
+      selectedProduct.sale_price || selectedProduct.regular_price;
 
-      const res = await fetch("/api/cart/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          productId: selectedProduct.id,
-          variantId: selectedVariant,
-          quantity: qty
-        })
-      });
+    existingCart[selectedProduct.id] = {
+      product_id: selectedProduct.id,
+      name: selectedProduct.name,
+      price,
+      image: selectedProduct.images?.[0]?.image_url || null,
+      quantity: qty,
+      variant_id: selectedVariant || null,
+    };
 
-      if (!res.ok) throw new Error();
+    localStorage.setItem(
+      "guest_cart",
+      JSON.stringify(existingCart)
+    );
 
-      reloadCart();
+    showToast({
+      type: "success",
+      message: "Added to Bag",
+    });
+reloadCart();
+    closeModal();
+    return;
+  }
 
-      showToast({
-        type: "success",
-        message: "Added to Bag"
-      });
+  /* ================= LOGGED IN USER ================= */
 
-      closeModal();
+  try {
+    setLoading(true);
 
-    } catch {
+    const res = await fetch("/api/cart/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        productId: selectedProduct.id,
+        variantId: selectedVariant,
+        quantity: qty,
+      }),
+    });
 
-      showToast({
-        type: "error",
-        message: "Something went wrong"
-      });
+    if (!res.ok) throw new Error();
 
-    } finally {
-      setLoading(false);
-    }
-  };
+    reloadCart();
+
+    showToast({
+      type: "success",
+      message: "Added to Bag",
+    });
+
+    closeModal();
+
+  } catch {
+    showToast({
+      type: "error",
+      message: "Something went wrong",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   /* MODAL CONTENT */
 
@@ -239,22 +271,22 @@ console.log('selectedProduct',selectedProduct)
 
           <div className="text-yellow-400 text-xs">★★★★★</div>
 
-         <div className="flex gap-2 mt-1 items-center">
-  {selectedProduct?.sale_price ? (
-    <>
-      <span className="text-cyan-400 font-semibold">
-        ₹{selectedProduct.sale_price}
-      </span>
-      <span className="text-gray-400 line-through text-sm">
-        ₹{selectedProduct.regular_price}
-      </span>
-    </>
-  ) : (
-    <span className="text-cyan-400 font-semibold">
-      ₹{selectedProduct?.regular_price}
-    </span>
-  )}
-</div>
+          <div className="flex gap-2 mt-1 items-center">
+            {selectedProduct?.sale_price ? (
+              <>
+                <span className="text-cyan-400 font-semibold">
+                  ₹{selectedProduct.sale_price}
+                </span>
+                <span className="text-gray-400 line-through text-sm">
+                  ₹{selectedProduct.regular_price}
+                </span>
+              </>
+            ) : (
+              <span className="text-cyan-400 font-semibold">
+                ₹{selectedProduct?.regular_price}
+              </span>
+            )}
+          </div>
 
         </div>
       </div>
@@ -271,11 +303,10 @@ console.log('selectedProduct',selectedProduct)
               setSelectedVariant(v.id);
             }}
             className={`px-4 py-2 rounded-lg text-sm border transition
-            ${
-              selectedSize === v.id
+            ${selectedSize === v.id
                 ? "bg-cyan-400 text-black border-cyan-400"
                 : "border-white/10 text-gray-400"
-            }`}
+              }`}
           >
             {v.size}
           </button>
@@ -309,11 +340,10 @@ console.log('selectedProduct',selectedProduct)
         onClick={handleAddToCart}
         disabled={!selectedSize || loading}
         className={`w-full py-3 rounded-xl font-semibold transition
-        ${
-          selectedSize
+        ${selectedSize
             ? "bg-gradient-to-r from-cyan-400 to-blue-500 text-black"
             : "bg-[#1f2937] text-gray-500"
-        }`}
+          }`}
       >
         {loading ? "Adding..." : "Add to Cart"}
       </button>
@@ -395,7 +425,7 @@ console.log('selectedProduct',selectedProduct)
               <h2 className="text-white">
                 {selectedProduct.name}
               </h2>
-              
+
 
               <button onClick={closeModal}>
                 <XMarkIcon className="w-5 h-5 text-white" />

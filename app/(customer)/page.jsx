@@ -106,7 +106,7 @@ export default async function Page() {
       {/* <Category /> */}
        <BannerSlider />
 
-      <BestSellingProducts products={products} customerId={user?.id} />
+      <BestSellingProducts products={products} customerId={user?.id} isLoggedIn={!!user} />
       {/* <WhyChoosetheclevar />
        */}
       <LetsWorkTogether />
