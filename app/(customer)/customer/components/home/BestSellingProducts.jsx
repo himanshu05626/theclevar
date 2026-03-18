@@ -65,17 +65,22 @@ const ProductCard = memo(function ProductCard({ product, openModal, qtyInCart })
           ★★★★★ <span className="text-gray-400">(234)</span>
         </div>
 
-        <div className="flex gap-2 items-center">
-          <span className="text-white font-bold">
-            ₹{product.price || product.regular_price}
-          </span>
-
-          {product.regular_price && (
-            <span className="text-gray-500 text-xs line-through">
-              ₹{product.regular_price}
-            </span>
-          )}
-        </div>
+  <div className="flex gap-2 items-center">
+  {product.sale_price ? (
+    <>
+      <span className="text-white font-bold">
+        ₹{product.sale_price}
+      </span>
+      <span className="text-gray-500 text-xs line-through">
+        ₹{product.regular_price}
+      </span>
+    </>
+  ) : (
+    <span className="text-white font-bold">
+      ₹{product.regular_price}
+    </span>
+  )}
+</div>
 
         {qtyInCart > 0 && (
           <span className="text-xs text-cyan-300">
@@ -103,6 +108,10 @@ export default function BestSellingProducts({ products }) {
 
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+
+  useEffect(()=>{
+console.log('selectedProduct',selectedProduct)
+  },[selectedProduct])
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
   const [qty, setQty] = useState(1);
@@ -230,11 +239,22 @@ export default function BestSellingProducts({ products }) {
 
           <div className="text-yellow-400 text-xs">★★★★★</div>
 
-          <div className="flex gap-2 mt-1">
-            <span className="text-cyan-400 font-semibold">
-              ₹{selectedProduct?.price}
-            </span>
-          </div>
+         <div className="flex gap-2 mt-1 items-center">
+  {selectedProduct?.sale_price ? (
+    <>
+      <span className="text-cyan-400 font-semibold">
+        ₹{selectedProduct.sale_price}
+      </span>
+      <span className="text-gray-400 line-through text-sm">
+        ₹{selectedProduct.regular_price}
+      </span>
+    </>
+  ) : (
+    <span className="text-cyan-400 font-semibold">
+      ₹{selectedProduct?.regular_price}
+    </span>
+  )}
+</div>
 
         </div>
       </div>
@@ -375,6 +395,7 @@ export default function BestSellingProducts({ products }) {
               <h2 className="text-white">
                 {selectedProduct.name}
               </h2>
+              
 
               <button onClick={closeModal}>
                 <XMarkIcon className="w-5 h-5 text-white" />
