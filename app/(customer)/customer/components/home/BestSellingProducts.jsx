@@ -101,7 +101,7 @@ const ProductCard = memo(function ProductCard({ product, openModal, qtyInCart })
 
 /* ---------------- MAIN COMPONENT ---------------- */
 
-export default function BestSellingProducts({ products,isLoggedIn }) {
+export default function BestSellingProducts({ products, isLoggedIn }) {
 
   const { reloadCart, cartItems } = useCart();
   const { showToast } = useToast();
@@ -109,10 +109,11 @@ export default function BestSellingProducts({ products,isLoggedIn }) {
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  useEffect(() => {
-    console.log('selectedProduct', selectedProduct)
-  }, [selectedProduct])
+
   const [selectedVariant, setSelectedVariant] = useState(null);
+  useEffect(() => {
+    console.log('selectedVariant', selectedVariant)
+  }, [selectedVariant])
   const [selectedSize, setSelectedSize] = useState(null);
   const [qty, setQty] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -176,81 +177,83 @@ export default function BestSellingProducts({ products,isLoggedIn }) {
 
   /* ADD TO CART */
 
- const handleAddToCart = async () => {
+  const handleAddToCart = async () => {
 
-  if (!selectedVariant) {
-    showToast({ type: "error", message: "Select size first" });
-    return;
-  }
+    if (!selectedVariant) {
+      showToast({ type: "error", message: "Select size first" });
+      return;
+    }
 
-  /* ================= GUEST USER ================= */
-  if (!isLoggedIn) {
-    const existingCart =
-      JSON.parse(localStorage.getItem("guest_cart")) || {};
+    /* ================= GUEST USER ================= */
+    if (!isLoggedIn) {
+      const existingCart =
+        JSON.parse(localStorage.getItem("guest_cart")) || {};
 
-    const price =
-      selectedProduct.sale_price || selectedProduct.regular_price;
+      const price =
+        selectedProduct.sale_price || selectedProduct.regular_price;
 
-    existingCart[selectedProduct.id] = {
-      product_id: selectedProduct.id,
-      name: selectedProduct.name,
-      price,
-      image: selectedProduct.images?.[0]?.image_url || null,
-      quantity: qty,
-      variant_id: selectedVariant || null,
-    };
-
-    localStorage.setItem(
-      "guest_cart",
-      JSON.stringify(existingCart)
-    );
-
-    showToast({
-      type: "success",
-      message: "Added to Bag",
-    });
-reloadCart();
-    closeModal();
-    return;
-  }
-
-  /* ================= LOGGED IN USER ================= */
-
-  try {
-    setLoading(true);
-
-    const res = await fetch("/api/cart/add", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        productId: selectedProduct.id,
-        variantId: selectedVariant,
+      existingCart[selectedProduct.id] = {
+        product_id: selectedProduct.id,
+        name: selectedProduct.name,
+        size: selectedVariant.size,
+        sale_price: selectedProduct.sale_price,
+        regular_price: selectedProduct.regular_price,
+        image: selectedProduct.images?.[0]?.image_url || null,
         quantity: qty,
-      }),
-    });
+        variant_id: selectedVariant || null,
+      };
 
-    if (!res.ok) throw new Error();
+      localStorage.setItem(
+        "guest_cart",
+        JSON.stringify(existingCart)
+      );
 
-    reloadCart();
+      showToast({
+        type: "success",
+        message: "Added to Bag",
+      });
+      reloadCart();
+      closeModal();
+      return;
+    }
 
-    showToast({
-      type: "success",
-      message: "Added to Bag",
-    });
+    /* ================= LOGGED IN USER ================= */
 
-    closeModal();
+    try {
+      setLoading(true);
 
-  } catch {
-    showToast({
-      type: "error",
-      message: "Something went wrong",
-    });
-  } finally {
-    setLoading(false);
-  }
-};
+      const res = await fetch("/api/cart/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: selectedProduct.id,
+          variantId: selectedVariant.id,
+          quantity: qty,
+        }),
+      });
+
+      if (!res.ok) throw new Error();
+
+      reloadCart();
+
+      showToast({
+        type: "success",
+        message: "Added to Bag",
+      });
+
+      closeModal();
+
+    } catch {
+      showToast({
+        type: "error",
+        message: "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   /* MODAL CONTENT */
 
@@ -300,7 +303,7 @@ reloadCart();
             key={v.id}
             onClick={() => {
               setSelectedSize(v.id);
-              setSelectedVariant(v.id);
+              setSelectedVariant(v);
             }}
             className={`px-4 py-2 rounded-lg text-sm border transition
             ${selectedSize === v.id

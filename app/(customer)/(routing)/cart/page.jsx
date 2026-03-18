@@ -12,9 +12,9 @@ export default async function Page() {
 
   let pricedCartData = [];
   let isGuest = false;
-let user;
+  let user;
   try {
-   user  = await requireUser();
+    user = await requireUser();
 
     if (!user?.id) {
       isGuest = true;
@@ -49,7 +49,7 @@ let user;
 
       pricedCartData = cartData.map((item) => ({
         ...item,
-        finalPrice: item.product.sale_price ?? item.product.regular_price,
+        finalPrice: item.product?.sale_price ?? item.product?.regular_price,
       }));
     }
 

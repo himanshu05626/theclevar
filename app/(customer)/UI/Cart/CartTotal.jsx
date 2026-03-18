@@ -29,10 +29,10 @@ export default function CartTotal({ cartData = [], isGuest = false }) {
 
   const [coupon, setCoupon] = useState("");
   const [discount, setDiscount] = useState(0);
-  const {cartItems} = useCart();
+  const { cartItems } = useCart();
   const [cart, setCart] = useState(cartItems);
   useEffect(() => {
-    console.log('cartcartcartcart',cart)
+    console.log('cartcartcartcart', cart)
     setCart(cartItems);
   }, [cartItems]);
 
@@ -50,7 +50,7 @@ export default function CartTotal({ cartData = [], isGuest = false }) {
 
       const formatted = guestCart.map((item) => ({
         quantity: item.quantity,
-        finalPrice: item.price,
+        finalPrice: item.price || item.sale_price || item.regular_price || 0,
         product: {
           regular_price: item.price,
         },
@@ -78,7 +78,7 @@ export default function CartTotal({ cartData = [], isGuest = false }) {
     const subTotal = cart.reduce((sum, item) => {
 
       const price =
-        item.finalPrice ?? item.product?.regular_price ?? 0;
+       item?.price ?? item?.finalPrice ?? item.product?.regular_price ?? item?.sale_price ?? item.sale_price ?? 0;
 
       const qty = item.quantity || 1;
 

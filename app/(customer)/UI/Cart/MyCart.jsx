@@ -34,10 +34,11 @@ function getGuestCart() {
 }
 
 export default function MyCart({ cartData = [], isGuest = false }) {
-  const {cartItems} = useCart();
+  const { cartItems } = useCart();
   const [cart, setCart] = useState(cartItems);
   useEffect(() => {
     setCart(cartItems);
+    console.log('cartItemscartItems', cartItems)
   }, [cartItems]);
 
 
@@ -53,9 +54,9 @@ export default function MyCart({ cartData = [], isGuest = false }) {
     const formatted = guestCart.map((item) => ({
       id: item.product_id,
       quantity: item.quantity,
-      finalPrice: item.price,
+      finalPrice: item?.price,
       variant_id: item.variant_id,
-      variant_size: item.variant.size,
+      variant_size: item.variant?.size,
 
       product: {
         slug: item.slug ?? "",
@@ -77,60 +78,60 @@ export default function MyCart({ cartData = [], isGuest = false }) {
 
   const clearCart = async () => {
 
-  if (isGuest) {
+    if (isGuest) {
 
-    localStorage.removeItem("guest_cart");
+      localStorage.removeItem("guest_cart");
 
-    window.dispatchEvent(new Event("guestCartUpdated"));
+      window.dispatchEvent(new Event("guestCartUpdated"));
 
-    setCart([]);
+      setCart([]);
 
-    return;
-  }
+      return;
+    }
 
-  /* DB CART CLEAR */
+    /* DB CART CLEAR */
 
-  const res = await fetch("/api/cart/clear", {
-    method: "POST",
-  });
+    const res = await fetch("/api/cart/clear", {
+      method: "POST",
+    });
 
-  if (res.ok) {
-    setCart([]);
-  }
-};
+    if (res.ok) {
+      setCart([]);
+    }
+  };
 
- return (
-  <div className="max-w-5xl  z-10 mx-auto px-3 sm:px-4 space-y-4" style={{zIndex:-1}}>
+  return (
+    <div className="max-w-5xl  z-10 mx-auto px-3 sm:px-4 space-y-4" style={{ zIndex: -1 }}>
 
-    {/* LOGIN BANNER */}
-    {isGuest && (
-      <div className="flex items-center justify-between rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-4">
+      {/* LOGIN BANNER */}
+      {isGuest && (
+        <div className="flex items-center justify-between rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-4">
 
-        <div className="text-sm text-gray-300">
-          Login to save your cart and checkout faster.
+          <div className="text-sm text-gray-300">
+            Login to save your cart and checkout faster.
+          </div>
+
+          <Link
+            href="/auth/login"
+            className="rounded-lg bg-cyan-400 px-4 py-2 text-sm font-semibold text-black hover:bg-cyan-300 transition"
+          >
+            LOGIN
+          </Link>
+
         </div>
+      )}
 
-        <Link
-          href="/auth/login"
-          className="rounded-lg bg-cyan-400 px-4 py-2 text-sm font-semibold text-black hover:bg-cyan-300 transition"
-        >
-          LOGIN
-        </Link>
+      {cart.map((item) => (
+        <CartRow
+          key={item.id}
+          item={item}
+          isGuest={isGuest}
+          setCart={setCart}
+        />
+      ))}
 
-      </div>
-    )}
-
-    {cart.map((item) => (
-      <CartRow
-        key={item.id}
-        item={item}
-        isGuest={isGuest}
-        setCart={setCart}
-      />
-    ))}
-
-  </div>
-);
+    </div>
+  );
 }
 
 /* =========================
@@ -138,9 +139,13 @@ export default function MyCart({ cartData = [], isGuest = false }) {
 ========================= */
 
 function CartRow({ item, isGuest, setCart }) {
+  console.log('itemitem', item)
+  const product = item.product || {};
 
-  const product = item.product;
-  const price = item.finalPrice ?? product.sale_price;
+  const salePrice = item.sale_price ?? product?.sale_price;
+  const regularPrice = item.regular_price ?? product?.regular_price;
+
+  const price = item.finalPrice ?? salePrice ?? regularPrice;
 
   const [qty, setQty] = useState(item.quantity ?? 1);
   const [isSaving, setIsSaving] = useState(false);
@@ -157,12 +162,13 @@ function CartRow({ item, isGuest, setCart }) {
     if (isGuest) {
 
       const guestCart = getGuestCart();
-
+console.log('newQtynewQty',newQty,item)
       const updated = guestCart.map((g) =>
-        g.product_id === item.id
+        g.product_id === item.product_id || item.id
           ? { ...g, quantity: newQty }
           : g
       );
+      console.log('updated',updated)
 
       localStorage.setItem("guest_cart", JSON.stringify(updated));
 
@@ -255,12 +261,12 @@ function CartRow({ item, isGuest, setCart }) {
 
       {/* IMAGE */}
       <Link
-        href={`/product/${product.slug}`}
+        href={`/product/${product?.slug}`}
         className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0"
       >
         <Image
-          src={product.images?.[0]?.image_url || "/images/not-found.png"}
-          alt={product.name}
+          src={product?.images?.[0]?.image_url || item.image || "/images/not-found.png"}
+          alt={product?.name}
           fill
           className="object-cover rounded-lg"
         />
@@ -270,14 +276,14 @@ function CartRow({ item, isGuest, setCart }) {
       <div className="flex flex-col flex-1 min-w-0">
 
         <Link
-          href={`/product/${product.slug}`}
+          href={`/product/${product?.slug}`}
           className="text-sm sm:text-base font-semibold text-white hover:text-cyan-400 transition truncate"
         >
-          {product.name}
+          {product?.name || item.name || "Product Name"}
         </Link>
 
         <p className="text-xs text-gray-400 mt-1">
-          Size: {item.variant.size ?? "-"}
+          Size: {item.variant?.size || item.size || "-"}
         </p>
 
         <div className="mt-3 flex items-center gap-3">
@@ -319,8 +325,25 @@ function CartRow({ item, isGuest, setCart }) {
           <TrashIcon className="h-5 w-5" />
         </button>
 
-        <p className="text-base sm:text-lg font-semibold text-white">
-          ₹{price * qty}
+        <p className="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
+          {item.sale_price ? (
+            <>
+              {/* Sale Price */}
+              <span className="text-green-400">
+                ₹{(price ?? item.sale_price) * qty}
+              </span>
+
+              {/* Regular Price (cut) */}
+              <span className="line-through text-gray-400 text-sm">
+                ₹{item.regular_price * qty}
+              </span>
+            </>
+          ) : (
+            /* Only Regular Price */
+            <span>
+              ₹{(price ?? item.regular_price) * qty}
+            </span>
+          )}
         </p>
 
       </div>
