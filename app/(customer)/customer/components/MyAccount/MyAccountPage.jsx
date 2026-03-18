@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { auth, googleProvider } from "@/lib/firebase";
 import { signInWithPopup } from "firebase/auth";
+import { useCart } from "@/app/context/CartContext";
 
 function Spinner() {
   return (
@@ -13,6 +14,7 @@ function Spinner() {
   );
 }
 export default function LoginPage({isLoggedIn}) {
+  const {cartItems} = useCart();
   const router = useRouter();
    useEffect(() => {
     if (isLoggedIn) {
@@ -48,6 +50,15 @@ export default function LoginPage({isLoggedIn}) {
     }
 
     localStorage.setItem("userName", data.user.name);
+    if(cartItems.length > 0){
+      await fetch("/api/cart/merge", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ items: cartItems }),
+      });
+    }
 
     router.replace(redirectTo);
     router.refresh();
@@ -137,7 +148,15 @@ if (isLoggedIn) {
         setError(data.message || "Login failed");
         return;
       }
-
+ if(cartItems.length > 0){
+      await fetch("/api/cart/merge", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ items: cartItems }),
+      });
+    }
       router.replace(redirectTo);
       router.refresh();
     } catch (err) {

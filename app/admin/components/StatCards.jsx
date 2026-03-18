@@ -38,7 +38,7 @@ export default async function StatCards() {
     },
     {
       label: "Revenue",
-      value: `$${revenue.toFixed(2)}`,
+      value: `₹${revenue.toFixed(2)}`,
       sub: "Earnings",
       icon: BanknotesIcon,
       color: "bg-emerald-50 text-emerald-600",

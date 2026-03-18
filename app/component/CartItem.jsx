@@ -16,23 +16,32 @@ export default function CartItem({ item, isLoggedIn }) {
   const { reloadCart } = useCart();
 
   const stepper =
-    Number(item.product?.stepper_value || item.stepper_value) || 1;
+    Number(item?.product?.stepper_value || item?.stepper_value) || 1;
 
-  const qty = Number(item.quantity);
-  const price = Number(item.product?.price ?? item.price ?? 0);
+  const qty = Number(item?.quantity || 1);
+  const price = Number(item?.product?.price ?? item?.price ?? 0);
 
   const [localQty, setLocalQty] = useState(qty);
   const debounceRef = useRef(null);
 
+  // ✅ Sync local state
   useEffect(() => {
     setLocalQty(qty);
   }, [qty]);
+
+  // 🔥 UNIQUE KEY (IMPORTANT for variants)
+  const getCartKey = () => {
+    const variantId =
+      item?.variant?.id || item?.variant_id?.id || null;
+    return `${item.product_id}_${variantId || "null"}`;
+  };
 
   const syncQtyToServer = (newQty) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     debounceRef.current = setTimeout(() => {
-      if (isLoggedIn) {
+      // ✅ LOGGED IN USER
+      if (isLoggedIn && item?.id) {
         const fd = new FormData();
         fd.append("cartId", item.id);
         fd.append("quantity", newQty);
@@ -45,11 +54,16 @@ export default function CartItem({ item, isLoggedIn }) {
           reloadCart();
         });
       } else {
+        // ✅ GUEST USER
         const cart =
           JSON.parse(localStorage.getItem("guest_cart")) || {};
-        if (!cart[item.product_id]) return;
 
-        cart[item.product_id].quantity = newQty;
+        const key = getCartKey();
+
+        if (!cart[key]) return;
+
+        cart[key].quantity = newQty;
+
         localStorage.setItem("guest_cart", JSON.stringify(cart));
         reloadCart();
       }
@@ -70,7 +84,8 @@ export default function CartItem({ item, isLoggedIn }) {
   };
 
   const removeItem = () => {
-    if (isLoggedIn) {
+    // ✅ LOGGED IN
+    if (isLoggedIn && item?.id) {
       const fd = new FormData();
       fd.append("cartId", item.id);
 
@@ -79,9 +94,14 @@ export default function CartItem({ item, isLoggedIn }) {
         reloadCart();
       });
     } else {
+      // ✅ GUEST
       const cart =
         JSON.parse(localStorage.getItem("guest_cart")) || {};
-      delete cart[item.product_id];
+
+      const key = getCartKey();
+
+      delete cart[key];
+
       localStorage.setItem("guest_cart", JSON.stringify(cart));
       reloadCart();
     }
@@ -106,39 +126,36 @@ export default function CartItem({ item, isLoggedIn }) {
       />
 
       {/* CONTENT */}
-      <div className=" flex ">
-        {/* NAME */}
-        <div className="flex-col justify-between">
+      <div className="flex w-full justify-between">
+        {/* LEFT */}
+        <div className="flex flex-col justify-between">
+          {/* NAME */}
           <p className="text-sm font-medium text-white leading-snug line-clamp-2">
             {item.name || item.product?.name}
           </p>
 
-          {/* META ROW */}
-          <div className="flex items-center justify-between mt-1">
-            {/* SIZE */}
-            {item.variant?.size && (
-              <span className="text-xs text-gray-400">
-                Size:{" "}
-                <span className="text-gray-200">
-                  {item.variant.size}
-                </span>
+          {/* SIZE */}
+          {(item?.variant?.size ||
+            item?.variant_id?.size) && (
+            <span className="text-xs text-gray-400 mt-1">
+              Size:{" "}
+              <span className="text-gray-200">
+                {item.variant?.size ||
+                  item.variant_id?.size}
               </span>
-            )}
-
-          </div>
-          <div> 
-
-            {/* UNIT PRICE */}
-            <span className="text-xs text-gray-400">
-              ₹{price.toFixed(2)} / item
             </span>
-          </div>
+          )}
+
+          {/* PRICE */}
+          <span className="text-xs text-gray-400 mt-1">
+            ₹{price.toFixed(2)} / item
+          </span>
         </div>
 
-        {/* ACTION ROW */}
-        <div className="flex items-center flex-col justify-between ">
+        {/* RIGHT */}
+        <div className="flex flex-col justify-between items-end">
           {/* QTY */}
-<div
+          <div
             className="flex mt-2 items-center rounded-lg overflow-hidden
             bg-[#0f0f0f] border border-white/10"
           >
@@ -162,7 +179,7 @@ export default function CartItem({ item, isLoggedIn }) {
           </div>
 
           {/* TOTAL */}
-          <div className="text-right flex items-center gap-3">
+          <div className="text-right flex items-center gap-2">
             <p className="text-xs text-gray-500">Total</p>
             <p className="text-sm font-semibold text-[#38bdf8]">
               ₹{(price * localQty).toFixed(2)}
@@ -174,7 +191,7 @@ export default function CartItem({ item, isLoggedIn }) {
       {/* REMOVE */}
       <button
         onClick={removeItem}
-        className="opacity-0 opacity-100 transition"
+        className="opacity-70 hover:opacity-100 transition"
       >
         <TrashIcon className="h-4 w-4 text-gray-400 hover:text-red-400" />
       </button>

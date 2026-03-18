@@ -54,8 +54,9 @@ export default function MyCart({ cartData = [], isGuest = false }) {
     const formatted = guestCart.map((item) => ({
       id: item.product_id,
       quantity: item.quantity,
-      finalPrice: item?.price,
       variant_id: item.variant_id,
+      regular_price: item.regular_price,
+      sale_price: item.sale_price,
       variant_size: item.variant?.size,
 
       product: {
@@ -145,7 +146,7 @@ function CartRow({ item, isGuest, setCart }) {
   const salePrice = item.sale_price ?? product?.sale_price;
   const regularPrice = item.regular_price ?? product?.regular_price;
 
-  const price = item.finalPrice ?? salePrice ?? regularPrice;
+  const price =  salePrice ?? regularPrice;
 
   const [qty, setQty] = useState(item.quantity ?? 1);
   const [isSaving, setIsSaving] = useState(false);

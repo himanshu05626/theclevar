@@ -192,16 +192,16 @@ export default function BestSellingProducts({ products, isLoggedIn }) {
       const price =
         selectedProduct.sale_price || selectedProduct.regular_price;
 
-      existingCart[selectedProduct.id] = {
-        product_id: selectedProduct.id,
-        name: selectedProduct.name,
-        size: selectedVariant.size,
-        sale_price: selectedProduct.sale_price,
-        regular_price: selectedProduct.regular_price,
-        image: selectedProduct.images?.[0]?.image_url || null,
-        quantity: qty,
-        variant_id: selectedVariant || null,
-      };
+existingCart[String(selectedProduct.id)] = {
+  product_id: selectedProduct.id,
+  name: selectedProduct.name,
+  size: selectedVariant.size,
+  sale_price: selectedProduct.sale_price,
+  regular_price: selectedProduct.regular_price,
+  image: selectedProduct.images?.[0]?.image_url || null,
+  quantity: qty,
+  variant_id: selectedVariant.id || null,
+};
 
       localStorage.setItem(
         "guest_cart",

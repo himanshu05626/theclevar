@@ -172,7 +172,7 @@ export default function CartDrawer({ isLoggedIn }) {
               >
                 {cartItems.map((item) => (
                   <CartItem
-                    key={item.id || item.product_id}
+                    key={item?.id || item?.product_id}
                     item={item}
                     isLoggedIn={isLoggedIn}
                   />
