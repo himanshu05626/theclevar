@@ -74,10 +74,7 @@ export default function ProductCard({ product }) {
     <div className="space-y-6 p-5">
 
       <div className="flex gap-4">
-        <img
-          src={product.image || "/images/not-found.png"}
-          className="w-20 h-20 rounded-xl object-cover border border-white/10"
-        />
+      
                                 <ProgressiveImage
           image={product.image}
           alt={product.name}
