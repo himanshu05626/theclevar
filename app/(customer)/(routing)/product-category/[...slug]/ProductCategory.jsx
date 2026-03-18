@@ -89,6 +89,9 @@ export default async function ProductCategory({ slugPath }) {
       },
     },
     include: {
+      variants:{
+          where: { is_deleted: false },
+      },
       images: {
         orderBy: { is_primary: "desc" },
         where: { is_deleted: false },
@@ -119,7 +122,7 @@ export default async function ProductCategory({ slugPath }) {
   /* =========================
      PREPARE PRODUCTS
   ========================= */
-  console.log('productsproducts', products)
+  console.log('productsproasdasdducts', products)
   const preparedProducts = products.map((product) => {
     const mainImage = product.images ||
       "/images/not-found.png";
@@ -168,6 +171,7 @@ export default async function ProductCategory({ slugPath }) {
       name: product.name,
       description: product.description,
       image: mainImage,
+      variants: product.variants|| null,
       price: finalPrice,
       stepper_value: product.stepper_value,
     };

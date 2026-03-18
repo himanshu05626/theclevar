@@ -12,13 +12,8 @@ import {
 } from "@heroicons/react/24/solid";
 import ProgressiveImage from "../../shop/ProgressiveImage";
 
-export default function ProductCard({ product }) {
-  console.log('prodasdasduct',product)
-  const [open, setOpen] = useState(false);
-  const [selectedSize, setSelectedSize] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [qty, setQty] = useState(1);
-  const [isMobile, setIsMobile] = useState(false);
+export default function ProductCard({ product ,open,isMobile, setIsMobile, setOpen,setSelectedProduct,setSelectedSize,selectedSize,setLoading,loading,qty,setQty}) {
+console.log('productproduct',product)
 
   const { reloadCart } = useCart();
 
@@ -71,102 +66,6 @@ export default function ProductCard({ product }) {
 
   /* ================= MODAL ================= */
 
-  const Content = () => (
-    <div className="space-y-6 p-5">
-
-      <div className="flex gap-4">
-        <img
-          src={product.image || "/images/not-found.png"}
-          className="w-20 h-20 rounded-xl object-cover border border-white/10"
-        />
-                                <ProgressiveImage
-          image={product.image[0]}
-          alt={product.name}
-          className=" w-20 h-20 rounded-xl object-cover border border-white/10"
-        />
-
-        <div className="flex-1">
-          <h3 className="text-sm font-semibold text-white">{product.name}</h3>
-       <p className="text-gray-400 text-sm font-semibold line-clamp-2">
-  {product.description}
-</p>
-
-          <div className="flex items-center gap-1 text-yellow-400 text-xs mt-1">
-            {[...Array(5)].map((_, i) => (
-              <StarIcon key={i} className="w-3 h-3" />
-            ))}
-          </div>
-
-          <div className="flex gap-2 mt-2">
-            <span className="text-white font-semibold">
-              ₹{product.price}
-            </span>
-
-            {product.regular_price && (
-              <span className="text-xs text-white line-through">
-                ₹{product.regular_price}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* SIZE */}
-      <div>
-        <p className="text-sm mb-2">Select Size</p>
-
-        <div className="flex gap-2 flex-wrap">
-          {product.variants?.map((v) => {
-            const active = selectedSize === v.id;
-
-            return (
-              <button
-                key={v.id}
-                onClick={() => setSelectedSize(v.id)}
-                className={`px-4 py-2 rounded-lg text-sm border transition
-                  ${
-                    active
-                      ? "bg-[#38bdf8] text-black border-[#38bdf8]"
-                      : "border-white/10 text-gray-400 hover:border-[#38bdf8]"
-                  }
-                `}
-              >
-                {v.size}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* QTY */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => setQty((p) => Math.max(1, p - 1))}
-          className="w-9 h-9 rounded-lg bg-[#1f2937]"
-        >
-          -
-        </button>
-
-        <span>{qty}</span>
-
-        <button
-          onClick={() => setQty((p) => p + 1)}
-          className="w-9 h-9 rounded-lg bg-[#1f2937]"
-        >
-          +
-        </button>
-      </div>
-
-      <button
-        onClick={handleAddToCart}
-        disabled={!selectedSize || loading}
-        className="w-full py-3 rounded-xl bg-[#22d3ee] text-black font-semibold disabled:bg-[#22d3ee]/50 disabled:text-gray-700 transition"
-      >
-        {loading ? "Adding..." : "Add To Cart"}
-      </button>
-    </div>
-  );
-
   return (
     <>
       {/* ================= CARD ================= */}
@@ -211,6 +110,7 @@ export default function ProductCard({ product }) {
                 <button
                   onClick={(e) => {
                     e.preventDefault();
+                    setSelectedProduct(product);
                     e.stopPropagation();
                     setOpen(true);
                   }}
@@ -270,7 +170,9 @@ export default function ProductCard({ product }) {
 
         {isMobile && (
           <button
-            onClick={() => setOpen(true)}
+            onClick={() => {
+              setSelectedProduct(product);
+              setOpen(true)}}
             className="w-full py-2 bg-[#22d3ee] text-black text-sm font-semibold"
           >
             Add to Cart
@@ -281,25 +183,7 @@ export default function ProductCard({ product }) {
 
       {/* ================= DRAWER / MODAL ================= */}
 
-      {isMobile ? (
-        <SwipeableDrawer height={'60vh'} open={open} onClose={() => setOpen(false)}>
-          <Content />
-        </SwipeableDrawer>
-      ) : (
-        open && (
-          <div
-            onClick={() => setOpen(false)}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-          >
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md rounded-2xl bg-[#111] border border-white/10 shadow-2xl animate-[scaleIn_.2s_ease]"
-            >
-              <Content />
-            </div>
-          </div>
-        )
-      )}
+    
     </>
   );
 }
