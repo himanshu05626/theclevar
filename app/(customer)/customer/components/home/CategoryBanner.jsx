@@ -29,7 +29,7 @@ export default function CategoryBanner({ categories = [] }) {
       </p>
 
       {/* Carousel */}
-      <div className="relative mt-8 max-w-5xl mx-auto">
+      <div className="relative mt-8 max-w-6xl mx-auto">
         <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex">
             {categories.map((item, index) => (
@@ -45,7 +45,7 @@ export default function CategoryBanner({ categories = [] }) {
                     <img
                       src={item.image}
                       alt={item.title}
-                      className="w-full h-[400px] object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="w-full md:h-[400px] h-[300px] object-cover transition-transform duration-500 group-hover:scale-105"
                     />
 
                     {/* Overlay */}

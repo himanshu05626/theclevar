@@ -30,7 +30,7 @@ export default function BannerSlider() {
   }, [emblaApi]);
 
   return (
-    <div className="mt-5">
+    <div className="mt-5 max-w-6xl mx-auto">
 
       {/* EMBLA VIEWPORT */}
       <div className="overflow-hidden" ref={emblaRef}>
