@@ -13,6 +13,7 @@ export async function generateMetadata({ params }) {
 
 
 
+    
 
     const { slug } = await params;
     // console.log('slugslugslugslugslugslugslugslug',slug)
