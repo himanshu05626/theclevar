@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, useEffect } from "react";
-import { TagIcon } from "@heroicons/react/24/outline";
+import { TagIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useCart } from "@/app/context/CartContext";
 
 /* =========================
@@ -25,32 +25,36 @@ function getGuestCart() {
   return cart;
 }
 
-export default function CartTotal({ cartData = [], isGuest = false }) {
+export default function CartTotal({ isGuest = false }) {
+  const { cartItems } = useCart();
 
+  const [cart, setCart] = useState(cartItems);
   const [coupon, setCoupon] = useState("");
   const [discount, setDiscount] = useState(0);
-  const { cartItems } = useCart();
-  const [cart, setCart] = useState(cartItems);
-  useEffect(() => {
-    console.log('cartcartcartcart', cart)
-    setCart(cartItems);
-  }, [cartItems]);
+  const [finalTotal, setFinalTotal] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   /* =========================
-     LOAD GUEST CART
+     LOAD CART
   ========================= */
 
   useEffect(() => {
+    if (!isGuest) {
+      setCart(cartItems);
+    }
+  }, [cartItems, isGuest]);
 
+  useEffect(() => {
     if (!isGuest) return;
 
     const loadCart = () => {
-
       const guestCart = getGuestCart();
 
       const formatted = guestCart.map((item) => ({
         quantity: item.quantity,
-        finalPrice: item.price || item.sale_price || item.regular_price || 0,
+        finalPrice:
+          item.price || item.sale_price || item.regular_price || 0,
         product: {
           regular_price: item.price,
         },
@@ -62,62 +66,87 @@ export default function CartTotal({ cartData = [], isGuest = false }) {
     loadCart();
 
     window.addEventListener("guestCartUpdated", loadCart);
-
-    return () => {
-      window.removeEventListener("guestCartUpdated", loadCart);
-    };
-
+    return () => window.removeEventListener("guestCartUpdated", loadCart);
   }, [isGuest]);
 
   /* =========================
-     CALCULATIONS
+     CALCULATIONS (fallback only)
   ========================= */
 
-  const { subTotal, totalPrice } = useMemo(() => {
-
-    const subTotal = cart.reduce((sum, item) => {
-
+  const subTotal = useMemo(() => {
+    return cart.reduce((sum, item) => {
       const price =
-       item?.price ?? item?.finalPrice ?? item.product?.regular_price ?? item?.sale_price ?? item.sale_price ?? 0;
+        item?.price ??
+        item?.finalPrice ??
+        item?.product?.regular_price ??
+        item?.sale_price ??
+        0;
 
       const qty = item.quantity || 1;
 
       return sum + price * qty;
-
     }, 0);
+  }, [cart]);
 
-    const totalPrice = subTotal - discount;
-
-    return { subTotal, totalPrice };
-
-  }, [cart, discount]);
+  const totalPrice = subTotal - discount;
 
   /* =========================
      APPLY COUPON
   ========================= */
 
   const applyCoupon = async () => {
-
     if (!coupon) return;
 
-    const res = await fetch("/api/coupon", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ code: coupon }),
-    });
+    try {
+      setLoading(true);
+      setMessage("");
 
-    const data = await res.json();
+      const res = await fetch("/api/coupon", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: coupon }),
+      });
 
-    if (data?.discount) {
-      setDiscount(data.discount);
+      const data = await res.json();
+
+      if (data.success) {
+        setDiscount(data.data.discount);
+        localStorage.setItem("applied_coupon", data.data.couponId);
+        setFinalTotal(data.data.finalTotal);
+        setMessage("✅ Coupon applied");
+      } else {
+        setMessage("❌ " + data.message);
+      }
+    } catch (err) {
+      setMessage("❌ Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
+  /* =========================
+     REMOVE COUPON
+  ========================= */
+
+  const removeCoupon = () => {
+    setCoupon("");
+    setDiscount(0);
+    setFinalTotal(null);
+    setMessage("Coupon removed");
+    localStorage.removeItem("applied_coupon");
+  };
+
+  /* =========================
+     FINAL TOTAL (priority backend)
+  ========================= */
+
+  const displayTotal =
+    finalTotal !== null ? finalTotal : totalPrice;
+
   return (
     <div className="w-full rounded-2xl border border-white/10 bg-[#0f0f0f] p-6 shadow-[0_0_40px_rgba(0,0,0,0.6)]">
-
       <h2 className="text-xl font-semibold tracking-wider text-white mb-6">
         ORDER SUMMARY
       </h2>
@@ -129,26 +158,41 @@ export default function CartTotal({ cartData = [], isGuest = false }) {
         </p>
 
         <div className="flex gap-2">
-
           <div className="flex items-center gap-2 flex-1 rounded-lg border border-white/10 bg-black px-3">
             <TagIcon className="h-4 w-4 text-gray-500" />
 
             <input
               value={coupon}
-              onChange={(e) => setCoupon(e.target.value)}
-              placeholder="VOD10"
+              onChange={(e) => setCoupon(e.target.value.toUpperCase())}
+              placeholder="SAVE50"
               className="w-full bg-transparent py-2 text-sm text-white outline-none"
             />
           </div>
 
           <button
             onClick={applyCoupon}
-            className="rounded-lg bg-cyan-500 px-4 text-sm font-medium text-black hover:bg-cyan-400 transition"
+            disabled={loading}
+            className="rounded-lg bg-cyan-500 px-4 text-sm font-medium text-black hover:bg-cyan-400 transition disabled:opacity-50"
           >
-            APPLY
+            {loading ? "Applying..." : "APPLY"}
           </button>
-
         </div>
+
+        {/* MESSAGE */}
+        {message && (
+          <p className="text-xs mt-2 text-gray-400">{message}</p>
+        )}
+
+        {/* REMOVE */}
+        {discount > 0 && (
+          <button
+            onClick={removeCoupon}
+            className="mt-2 flex items-center gap-1 text-xs text-red-400 hover:text-red-300"
+          >
+            <XMarkIcon className="h-3 w-3" />
+            Remove coupon
+          </button>
+        )}
       </div>
 
       {/* SUBTOTAL */}
@@ -156,6 +200,14 @@ export default function CartTotal({ cartData = [], isGuest = false }) {
         <span>Subtotal ({cart.length} items)</span>
         <span>₹{subTotal.toFixed(0)}</span>
       </div>
+
+      {/* DISCOUNT */}
+      {discount > 0 && (
+        <div className="flex justify-between text-sm text-green-400 mb-2">
+          <span>Discount</span>
+          <span>-₹{discount.toFixed(0)}</span>
+        </div>
+      )}
 
       {/* SHIPPING */}
       <div className="flex justify-between text-sm mb-4">
@@ -172,7 +224,7 @@ export default function CartTotal({ cartData = [], isGuest = false }) {
         </span>
 
         <span className="text-cyan-400 text-xl font-bold">
-          ₹{totalPrice.toFixed(0)}
+          ₹{displayTotal.toFixed(0)}
         </span>
       </div>
 
@@ -187,7 +239,6 @@ export default function CartTotal({ cartData = [], isGuest = false }) {
       <p className="text-center text-xs text-gray-500 mt-3">
         Secure checkout · COD available
       </p>
-
     </div>
   );
 }

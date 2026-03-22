@@ -52,6 +52,7 @@ export default function PaymentStep() {
       setLoading(false);
       return;
     }
+    const applied_coupon = localStorage.getItem("applied_coupon");
 
     /* CREATE ORDER */
     const res = await fetch("/api/razorpay/create-order", {
@@ -60,8 +61,10 @@ export default function PaymentStep() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+
         shipping_address_id: shippingAddressId,
         billing_address_id: billingAddressId,
+        couponId: applied_coupon,
       }),
     });
 
@@ -141,6 +144,7 @@ export default function PaymentStep() {
       body: JSON.stringify({
         shipping_address_id: shippingAddressId,
         billing_address_id: billingAddressId,
+        couponId: applied_coupon,
       }),
     });
 

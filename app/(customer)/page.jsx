@@ -13,6 +13,7 @@ import Banner from "./customer/components/home/Banner";
 import LetsWorkTogether from "./customer/components/Aboutus/LetsWorkTogether";
 import AnnouncementBar from "./customer/components/home/AnnouncementBar";
 import BannerSlider from "./customer/components/home/BannerSlider";
+import CategoryBanner from "./customer/components/home/CategoryBanner";
 
 const brands = [
   { path: "/logo/SVG-1.png", alt: "Brand 1" },
@@ -97,7 +98,48 @@ export default async function Page() {
   },
 });
 
+const rawCategories = await prisma.product_category.findMany({
+  where: {
+    is_active: true,
+    is_deleted: false,
+  },
+  include: {
+    products: {
+      where: {
+        is_active: true,
+        is_deleted: false,
+      },
+      take: 1, // only 1 product needed
+      orderBy: {
+        created_at: "desc",
+      },
+      include: {
+        images: {
+          where: {
+            is_primary: true,
+            is_deleted: false,
+          },
+          take: 1,
+        },
+      },
+    },
+  },
+});
+const categories = rawCategories
+  .filter(cat => cat.products.length > 0) // ❌ skip empty
+  .map(cat => {
+    const product = cat.products[0];
+    const image = product?.images?.[0];
 
+    return {
+      title: cat.name.toUpperCase(),
+      image:
+        image?.url_720 ||
+        image?.image_url ||
+        "/images/not-found.png",
+      href: `/product-category/${cat.slug}`,
+    };
+  });
   return (
     <>
       <Home />
@@ -105,6 +147,7 @@ export default async function Page() {
       {/* <BrandStrip brands={brands} /> */}
       {/* <Category /> */}
        <BannerSlider />
+       <CategoryBanner categories={categories} />
 
       <BestSellingProducts products={products} customerId={user?.id} isLoggedIn={!!user} />
       {/* <WhyChoosetheclevar />

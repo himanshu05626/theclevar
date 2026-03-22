@@ -8,6 +8,98 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
+/* =========================
+   HELPER: TIER PRICE
+========================= */
+function getTierPrice(tierPricing, tier) {
+  if (!tierPricing || !tier) return null;
+
+  const map = {
+    TIER_1: tierPricing.tier_1_price,
+    TIER_2: tierPricing.tier_2_price,
+    TIER_3: tierPricing.tier_3_price,
+    TIER_4: tierPricing.tier_4_price,
+    TIER_5: tierPricing.tier_5_price,
+    TIER_6: tierPricing.tier_6_price,
+    TIER_7: tierPricing.tier_7_price,
+    TIER_8: tierPricing.tier_8_price,
+    TIER_9: tierPricing.tier_9_price,
+    TIER_10: tierPricing.tier_10_price,
+  };
+
+  return map[tier] ?? null;
+}
+
+/* =========================
+   HELPER: VALIDATE COUPON
+========================= */
+async function validateCoupon({ couponId, customerId, subTotal }) {
+  if (!couponId) return { discount: 0, coupon: null };
+
+  const coupon = await prisma.coupons.findUnique({
+    where: { id: couponId },
+  });
+
+  if (!coupon || !coupon.is_active) {
+    throw new Error("Invalid coupon");
+  }
+
+  const now = new Date();
+
+  if (coupon.starts_at && now < coupon.starts_at) {
+    throw new Error("Coupon not started yet");
+  }
+
+  if (coupon.expires_at && now > coupon.expires_at) {
+    throw new Error("Coupon expired");
+  }
+
+  if (
+    coupon.usage_limit !== null &&
+    coupon.used_count >= coupon.usage_limit
+  ) {
+    throw new Error("Coupon usage limit reached");
+  }
+
+  const alreadyUsed = await prisma.coupon_usage.findUnique({
+    where: {
+      coupon_id_customer_id: {
+        coupon_id: couponId,
+        customer_id: customerId,
+      },
+    },
+  });
+
+  if (alreadyUsed) {
+    throw new Error("Coupon already used");
+  }
+
+  if (coupon.min_order_value && subTotal < coupon.min_order_value) {
+    throw new Error(
+      `Minimum order ₹${coupon.min_order_value} required`
+    );
+  }
+
+  let discount = 0;
+
+  if (coupon.discount_type === "PERCENTAGE") {
+    discount = (subTotal * coupon.discount_value) / 100;
+
+    if (coupon.max_discount) {
+      discount = Math.min(discount, coupon.max_discount);
+    }
+  } else {
+    discount = coupon.discount_value;
+  }
+
+  discount = Math.min(discount, subTotal);
+
+  return { discount, coupon };
+}
+
+/* =========================
+   MAIN API
+========================= */
 export async function POST(req) {
   try {
     const body = await req.json();
@@ -16,14 +108,26 @@ export async function POST(req) {
     const billingAddressId = Number(body.billing_address_id);
     const deliveryMethod = Number(body.delivery_method);
 
+    // ✅ FIXED couponId parsing
+    const couponId = body.coupon_id
+      ? Number(body.coupon_id)
+      : body.couponId
+      ? Number(body.couponId)
+      : null;
+
+    /* ================= AUTH ================= */
     const token = await requireUser();
+
     if (!token?.id) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
     const customerId = token.id;
 
-    /* CUSTOMER */
+    /* ================= CUSTOMER ================= */
     const customer = await prisma.customer_list.findUnique({
       where: { id: customerId },
       select: {
@@ -35,7 +139,7 @@ export async function POST(req) {
     const customerGroupId = customer?.customer_group_id ?? null;
     const priceTier = customer?.price_tier ?? null;
 
-    /* CART */
+    /* ================= CART ================= */
     const cartItems = await prisma.customer_cart.findMany({
       where: {
         customer_list_id: customerId,
@@ -57,10 +161,13 @@ export async function POST(req) {
     });
 
     if (!cartItems.length) {
-      return NextResponse.json({ message: "Cart empty" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Cart empty" },
+        { status: 400 }
+      );
     }
 
-    /* ADDRESS */
+    /* ================= ADDRESS ================= */
     const [shippingAddr, billingAddr] = await Promise.all([
       prisma.customer_address.findFirst({
         where: { id: shippingAddressId, customer_list_id: customerId },
@@ -71,7 +178,10 @@ export async function POST(req) {
     ]);
 
     if (!shippingAddr || !billingAddr) {
-      return NextResponse.json({ message: "Invalid address" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Invalid address" },
+        { status: 400 }
+      );
     }
 
     const formatAddress = (a) => `
@@ -85,27 +195,7 @@ Phone: ${a.phone}
     const shippingAddress = formatAddress(shippingAddr);
     const billingAddress = formatAddress(billingAddr);
 
-    /* TIER PRICE HELPER */
-    const getTierPrice = (tierPricing, tier) => {
-      if (!tierPricing || !tier) return null;
-
-      const map = {
-        TIER_1: tierPricing.tier_1_price,
-        TIER_2: tierPricing.tier_2_price,
-        TIER_3: tierPricing.tier_3_price,
-        TIER_4: tierPricing.tier_4_price,
-        TIER_5: tierPricing.tier_5_price,
-        TIER_6: tierPricing.tier_6_price,
-        TIER_7: tierPricing.tier_7_price,
-        TIER_8: tierPricing.tier_8_price,
-        TIER_9: tierPricing.tier_9_price,
-        TIER_10: tierPricing.tier_10_price,
-      };
-
-      return map[tier] ?? null;
-    };
-
-    /* TOTAL CALC */
+    /* ================= PRICE CALC ================= */
     let subTotal = 0;
 
     const orderItems = cartItems.map((item) => {
@@ -133,29 +223,87 @@ Phone: ${a.phone}
       };
     });
 
-    const taxAmount = Number((subTotal * 0.1).toFixed(2));
-    const shippingFee = subTotal >= 250 ? 0 : 25;
-    const total = Number((subTotal + taxAmount + shippingFee).toFixed(2));
+    subTotal = Number(subTotal.toFixed(2));
+    /* ================= COUPON ================= */
+    let discount = 0;
+    let coupon = null;
 
-    /* SAVE ORDER */
-    const order = await prisma.order_list.create({
-      data: {
-        order_number: `ORD-${Date.now()}`,
-        customer_list_id: customerId,
-        status: "CREATED",
-        sub_total: subTotal,
-        shipping_address: shippingAddress,
-        billing_address: billingAddress,
-        delivery_method: deliveryMethod ? "DELIVERY" : "PICKUP",
-        shipping_amount: shippingFee,
-        tax_amount: taxAmount,
-        total,
-        currency: "INR",
-        items: { create: orderItems },
-      },
+     try {
+      const result = await validateCoupon({
+        couponId,
+        customerId,
+        subTotal,
+      });
+
+      discount = result.discount;
+      coupon = result.coupon;
+    } catch (err) {
+      return NextResponse.json(
+        { success: false, message: err.message },
+        { status: 400 }
+      );
+    }
+    // 🔥 Apply discount first
+const discountedSubTotal = subTotal - discount;
+
+// ✅ Tax AFTER discount
+const taxAmount = Number((discountedSubTotal * 0.1).toFixed(2));
+
+// ✅ Shipping (your rule)
+const shippingFee = discountedSubTotal >= 250 ? 0 : 25;
+
+// ✅ Final total
+const total = Number(
+  (discountedSubTotal + taxAmount + shippingFee).toFixed(2)
+);
+
+
+
+   
+
+    /* ================= FINAL TOTAL ================= */
+   
+    /* ================= DB TRANSACTION ================= */
+    const order = await prisma.$transaction(async (tx) => {
+      const newOrder = await tx.order_list.create({
+        data: {
+          order_number: `ORD-${Date.now()}`,
+          customer_list_id: customerId,
+          status: "CREATED",
+          sub_total: subTotal,
+          shipping_address: shippingAddress,
+          billing_address: billingAddress,
+          delivery_method:
+            deliveryMethod === 1 ? "DELIVERY" : "PICKUP",
+          shipping_amount: shippingFee,
+          tax_amount: taxAmount,
+          total,
+          currency: "INR",
+          items: { create: orderItems },
+        },
+      });
+
+      if (couponId && coupon) {
+        await tx.coupon_usage.create({
+          data: {
+            coupon_id: couponId,
+            customer_id: customerId,
+            order_id: newOrder.id,
+          },
+        });
+
+        await tx.coupons.update({
+          where: { id: couponId },
+          data: {
+            used_count: { increment: 1 },
+          },
+        });
+      }
+
+      return newOrder;
     });
 
-    /* RAZORPAY ORDER */
+    /* ================= RAZORPAY ================= */
     const razorpayOrder = await razorpay.orders.create({
       amount: Math.round(total * 100),
       currency: "INR",
@@ -163,18 +311,27 @@ Phone: ${a.phone}
       notes: { localOrderId: order.id },
     });
 
+    /* ================= RESPONSE ================= */
     return NextResponse.json({
+      success: true,
       razorpayOrderId: razorpayOrder.id,
       localOrderId: order.id,
       amount: razorpayOrder.amount,
       currency: razorpayOrder.currency,
       key: process.env.RAZORPAY_KEY_ID,
+
+      // 🔥 IMPORTANT
+      subTotal,
+      taxAmount,
+      shippingFee,
+      discount,
+      finalTotal: total,
     });
   } catch (error) {
-    console.error("RAZORPAY ERROR:", error);
+    console.error("CHECKOUT ERROR:", error);
 
     return NextResponse.json(
-      { message: error.message },
+      { success: false, message: "Something went wrong" },
       { status: 500 }
     );
   }
