@@ -19,6 +19,8 @@ import Zoom from "react-medium-image-zoom";
 import { EyeIcon } from "@heroicons/react/24/outline";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import ProgressiveImage from "@/app/(customer)/customer/components/NEW/ProgressiveImage";
+import { Share } from "next/font/google";
+import ShareButton from "./Share";
 export default function ProductDetailClient({
   product,
   isLoggedIn,
@@ -480,14 +482,7 @@ console.log('product',product)
             </div>
 
 
-            <p className="flex items-center gap-2 text-xs text-gray-500 cursor-pointer hover:text-white transition">
-
-              <ShareIcon className="w-4 h-4" />
-
-              Share this product
-
-            </p>
-
+           <ShareButton />
           </div>
 
         </div>
