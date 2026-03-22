@@ -1,20 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import Link from "next/link";
 
 export default function CategoryBanner({ categories = [] }) {
   const [index, setIndex] = useState(0);
 
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: true,
+    align: "center",
+  });
+
   const total = categories.length;
 
-  const prevIndex = (index - 1 + total) % total;
-  const nextIndex = (index + 1) % total;
+  useEffect(() => {
+    if (!emblaApi) return;
 
-  const prev = () => setIndex(prevIndex);
-  const next = () => setIndex(nextIndex);
+    const onSelect = () => {
+      setIndex(emblaApi.selectedScrollSnap());
+    };
 
-  if (total === 0) return null;
+    emblaApi.on("select", onSelect);
+    onSelect();
+  }, [emblaApi]);
+
+  const prev = () => emblaApi && emblaApi.scrollPrev();
+  const next = () => emblaApi && emblaApi.scrollNext();
+
+  if (!total) return null;
 
   return (
     <div className="w-full py-1 text-center overflow-hidden">
@@ -27,46 +41,46 @@ export default function CategoryBanner({ categories = [] }) {
       </p>
 
       {/* Slider */}
-      <div className="relative flex items-center justify-center mt-10 h-[420px]">
+      <div className="relative mt-10">
 
-        {/* LEFT SMALL */}
-        <div
-          key={prevIndex}
-          className="absolute left-[12%] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] 
-          scale-90 opacity-60 z-10 translate-x-0"
-        >
-          <Card data={categories[prevIndex]} />
-        </div>
+        <div className="overflow-hidden" ref={emblaRef}>
+          <div className="flex items-center">
 
-        {/* CENTER BIG */}
-        <div
-          key={index}
-          className="z-20 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] 
-          scale-100 opacity-100"
-        >
-          <Card data={categories[index]} isCenter />
-        </div>
+            {categories.map((cat, i) => {
+              const isCenter = i === index;
 
-        {/* RIGHT SMALL */}
-        <div
-          key={nextIndex}
-          className="absolute right-[12%] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] 
-          scale-90 opacity-60 z-10 translate-x-0"
-        >
-          <Card data={categories[nextIndex]} />
+              return (
+                <div
+                  key={i}
+                  className="flex-[0_0_70%] md:flex-[0_0_33%] flex justify-center"
+                >
+                  <div
+                    className={`transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                      isCenter
+                        ? "scale-100 opacity-100 z-20"
+                        : "scale-90 opacity-60"
+                    }`}
+                  >
+                    <Card data={cat} isCenter={isCenter} />
+                  </div>
+                </div>
+              );
+            })}
+
+          </div>
         </div>
 
         {/* Buttons */}
         <button
           onClick={prev}
-          className="absolute left-4 z-30 bg-[#7a2d3c] text-white w-10 h-10 rounded-full shadow-md hover:scale-110 transition"
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-[#7a2d3c] text-white w-10 h-10 rounded-full shadow-md hover:scale-110 transition"
         >
           ‹
         </button>
 
         <button
           onClick={next}
-          className="absolute right-4 z-30 bg-[#7a2d3c] text-white w-10 h-10 rounded-full shadow-md hover:scale-110 transition"
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-[#7a2d3c] text-white w-10 h-10 rounded-full shadow-md hover:scale-110 transition"
         >
           ›
         </button>
@@ -87,7 +101,7 @@ export default function CategoryBanner({ categories = [] }) {
   );
 }
 
-/* Card Component */
+/* Card */
 function Card({ data, isCenter }) {
   return (
     <Link href={data.href}>
@@ -102,7 +116,6 @@ function Card({ data, isCenter }) {
           className="w-full h-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] hover:scale-105"
         />
 
-        {/* Overlay */}
         <div className="absolute inset-0 bg-black/30 flex items-end justify-center pb-6">
           <h3 className="text-white text-lg md:text-2xl font-serif tracking-wide">
             {data.title}
