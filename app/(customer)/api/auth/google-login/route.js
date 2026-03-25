@@ -24,6 +24,7 @@ export async function POST(req) {
     /* ================= CREATE CUSTOMER IF NOT EXISTS ================= */
     if (!customer) {
 
+      
       // Generate random password
       const randomPassword = crypto.randomBytes(16).toString("hex");
 
