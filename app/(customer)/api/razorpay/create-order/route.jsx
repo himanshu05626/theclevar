@@ -247,10 +247,10 @@ Phone: ${a.phone}
 const discountedSubTotal = subTotal - discount;
 
 // ✅ Tax AFTER discount
-const taxAmount = Number((discountedSubTotal * 0.1).toFixed(2));
+const taxAmount = Number((discountedSubTotal * 0).toFixed(2));
 
 // ✅ Shipping (your rule)
-const shippingFee = discountedSubTotal >= 250 ? 0 : 25;
+const shippingFee = discountedSubTotal >= 0 ? 0 :0;
 
 // ✅ Final total
 const total = Number(
