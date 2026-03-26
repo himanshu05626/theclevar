@@ -262,8 +262,8 @@ Email: ${addr.email}
       };
     });
 
-    const TAX_RATE = 0.1;
-    const SHIPPING_FEE = subTotal >= 250 ? 0 : 25;
+    const TAX_RATE = 0;
+    const SHIPPING_FEE = subTotal >= 0 ? 0 : 0;
 
     const taxAmount = Number((subTotal * TAX_RATE).toFixed(2));
     const total = Number((subTotal + taxAmount + SHIPPING_FEE).toFixed(2));
