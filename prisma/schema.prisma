@@ -337,7 +337,7 @@
     order_id          Int        @db.UnsignedInt
     provider          String     @db.VarChar(20)
     provider_order_id String     @db.VarChar(50)
-    provider_txn_id   String?    @db.VarChar(50)
+     provider_txn_id     String @unique   // ✅ ADD THIS
     amount            Decimal    @db.Decimal(10, 2)
     currency          String     @db.VarChar(10)
     status            String     @db.VarChar(20)
