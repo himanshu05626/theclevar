@@ -3,78 +3,146 @@ import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(req) {
+  const start = Date.now();
+
   try {
     console.log("🔔 Razorpay webhook received");
 
+    // ✅ 1. Raw body (DO NOT use req.json())
     const body = await req.text();
+
     const signature = req.headers.get("x-razorpay-signature");
 
-    console.log("🖊 Signature:", signature);
-
-    if (!process.env.RAZORPAY_WEBHOOK_SECRET) {
-      console.error("❌ RAZORPAY_WEBHOOK_SECRET missing");
-      return NextResponse.json({ error: "Webhook secret missing" }, { status: 500 });
-    }
-
     if (!signature) {
-      console.error("❌ No signature header received");
+      console.error("❌ Missing signature");
       return NextResponse.json({ error: "No signature" }, { status: 400 });
     }
 
-    const expected = crypto
+    if (!process.env.RAZORPAY_WEBHOOK_SECRET) {
+      console.error("❌ Missing webhook secret");
+      return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
+    }
+
+    // ✅ 2. Verify signature
+    const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_WEBHOOK_SECRET)
       .update(body)
       .digest("hex");
 
-    if (expected !== signature) {
-      console.error("❌ Signature mismatch");
-      return NextResponse.json({ error: "Invalid webhook signature" }, { status: 400 });
+    if (expectedSignature !== signature) {
+      console.error("❌ Invalid signature");
+      return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
     }
 
     console.log("✅ Signature verified");
 
-    const event = JSON.parse(body);
+    // ✅ 3. Parse event safely
+    let event;
+    try {
+      event = JSON.parse(body);
+    } catch (err) {
+      console.error("❌ JSON parse failed");
+      return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    }
 
-    console.log("📢 Event:", event.event);
+    const eventType = event.event;
+    console.log("📢 Event:", eventType);
 
-    if (event.event === "order.paid") {
-      const payment = event.payload.payment.entity;
+    const payment = event.payload?.payment?.entity;
 
-      const localOrderId = payment.notes?.localOrderId;
+    if (!payment) {
+      console.warn("⚠️ No payment entity found");
+      return NextResponse.json({ status: "ignored" });
+    }
 
-      console.log("🧾 Local Order:", localOrderId);
+    const localOrderId = payment.notes?.localOrderId;
 
-      if (!localOrderId) {
-        console.error("❌ localOrderId missing");
-        return NextResponse.json({ error: "Missing order id" }, { status: 400 });
+    if (!localOrderId) {
+      console.error("❌ Missing localOrderId in notes");
+      return NextResponse.json({ error: "Missing order id" }, { status: 400 });
+    }
+
+    const orderId = Number(localOrderId);
+
+    console.log("🧾 Local Order ID:", orderId);
+
+    // ✅ 4. Idempotency check (prevent duplicate webhook processing)
+    const existingPayment = await prisma.payments.findUnique({
+      where: { provider_txn_id: payment.id },
+    });
+
+    if (existingPayment) {
+      console.log("⚠️ Duplicate webhook ignored:", payment.id);
+      return NextResponse.json({ status: "duplicate" });
+    }
+
+    // ✅ 5. DB transaction (atomic)
+    await prisma.$transaction(async (tx) => {
+      // 🔵 SUCCESS CASE
+      if (
+        eventType === "payment.captured" ||
+        eventType === "order.paid"
+      ) {
+        await tx.order_list.update({
+          where: { id: orderId },
+          data: { status: "PAID" },
+        });
+
+        await tx.payments.create({
+          data: {
+            order_id: orderId,
+            provider: "razorpay",
+            provider_order_id: payment.order_id,
+            provider_txn_id: payment.id,
+            amount: payment.amount / 100,
+            currency: payment.currency,
+            status: "SUCCESS",
+            raw_response: JSON.stringify(event),
+          },
+        });
+
+        console.log("✅ Payment SUCCESS handled");
       }
 
-      await prisma.order_list.update({
-        where: { id: Number(localOrderId) },
-        data: { status: "PAID" },
-      });
+      // 🔴 FAILED CASE
+      else if (eventType === "payment.failed") {
+        await tx.order_list.update({
+          where: { id: orderId },
+          data: { status: "FAILED" },
+        });
 
-      console.log("✅ Order updated");
+        await tx.payments.create({
+          data: {
+            order_id: orderId,
+            provider: "razorpay",
+            provider_order_id: payment.order_id,
+            provider_txn_id: payment.id,
+            amount: payment.amount / 100,
+            currency: payment.currency,
+            status: "FAILED",
+            raw_response: JSON.stringify(event),
+          },
+        });
 
-      await prisma.payments.create({
-        data: {
-          order_id: Number(localOrderId),
-          provider: "razorpay",
-          provider_order_id: payment.order_id,
-          provider_txn_id: payment.id,
-          amount: payment.amount / 100,
-          currency: payment.currency,
-          status: "SUCCESS",
-          raw_response: JSON.stringify(event),
-        },
-      });
+        console.log("❌ Payment FAILED handled");
+      }
 
-      console.log("✅ Payment stored");
-    }
+      // ⚪ OTHER EVENTS (ignore safely)
+      else {
+        console.log("ℹ️ Unhandled event:", eventType);
+      }
+    });
+
+    console.log(`⚡ Done in ${Date.now() - start}ms`);
 
     return NextResponse.json({ status: "ok" });
   } catch (err) {
     console.error("🔥 Webhook error:", err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+
+    // ⚠️ Always return 200 for Razorpay to avoid retry storms (optional strategy)
+    return NextResponse.json(
+      { error: err.message },
+      { status: 500 }
+    );
   }
 }
