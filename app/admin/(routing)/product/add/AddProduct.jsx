@@ -471,6 +471,9 @@ export default function AddProductForm({ categories }) {
                   ]);
 
                 }}
+                onRemove={(url) => {
+                  setImages(prev => prev.filter((image) => image.url !== url));
+                }}
               />
 
               <input

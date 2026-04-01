@@ -1,11 +1,12 @@
 "use client";
 
-import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
+import { ArrowUpTrayIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 
 export default function UploadImage({
   uploadType = "productImage",
   onSuccess,
+  onRemove,
 }) {
   const [loading, setLoading] = useState(false);
   const [imageUrls, setImageUrls] = useState([]);
@@ -40,7 +41,7 @@ export default function UploadImage({
 
       setImageUrls((prev) => {
         const updated = [...prev, ...uploadedUrls];
-        onSuccess?.(updated); // ✅ RETURN ALL URLS
+        onSuccess?.(uploadedUrls);
         return updated;
       });
 
@@ -78,19 +79,31 @@ export default function UploadImage({
         <p className="text-sm text-gray-500">Uploading...</p>
       )}
 
-      {/* PREVIEW GRID */}
-      {/* {imageUrls.length > 0 && (
+      {imageUrls.length > 0 && (
         <div className="grid grid-cols-3 gap-3">
           {imageUrls.map((url, i) => (
-            <img
-              key={i}
-              src={url}
-              alt={`Uploaded ${i}`}
-              className="w-32 h-32 object-cover rounded border"
-            />
+            <div key={i} className="relative h-32 w-32 overflow-hidden rounded border">
+              <img
+                src={url}
+                alt={`Uploaded ${i}`}
+                className="h-full w-full object-cover"
+              />
+
+              <button
+                type="button"
+                aria-label={`Remove uploaded image ${i + 1}`}
+                onClick={() => {
+                  setImageUrls((prev) => prev.filter((_, index) => index !== i));
+                  onRemove?.(url);
+                }}
+                className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-black/70 text-white transition hover:bg-black"
+              >
+                <XMarkIcon className="h-4 w-4" />
+              </button>
+            </div>
           ))}
         </div>
-      )} */}
+      )}
     </div>
   );
 }
