@@ -1,11 +1,27 @@
 // app/admin/products/page.jsx
 import AddProductClient from "./AddProductClient";
-import { serverFetch } from "@/lib/serverFetch";
+import { prisma } from "@/lib/prisma";
 
 async function getCategories() {
-  const res = await serverFetch("/admin/api/categories");
-  if (!res.ok) throw new Error("Failed to fetch categories");
-  return res.json();
+  try {
+    return await prisma.product_category.findMany({
+      where: {
+        is_active: true,
+        is_deleted: false,
+      },
+      orderBy: {
+        path: "asc",
+      },
+      select: {
+        id: true,
+        name: true,
+        path: true,
+      },
+    });
+  } catch (error) {
+    console.error("❌ getCategories error:", error);
+    return [];
+  }
 }
 
 export default async function AddProductPage({ searchParams }) {
