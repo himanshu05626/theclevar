@@ -5,9 +5,6 @@ import { updateProduct } from "./actions";
 import { useToast } from "@/app/admin/context/ToastProvider";
 
 export default function EditProduct({ categories, product }) {
-  console.log('product',product)
-
-  /* ───────────────── IMAGE STATE ───────────────── */
   const [images, setImages] = useState(() => {
     if (!product?.product_images?.length) return [];
 
@@ -21,9 +18,20 @@ export default function EditProduct({ categories, product }) {
     }));
   });
 
+  const [variants, setVariants] = useState(() => {
+    if (!product?.variants?.length) {
+      return [{ size: "", stock_qty: 0 }];
+    }
+
+    return product.variants.map((variant) => ({
+      id: variant.id,
+      size: variant.size ?? "",
+      stock_qty: variant.stock_qty ?? 0,
+    }));
+  });
+
   const [deletedImageIds, setDeletedImageIds] = useState([]);
 
-  /* ───────────────── FORM STATE ───────────────── */
   const initialState = {
     success: false,
     errors: {},
@@ -43,14 +51,25 @@ export default function EditProduct({ categories, product }) {
     }
 
     if (state.errors && Object.keys(state.errors).length > 0) {
+      if (state.errors.variants && state.values?.variants) {
+        try {
+          const parsedVariants = JSON.parse(state.values.variants);
+          setVariants(
+            Array.isArray(parsedVariants) && parsedVariants.length > 0
+              ? parsedVariants
+              : [{ size: "", stock_qty: 0 }]
+          );
+        } catch {
+          setVariants([{ size: "", stock_qty: 0 }]);
+        }
+      }
+
       showToast({
         type: "error",
         message: state.errors.general || "Failed to update product",
       });
     }
-  }, [state.success, state.errors, showToast]);
-
-  /* ───────────────── UI HELPERS ───────────────── */
+  }, [state.success, state.errors, state.values, showToast]);
 
   const Input = ({
     label,
@@ -67,12 +86,11 @@ export default function EditProduct({ categories, product }) {
         type={type}
         defaultValue={defaultValue}
         placeholder={placeholder}
-        className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500
-          ${error ? "border-red-400" : "border-gray-300"}`}
+        className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+          error ? "border-red-400" : "border-gray-300"
+        }`}
       />
-      {error && (
-        <p className="text-xs text-red-600">{error}</p>
-      )}
+      {error ? <p className="text-xs text-red-600">{error}</p> : null}
     </div>
   );
 
@@ -87,29 +105,42 @@ export default function EditProduct({ categories, product }) {
     </div>
   );
 
-  /* ───────────────── RENDER ───────────────── */
+  const addVariantRow = () => {
+    setVariants((prev) => [...prev, { size: "", stock_qty: 0 }]);
+  };
+
+  const removeVariantRow = (index) => {
+    setVariants((prev) => {
+      if (prev.length === 1) {
+        return [{ size: "", stock_qty: 0 }];
+      }
+
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const updateVariant = (index, field, value) => {
+    setVariants((prev) =>
+      prev.map((variant, i) =>
+        i === index ? { ...variant, [field]: value } : variant
+      )
+    );
+  };
 
   return (
     <div className="">
       <div className="bg-white border border-gray-300 rounded shadow-sm">
-
-        {/* HEADER */}
         <div className="border-b border-gray-300 px-6 py-4 flex items-center justify-between">
           <h1 className="text-xl font-semibold">Edit Product</h1>
           <span className="text-xs text-gray-500">ID: {product.id}</span>
         </div>
 
         <form action={action} noValidate>
-
           <input type="hidden" name="id" value={product.id} />
 
           <div className="p-6 space-y-8">
-
-            {/* ───────── BASIC INFO ───────── */}
             <section className="space-y-4">
-              <h2 className="font-semibold text-xl ">
-                Basic Information
-              </h2>
+              <h2 className="font-semibold text-xl">Basic Information</h2>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <Input
@@ -127,10 +158,7 @@ export default function EditProduct({ categories, product }) {
                     className="w-full border rounded-md px-3 py-2"
                   >
                     {categories.map((cat) => (
-                      <option
-                        key={cat.id}
-                        value={`${cat.id}||${cat.path}`}
-                      >
+                      <option key={cat.id} value={`${cat.id}||${cat.path}`}>
                         {cat.path}
                       </option>
                     ))}
@@ -138,11 +166,7 @@ export default function EditProduct({ categories, product }) {
                 </div>
               </div>
 
-              <Input
-                label="SKU"
-                name="sku"
-                defaultValue={state.values?.sku}
-              />
+              <Input label="SKU" name="sku" defaultValue={state.values?.sku} />
 
               <TextArea
                 label="Description"
@@ -151,9 +175,8 @@ export default function EditProduct({ categories, product }) {
               />
             </section>
 
-            {/* ───────── PRICING ───────── */}
             <section className="space-y-4">
-              <h2 className="font-semibold text-xl ">Pricing</h2>
+              <h2 className="font-semibold text-xl">Pricing</h2>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <Input
@@ -174,12 +197,10 @@ export default function EditProduct({ categories, product }) {
               </div>
             </section>
 
-            {/* ───────── INVENTORY ───────── */}
             <section className="space-y-4">
-              <h2 className="font-semibold text-xl ">Inventory</h2>
+              <h2 className="font-semibold text-xl">Inventory</h2>
 
               <div className="grid md:grid-cols-3 gap-6">
-
                 <Input
                   label="Stock Quantity"
                   name="stock_qty"
@@ -205,8 +226,6 @@ export default function EditProduct({ categories, product }) {
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">
-              
-
                 <Input
                   label="Stepper Value"
                   name="stepper_value"
@@ -217,9 +236,69 @@ export default function EditProduct({ categories, product }) {
               </div>
             </section>
 
-            {/* ───────── IMAGES ───────── */}
             <section className="space-y-4">
-              <h2 className="font-semibold text-xl ">Product Images</h2>
+              <h2 className="font-semibold text-xl">Product Variants</h2>
+
+              <div className="space-y-3">
+                {variants.map((variant, index) => (
+                  <div
+                    key={variant.id || index}
+                    className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end"
+                  >
+                    <div className="space-y-1 md:col-span-1">
+                      <label className="text-sm font-medium text-gray-700">Size</label>
+                      <input
+                        type="text"
+                        value={variant.size}
+                        onChange={(e) => updateVariant(index, "size", e.target.value)}
+                        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="e.g. M, L, XL"
+                      />
+                    </div>
+
+                    <div className="space-y-1 md:col-span-1">
+                      <label className="text-sm font-medium text-gray-700">Stock Quantity</label>
+                      <input
+                        type="number"
+                        value={variant.stock_qty}
+                        onChange={(e) => updateVariant(index, "stock_qty", e.target.value)}
+                        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        min="0"
+                      />
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => removeVariantRow(index)}
+                      className="h-10 rounded-md border border-red-300 px-4 text-sm font-medium text-red-600 hover:bg-red-50 transition"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={addVariantRow}
+                className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 transition"
+              >
+                + Add Variant
+              </button>
+
+              <input
+                type="hidden"
+                name="variants"
+                value={JSON.stringify(variants)}
+              />
+
+              {state.errors?.variants ? (
+                <p className="text-xs text-red-600">{state.errors.variants}</p>
+              ) : null}
+            </section>
+
+            <section className="space-y-4">
+              <h2 className="font-semibold text-xl">Product Images</h2>
 
               <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition cursor-pointer">
                 <span>+ Upload Images</span>
@@ -254,17 +333,21 @@ export default function EditProduct({ categories, product }) {
                               return prev;
                             }
 
-                            return [...prev, {
-                              url: data.imageUrl,
-                              image_url: data.imageUrl,
-                              is_primary: prev.length === 0,
-                            }];
+                            return [
+                              ...prev,
+                              {
+                                url: data.imageUrl,
+                                image_url: data.imageUrl,
+                                is_primary: prev.length === 0,
+                              },
+                            ];
                           });
                         }
                       } catch (err) {
                         console.error("Upload failed:", err);
                       }
                     }
+
                     e.target.value = "";
                   }}
                   className="hidden"
@@ -275,12 +358,9 @@ export default function EditProduct({ categories, product }) {
                 {images.map((img, index) => (
                   <div
                     key={index}
-                    className={`relative rounded-lg border overflow-hidden cursor-pointer transition
-                      ${
-                        img.is_primary
-                          ? "ring-2 ring-blue-500"
-                          : "border-gray-200"
-                      }`}
+                    className={`relative rounded-lg border overflow-hidden cursor-pointer transition ${
+                      img.is_primary ? "ring-2 ring-blue-500" : "border-gray-200"
+                    }`}
                     onClick={() =>
                       setImages((prev) =>
                         prev.map((p, i) => ({
@@ -290,16 +370,13 @@ export default function EditProduct({ categories, product }) {
                       )
                     }
                   >
-                    <img
-                      src={img.url}
-                      className="h-32 w-full object-cover"
-                    />
+                    <img src={img.url} className="h-32 w-full object-cover" />
 
-                    {img.is_primary && (
+                    {img.is_primary ? (
                       <span className="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
                         Primary
                       </span>
-                    )}
+                    ) : null}
 
                     <button
                       type="button"
@@ -307,11 +384,9 @@ export default function EditProduct({ categories, product }) {
                       onClick={(e) => {
                         e.stopPropagation();
                         if (img.id) {
-                          setDeletedImageIds(prev => [...prev, img.id]);
+                          setDeletedImageIds((prev) => [...prev, img.id]);
                         }
-                        setImages((prev) =>
-                          prev.filter((_, i) => i !== index)
-                        );
+                        setImages((prev) => prev.filter((_, i) => i !== index));
                       }}
                     >
                       ✕
@@ -320,12 +395,7 @@ export default function EditProduct({ categories, product }) {
                 ))}
               </div>
 
-              <input
-                type="hidden"
-                name="images"
-                value={JSON.stringify(images)}
-              />
-
+              <input type="hidden" name="images" value={JSON.stringify(images)} />
               <input
                 type="hidden"
                 name="deletedImageIds"
@@ -333,9 +403,8 @@ export default function EditProduct({ categories, product }) {
               />
             </section>
 
-            {/* ───────── SEO ───────── */}
             <section className="space-y-4 p-4 rounded-lg">
-              <h2 className="font-semibold text-xl ">SEO Metadata</h2>
+              <h2 className="font-semibold text-xl">SEO Metadata</h2>
 
               <Input
                 label="Meta Title"
@@ -355,10 +424,8 @@ export default function EditProduct({ categories, product }) {
                 defaultValue={state.values?.focus_keyword}
               />
             </section>
-
           </div>
 
-          {/* FOOTER */}
           <div className="border-t border-gray-300 px-6 py-4 flex justify-start">
             <button
               disabled={pending}
@@ -367,7 +434,6 @@ export default function EditProduct({ categories, product }) {
               {pending ? "Saving..." : "Save Product"}
             </button>
           </div>
-
         </form>
       </div>
     </div>

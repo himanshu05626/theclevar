@@ -63,11 +63,17 @@ async function getProduct(id) {
   const product = await prisma.product_list.findUnique({
     where: { id },
     include: {
-     images: {
-      where: {
-        is_deleted: false,
+      images: {
+        where: {
+          is_deleted: false,
+        },
       },
-    },
+      variants: {
+        where: {
+          is_deleted: false,
+        },
+        orderBy: { id: "asc" },
+      },
       seo: true,
       category: true,
     },
@@ -95,6 +101,11 @@ async function getProduct(id) {
       id: img.id,
       image_url: img.image_url,
       is_primary: img.is_primary,
+    })),
+    variants: product.variants.map((variant) => ({
+      id: variant.id,
+      size: variant.size,
+      stock_qty: variant.stock_qty,
     })),
     meta_title: product.seo?.meta_title || "",
     meta_description: product.seo?.meta_description || "",
