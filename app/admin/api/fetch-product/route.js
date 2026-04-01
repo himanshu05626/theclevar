@@ -15,10 +15,30 @@ export async function POST(req) {
         body: Buffer.from(arrayBuffer)
       }
     );
+    const text = await res.text();
 
-    const data = await res.json();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text };
+    }
 
-    return NextResponse.json(data);
+    if (!res.ok) {
+      return NextResponse.json(
+        {
+          status: "error",
+          message: data?.message || "AI service failed",
+          data,
+        },
+        { status: res.status }
+      );
+    }
+
+    return NextResponse.json({
+      status: "success",
+      data,
+    });
 
   } catch (error) {
     return NextResponse.json(
