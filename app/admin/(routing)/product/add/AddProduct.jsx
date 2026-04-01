@@ -44,6 +44,8 @@ export default function AddProductForm({ categories }) {
 
   const fieldErrors = state.errors || {};
 
+  const [uploadResetKey, setUploadResetKey] = useState(0);
+
   useEffect(() => {
     if (state.success) {
       showToast({
@@ -85,6 +87,8 @@ export default function AddProductForm({ categories }) {
       } catch {
         setImages([]);
       }
+
+      setUploadResetKey(prev => prev + 1);
     }
 
   }, [state.success, state.errors, state.values]);
@@ -459,16 +463,20 @@ export default function AddProductForm({ categories }) {
               </h2>
 
               <UploadImage
+                key={uploadResetKey}
                 uploadType="productImage"
                 onSuccess={(urls) => {
 
-                  setImages(prev => [
-                    ...prev,
-                    ...urls.map(url => ({
-                      url,
-                      is_default: prev.length === 0
-                    }))
-                  ]);
+                  setImages(prev => {
+                    const existingUrls = new Set(prev.map(img => img.url));
+                    const newImages = urls
+                      .filter(url => !existingUrls.has(url))
+                      .map(url => ({
+                        url,
+                        is_default: prev.length === 0
+                      }));
+                    return [...prev, ...newImages];
+                  });
 
                 }}
                 onRemove={(url) => {
