@@ -212,7 +212,7 @@ export async function GET(req) {
         }
 
         // Category filter
-        if (category) {
+        if (category && !Number.isNaN(Number(category))) {
             andFilters.push({
                 category_id: Number(category),
             });

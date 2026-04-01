@@ -3,14 +3,13 @@
 import { NextResponse } from "next/server";
 import { verifyToken } from "./lib/jwt";
 import { prisma } from "./lib/prisma";
-import { cookies } from "next/headers";
 
 export async function middleware(req) {
   const { pathname } = req.nextUrl;
 
   console.log(`[Middleware] Request: ${pathname}`);
 
-  const c = await cookies();
+  const c = req.cookies;
 
   // Skip static files
   if (
