@@ -1,6 +1,6 @@
 // app/admin/(routing)/product/page.jsx
 
-import { serverFetch } from "@/lib/serverFetch";
+import { cookies } from "next/headers";
 import ViewProduct from "./ViewProduct";
 
 
@@ -29,14 +29,25 @@ async function getProducts(searchParams) {
         stock,
     });
 
-    // const res = await fetch(
-    //     `${process.env.NEXT_PUBLIC_BASE_URL}/admin/api/products?${params.toString()}`,
-    //     { cache: "no-store" }
-    // );
+    const cookieStore = await cookies();
+    const route = `/admin/api/products?${params.toString()}`;
+    const url = `${process.env.NEXT_PUBLIC_BASE_URL}${route}`;
+    const label = `FETCH ${route}`;
 
-    const res = await serverFetch(`/admin/api/products?${params.toString()}`);
+    console.time(label);
+
+    const res = await fetch(url, {
+        cache: "no-store",
+        headers: {
+            Cookie: cookieStore.toString(),
+        },
+    });
+
+    console.timeEnd(label);
 
     if (!res.ok) {
+        const text = await res.text();
+        console.error("API ERROR:", res.status, text);
         throw new Error("Failed to fetch products");
     }
 
