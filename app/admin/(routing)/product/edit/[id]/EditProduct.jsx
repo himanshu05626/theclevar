@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { updateProduct } from "./actions";
 import { useToast } from "@/app/admin/context/ToastProvider";
-import UploadImage from "@/app/component/UploadImage";
 
 export default function EditProduct({ categories, product }) {
   console.log('product',product)
@@ -21,6 +20,8 @@ export default function EditProduct({ categories, product }) {
       is_primary: hasPrimary ? img.is_primary : index === 0,
     }));
   });
+
+  const [deletedImageIds, setDeletedImageIds] = useState([]);
 
   /* ───────────────── FORM STATE ───────────────── */
   const initialState = {
@@ -220,26 +221,55 @@ export default function EditProduct({ categories, product }) {
             <section className="space-y-4">
               <h2 className="font-semibold text-xl ">Product Images</h2>
 
-              <UploadImage
-                uploadType="productImage"
-                onSuccess={(urls) => {
-                  setImages((prev) => {
-                    const existingUrls = new Set(
-                      prev.map((img) => img.image_url || img.url)
-                    );
+              <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition cursor-pointer">
+                <span>+ Upload Images</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={async (e) => {
+                    const files = Array.from(e.target.files || []);
+                    if (!files.length) return;
 
-                    const newImages = urls
-                      .filter((url) => !existingUrls.has(url))
-                      .map((url, index) => ({
-                        url,
-                        image_url: url,
-                        is_primary: prev.length === 0 && index === 0,
-                      }));
+                    for (const file of files) {
+                      const formData = new FormData();
+                      formData.append("file", file);
+                      formData.append("uploadType", "productImage");
 
-                    return [...prev, ...newImages];
-                  });
-                }}
-              />
+                      try {
+                        const res = await fetch("/api/upload", {
+                          method: "POST",
+                          body: formData,
+                        });
+
+                        const data = await res.json();
+
+                        if (res.ok && data.success) {
+                          setImages((prev) => {
+                            const existingUrls = new Set(
+                              prev.map((img) => img.image_url || img.url)
+                            );
+
+                            if (existingUrls.has(data.imageUrl)) {
+                              return prev;
+                            }
+
+                            return [...prev, {
+                              url: data.imageUrl,
+                              image_url: data.imageUrl,
+                              is_primary: prev.length === 0,
+                            }];
+                          });
+                        }
+                      } catch (err) {
+                        console.error("Upload failed:", err);
+                      }
+                    }
+                    e.target.value = "";
+                  }}
+                  className="hidden"
+                />
+              </label>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {images.map((img, index) => (
@@ -276,6 +306,9 @@ export default function EditProduct({ categories, product }) {
                       className="absolute top-1 right-1 bg-black/60 text-white rounded-full h-6 w-6"
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (img.id) {
+                          setDeletedImageIds(prev => [...prev, img.id]);
+                        }
                         setImages((prev) =>
                           prev.filter((_, i) => i !== index)
                         );
@@ -291,6 +324,12 @@ export default function EditProduct({ categories, product }) {
                 type="hidden"
                 name="images"
                 value={JSON.stringify(images)}
+              />
+
+              <input
+                type="hidden"
+                name="deletedImageIds"
+                value={JSON.stringify(deletedImageIds)}
               />
             </section>
 

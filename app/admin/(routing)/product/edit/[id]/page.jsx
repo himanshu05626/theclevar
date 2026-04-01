@@ -27,7 +27,11 @@ async function getCategoriesForAdmin() {
           is_deleted: false,
         },
         include: {
-          images: true,
+          images: {
+            where: {
+              is_deleted: false,
+            },
+          },
           pricing: true,
           seo: true,
         },

@@ -70,6 +70,7 @@ export async function updateProduct(prevState, formData) {
 
     /* ---------------- IMAGE PARSE ---------------- */
     let images = [];
+    let deletedImageIds = [];
     if (values.images) {
         try {
             images = JSON.parse(values.images);
@@ -77,6 +78,15 @@ export async function updateProduct(prevState, formData) {
         } catch (e) {
             console.error("❌ Invalid images JSON:", e);
             errors.images = "Invalid images data";
+        }
+    }
+
+    if (values.deletedImageIds) {
+        try {
+            deletedImageIds = JSON.parse(values.deletedImageIds);
+            console.log("🗑 Parsed Deleted Image IDs:", deletedImageIds);
+        } catch (e) {
+            console.error("❌ Invalid deletedImageIds JSON:", e);
         }
     }
 
@@ -188,46 +198,71 @@ export async function updateProduct(prevState, formData) {
         } else {
             console.log("🖼 Processing Images...");
 
-            const incomingUrls = [
-                ...new Set(
-                    images
-                        .map(img => img?.image_url ?? img?.url)
-                        .filter(url => typeof url === "string" && url.startsWith("http"))
-                ),
-            ];
+            const normalizedImages = images
+                .map((img) => ({
+                    id: img?.id ? Number(img.id) : null,
+                    url: img?.image_url ?? img?.url ?? "",
+                    is_primary: Boolean(img?.is_primary),
+                }))
+                .filter((img) => typeof img.url === "string" && img.url.startsWith("http"));
 
-            console.log("🔗 Normalized URLs:", incomingUrls);
+            const keepIds = normalizedImages
+                .map((img) => img.id)
+                .filter((id) => Number.isInteger(id));
 
-            await prisma.product_images.updateMany({
-                where: { product_list_id: productId },
-                data: { is_deleted: true, is_primary: false },
-            });
+            const keepIdSet = new Set(keepIds);
+            const keepUrlSet = new Set(normalizedImages.map((img) => img.url));
+
+            console.log("🔗 Keep IDs:", keepIds);
+            console.log("🔗 Keep URLs:", [...keepUrlSet]);
+
+            if (deletedImageIds.length > 0) {
+                console.log("🗑 Soft-deleting images:", deletedImageIds);
+                await prisma.product_images.updateMany({
+                    where: {
+                        id: { in: deletedImageIds },
+                        product_list_id: productId,
+                    },
+                    data: { is_deleted: true, is_primary: false },
+                });
+            }
 
             await prisma.product_images.updateMany({
                 where: {
                     product_list_id: productId,
-                    image_url: { in: incomingUrls },
+                    id: { notIn: keepIds.length > 0 ? keepIds : [-1] },
                 },
-                data: { is_deleted: false },
+                data: { is_deleted: true, is_primary: false },
             });
+
+            if (keepIds.length > 0) {
+                await prisma.product_images.updateMany({
+                    where: {
+                        product_list_id: productId,
+                        id: { in: keepIds },
+                    },
+                    data: { is_deleted: false },
+                });
+            }
 
             const existingImages = await prisma.product_images.findMany({
                 where: {
                     product_list_id: productId,
-                    image_url: { in: incomingUrls },
-                    is_deleted: false,
                 },
-                distinct: ["image_url"],
-                select: { image_url: true },
+                select: {
+                    id: true,
+                    image_url: true,
+                    is_deleted: true,
+                },
             });
 
-            const existingUrls = existingImages.map(i => i.image_url);
+            const existingUrlSet = new Set(existingImages.map((img) => img.image_url));
 
-            const newImages = incomingUrls
-                .filter(url => !existingUrls.includes(url))
-                .map(url => ({
+            const newImages = normalizedImages
+                .filter((img) => !img.id && !existingUrlSet.has(img.url))
+                .map((img) => ({
                     product_list_id: productId,
-                    image_url: url,
+                    image_url: img.url,
                     is_deleted: false,
                     is_primary: false,
                 }));
@@ -237,21 +272,30 @@ export async function updateProduct(prevState, formData) {
                 await prisma.product_images.createMany({ data: newImages });
             }
 
-            const primaryUrl =
-                images.find(img => img.is_primary)?.image_url ||
-                images.find(img => img.is_primary)?.url;
+            const primaryImageRef = normalizedImages.find((img) => img.is_primary);
 
-            if (primaryUrl) {
-                console.log("⭐ Setting Primary Image:", primaryUrl);
+            await prisma.product_images.updateMany({
+                where: { product_list_id: productId },
+                data: { is_primary: false },
+            });
 
-                const primaryImage = await prisma.product_images.findFirst({
-                    where: {
-                        product_list_id: productId,
-                        image_url: primaryUrl,
-                        is_deleted: false,
-                    },
-                    orderBy: { id: "asc" },
-                });
+            if (primaryImageRef) {
+                const primaryImage = primaryImageRef.id
+                    ? await prisma.product_images.findFirst({
+                        where: {
+                            id: primaryImageRef.id,
+                            product_list_id: productId,
+                            is_deleted: false,
+                        },
+                    })
+                    : await prisma.product_images.findFirst({
+                        where: {
+                            image_url: primaryImageRef.url,
+                            product_list_id: productId,
+                            is_deleted: false,
+                        },
+                        orderBy: { id: "asc" },
+                    });
 
                 if (primaryImage) {
                     await prisma.product_images.update({

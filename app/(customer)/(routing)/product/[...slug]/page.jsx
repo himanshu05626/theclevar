@@ -39,6 +39,7 @@ export async function generateMetadata({ params }) {
             images: {
                 where: {
                     is_primary: true,
+                    is_deleted: false,
                 },
                 take: 1,
             }
@@ -144,6 +145,9 @@ export default async function Page({ params }) {
         },
         include: {
             images: {
+                where: {
+                    is_deleted: false,
+                },
                 orderBy: { is_primary: "desc" },
             },
             category: true,
@@ -173,6 +177,9 @@ export default async function Page({ params }) {
             },
             include: {
                 images: {
+                    where: {
+                        is_deleted: false,
+                    },
                     orderBy: { is_primary: "desc" },
                     take: 1,
                 },

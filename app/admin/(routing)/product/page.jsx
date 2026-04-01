@@ -64,7 +64,11 @@ async function getProducts(searchParams) {
                 },
                 include: {
                     category: true,
-                    images: true,
+                    images: {
+                        where: {
+                            is_deleted: false,
+                        },
+                    },
                 },
             }),
             prisma.product_list.count({ where }),
