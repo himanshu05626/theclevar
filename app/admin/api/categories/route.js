@@ -60,23 +60,13 @@ export async function GET() {
             seo: true,
           },
         },
-        _count: {
-          select: {
-            products: {
-              where: {
-                is_active: true,
-                is_deleted: false,
-              },
-            },
-          },
-        },
       },
     });
 
     // make count clean
     const formatted = categories.map((cat) => ({
       ...cat,
-      product_count: cat._count.products,
+      product_count: cat.products.length,
     }));
 
     return NextResponse.json(formatted);
