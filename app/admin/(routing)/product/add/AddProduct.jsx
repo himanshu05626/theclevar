@@ -42,6 +42,8 @@ export default function AddProductForm({ categories }) {
 
   const [formValues, setFormValues] = useState({});
 
+  const fieldErrors = state.errors || {};
+
   useEffect(() => {
     if (state.success) {
       showToast({
@@ -53,13 +55,39 @@ export default function AddProductForm({ categories }) {
     }
 
     if (state.errors && Object.keys(state.errors).length > 0) {
+      const firstFieldError = Object.entries(state.errors).find(
+        ([key, value]) => key !== "general" && Boolean(value)
+      )?.[1];
+
       showToast({
         type: "error",
-        message: state.errors.general || "Failed to add product"
+        message: state.errors.general || firstFieldError || "Failed to add product"
       });
+
+      const submittedValues = state.values || {};
+
+      setFormValues(submittedValues);
+
+      setCategory(submittedValues.category || "");
+
+      try {
+        setVariants(
+          submittedValues.variants
+            ? JSON.parse(submittedValues.variants)
+            : [{ size: "", stock_qty: 0 }]
+        );
+      } catch {
+        setVariants([{ size: "", stock_qty: 0 }]);
+      }
+
+      try {
+        setImages(submittedValues.images ? JSON.parse(submittedValues.images) : []);
+      } catch {
+        setImages([]);
+      }
     }
 
-  }, [state.success, state.errors]);
+  }, [state.success, state.errors, state.values]);
 
 
 
@@ -233,6 +261,7 @@ export default function AddProductForm({ categories }) {
                   name="name"
                   required
                   defaultValue={formValues.name}
+                  error={fieldErrors.name}
                 />
 
                 <div className="space-y-1">
@@ -245,6 +274,7 @@ export default function AddProductForm({ categories }) {
                     categories={categories}
                     value={category}
                     onChange={setCategory}
+                    error={fieldErrors.category}
                   />
 
                   <input
@@ -262,6 +292,7 @@ export default function AddProductForm({ categories }) {
                 label="SKU"
                 name="sku"
                 defaultValue={formValues.sku}
+                error={fieldErrors.sku}
               />
 
               <FormInput
@@ -270,6 +301,7 @@ export default function AddProductForm({ categories }) {
                 name="description"
                 textarea
                 defaultValue={formValues.description}
+                error={fieldErrors.description}
               />
 
             </section>
@@ -291,6 +323,7 @@ export default function AddProductForm({ categories }) {
                   type="number"
                   required
                   defaultValue={formValues.regular_price}
+                  error={fieldErrors.regular_price}
                 />
 
                 <FormInput
@@ -299,6 +332,7 @@ export default function AddProductForm({ categories }) {
                   name="sale_price"
                   type="number"
                   defaultValue={formValues.sale_price}
+                  error={fieldErrors.sale_price}
                 />
 
               </div>
@@ -321,6 +355,7 @@ export default function AddProductForm({ categories }) {
                   name="stock_qty"
                   type="number"
                   defaultValue={formValues.stock_qty}
+                  error={fieldErrors.stock_qty}
                 />
 
                 <FormInput
@@ -329,6 +364,7 @@ export default function AddProductForm({ categories }) {
                   name="low_stock_threshold"
                   type="number"
                   defaultValue={formValues.low_stock_threshold}
+                  error={fieldErrors.low_stock_threshold}
                 />
 
                 <FormInput
@@ -337,6 +373,7 @@ export default function AddProductForm({ categories }) {
                   name="stepper_value"
                   type="number"
                   defaultValue={formValues.stepper_value}
+                  error={fieldErrors.stepper_value}
                 />
 
               </div>
@@ -403,6 +440,12 @@ export default function AddProductForm({ categories }) {
                 value={JSON.stringify(variants)}
               />
 
+              {fieldErrors.variants && (
+                <p className="text-xs text-red-600">
+                  {fieldErrors.variants}
+                </p>
+              )}
+
             </section>
 
 
@@ -436,6 +479,12 @@ export default function AddProductForm({ categories }) {
                 value={JSON.stringify(images)}
               />
 
+              {fieldErrors.images && (
+                <p className="text-xs text-red-600">
+                  {fieldErrors.images}
+                </p>
+              )}
+
             </section>
 
 
@@ -453,6 +502,7 @@ export default function AddProductForm({ categories }) {
                 label="Meta Title"
                 name="meta_title"
                 defaultValue={formValues.meta_title}
+                error={fieldErrors.meta_title}
               />
 
               <FormInput
@@ -461,6 +511,7 @@ export default function AddProductForm({ categories }) {
                 name="meta_description"
                 textarea
                 defaultValue={formValues.meta_description}
+                error={fieldErrors.meta_description}
               />
 
               <FormInput
@@ -468,6 +519,7 @@ export default function AddProductForm({ categories }) {
                 label="Focus Keyword"
                 name="focus_keyword"
                 defaultValue={formValues.focus_keyword}
+                error={fieldErrors.focus_keyword}
               />
 
             </section>
