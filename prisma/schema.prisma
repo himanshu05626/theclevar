@@ -3,6 +3,30 @@
     output   = "../generated/prisma"
   }
 
+  // Track user-generated T-shirt images
+  model tshirt_image_generation {
+    id               Int       @id @default(autoincrement()) @db.UnsignedInt
+    customer_list_id Int       @db.UnsignedInt
+    prompt           String    @db.Text
+    image_url        String    @db.VarChar(500)
+    created_at       DateTime  @default(now())
+    customer         customer_list @relation(fields: [customer_list_id], references: [id], onDelete: Cascade)
+
+    @@index([customer_list_id])
+  }
+
+  // Track daily generation limits per user
+  model tshirt_generation_limit {
+    id               Int      @id @default(autoincrement()) @db.UnsignedInt
+    customer_list_id Int      @db.UnsignedInt
+    date             DateTime @db.Date
+    count            Int      @default(0)
+    customer         customer_list @relation(fields: [customer_list_id], references: [id], onDelete: Cascade)
+
+    @@unique([customer_list_id, date])
+    @@index([customer_list_id])
+  }
+
   datasource db {
     provider = "mysql"
   }
@@ -48,6 +72,8 @@
     wishlists                wishlist[]
     coupon_usages coupon_usage[]  
   reviews product_reviews[]
+  tshirt_image_generations tshirt_image_generation[]
+  tshirt_generation_limits tshirt_generation_limit[]
     @@index([customer_group_id])
     @@index([image_gallery_id], map: "customer_list_image_gallery_id_fkey")
   }
