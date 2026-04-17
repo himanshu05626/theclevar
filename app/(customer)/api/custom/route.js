@@ -29,8 +29,8 @@ USER IDEA: "${prompt}"
 
 STRICT RULES:
 - Output MUST be a full T-shirt (front view)
-- T-shirt should be plain (white or light color preferred)
-- Place the design centered on the chest area
+- T-shirt should be plain (white or  color preferred)
+- Place the design centered  on the chest or use whole t-shirt area if needed based on the design
 - Design must look printed on the T-shirt (not floating separately)
 - Keep background simple or plain (light gray or white)
 

@@ -1,5 +1,7 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 
 export default function TshirtDesignGallery() {
   const [prompt, setPrompt] = useState("");
@@ -47,116 +49,151 @@ export default function TshirtDesignGallery() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070B1A] text-white px-4 py-10">
-
-      {/* HERO */}
-      <div className="max-w-5xl mx-auto text-center mb-12">
-        <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 to-blue-500 text-transparent bg-clip-text">
-          Beyond the Threshold
-        </h1>
-        <p className="text-gray-400 mt-4 text-lg">
-          Generate premium AI T-shirt designs instantly
+    <div className="bg-black text-white flex flex-col items-center justify-center relative overflow-x-hidden px-2 py-8">
+      {/* HERO SECTION */}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="w-full max-w-6xl text-center mb-10 relative z-10"
+      >
+        <div className="inline-block px-4 py-1 mb-4 rounded-full border border-cyan-400 bg-black/60 text-cyan-300 text-xs font-semibold tracking-widest shadow-cyan-400/30 shadow-lg">
+          ⚡ 2026 DROP IS HERE
+        </div>
+       
+        <p className="text-gray-300 mt-4 text-lg font-medium">
+          Your design, your own. Each design is uniquely yours – only a 0.01% chance of anyone else having the same.
         </p>
-      </div>
+      
+    
+      </motion.div>
 
-      {/* GENERATOR */}
-      <div className="max-w-3xl mx-auto bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-xl shadow-xl">
-        <div className="flex flex-col md:flex-row gap-4">
-          <input
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Describe your design..."
-            className="flex-1 bg-[#111827] border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+      {/* GENERATOR SECTION */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-2xl mx-auto bg-[#0f0f0f]/80 backdrop-blur-xl border border-white/10 rounded-3xl p-4 shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
+      >
+        <div className="flex flex-col gap-3">
+          {/* Input Area */}
+          <div className="flex items-end gap-3 bg-[#1a1a1a] border border-white/10 rounded-2xl px-4 py-3 \
+            focus-within:ring-2 focus-within:ring-[#0ea5e9]/40 transition-all duration-200">
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              rows={1}
+              placeholder="Describe your design..."
+              className="flex-1 resize-none bg-transparent outline-none \
+              text-gray-200 placeholder-gray-500 text-[15px] leading-relaxed max-h-[160px]"
+              style={{ minHeight: "40px" }}
+            />
+            {/* Action Button */}
+            <motion.button
+              whileHover={{ scale: !prompt || loading ? 1 : 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={handleGenerate}
+              disabled={!prompt || loading}
+              className={`px-5 py-2.5 rounded-xl font-semibold text-sm transition-all
+                ${loading ? "bg-white/10 text-gray-500 cursor-not-allowed" : "bg-[#0ea5e9] text-white hover:bg-[#38bdf8] shadow-[0_0_20px_rgba(14,165,233,0.35)]"}`}
+            >
+              {loading ? "Generating..." : "Generate"}
+            </motion.button>
+          </div>
+          {/* Helper Row */}
+          <div className="flex justify-between items-center px-1">
+            <span className="text-xs text-gray-500">
+              Try: "Modern dashboard UI with analytics cards"
+            </span>
+            <span className="text-xs text-gray-600 hidden sm:block">
+              AI Prompt
+            </span>
+          </div>
+          {/* Error */}
+          {error && (
+            <p className="text-red-400 text-sm text-center font-medium">
+              {error}
+            </p>
+          )}
+        </div>
+      </motion.div>
+
+      {/* Show generated image if available */}
+      {imageUrl && (
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md mx-auto mt-8 flex flex-col items-center"
+        >
+          <img
+            src={imageUrl}
+            alt="Generated design"
+            className="rounded-2xl border-2 border-cyan-400 shadow-cyan-400/20 shadow-lg object-cover w-full max-h-96 bg-black"
+            style={{ background: '#0f0f0f' }}
           />
-
-          <button
-            onClick={handleGenerate}
-            disabled={!prompt || loading}
-            className={`px-6 py-3 rounded-xl font-semibold transition 
-            ${
-              loading
-                ? "bg-gray-600"
-                : "bg-gradient-to-r from-purple-500 to-blue-500 hover:scale-105 hover:shadow-lg"
-            }`}
-          >
-            {loading ? "Generating..." : "Generate"}
-          </button>
+          <span className="mt-2 text-xs text-cyan-300">Your generated design</span>
+        </motion.div>
+      )}
+    <div className="flex justify-center gap-10 mt-10 text-center">
+          <div>
+            <span className="text-2xl font-bold text-cyan-400">1K+</span>
+            <div className="text-xs text-gray-400 mt-1">CUSTOMERS</div>
+          </div>
+          <div>
+            <span className="text-2xl font-bold text-cyan-400">4.9★</span>
+            <div className="text-xs text-gray-400 mt-1">RATING</div>
+          </div>
+          <div>
+            <span className="text-2xl font-bold text-cyan-400">20+</span>
+            <div className="text-xs text-gray-400 mt-1">DESIGNS</div>
+          </div>
         </div>
-
-        {error && (
-          <p className="text-red-400 mt-4 text-center">{error}</p>
-        )}
-      </div>
-
-      {/* 🔥 RECENT HISTORY (LIKE YOUR IMAGE) */}
-      <div className="max-w-6xl mx-auto mt-14">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">Recent History</h2>
-          <button className="text-purple-400 text-sm hover:underline">
-            VIEW ALL
-          </button>
+      {/* RECENT HISTORY */}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.8 }}
+        className="w-full max-w-5xl mx-auto mt-2"
+      >
+        <div className="flex justify-between items-center mb-6 px-2">
+          <h2 className="text-2xl font-bold text-cyan-400 tracking-wide">Recent Designs</h2>
+          <button className="text-pink-400 text-sm font-semibold border-b-2 border-pink-400 hover:text-pink-300 transition">VIEW ALL</button>
         </div>
-
         <div
-          className="flex gap-6 overflow-x-auto pb-2"
+          className="flex gap-7 overflow-x-auto pb-2 hide-scrollbar"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {gallery.length === 0 ? (
-            <p className="text-gray-500">No designs yet</p>
+            <p className="text-gray-600 text-lg">No designs yet</p>
           ) : (
             gallery.slice(0, 10).map((img) => (
-              <div
+              <motion.div
                 key={img.id}
-                className="min-w-[180px] group relative rounded-2xl overflow-hidden bg-[#0f172a] border border-white/10 hover:border-purple-500 transition"
+                whileHover={{ scale: 1.04, boxShadow: "0 0 24px #00fff7" }}
+                className="min-w-[200px] group relative rounded-2xl overflow-hidden bg-[#10101a] border-2 border-cyan-900/40 hover:border-cyan-400 transition shadow-cyan-400/10 shadow-lg"
               >
-                {/* IMAGE */}
                 <img
                   src={img.image_url}
-                  className="w-full h-52 object-cover group-hover:scale-110 transition duration-300"
+                  className="w-full h-56 object-cover group-hover:scale-105 transition duration-300"
+                  alt={img.prompt}
                 />
-
-                {/* GLOW OVERLAY */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-80" />
-
-                {/* LABEL */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 pointer-events-none" />
                 <div className="absolute bottom-3 left-3 right-3">
-                  <p className="text-xs text-gray-300 line-clamp-2">
+                  <p className="text-xs text-cyan-200 line-clamp-2 font-medium drop-shadow-[0_2px_8px_rgba(0,255,255,0.5)]">
                     {img.prompt}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))
           )}
         </div>
+      </motion.div>
+      {/* Neon Glow BG Effect */}
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute left-1/2 top-0 -translate-x-1/2 w-[600px] h-[600px] bg-cyan-400 opacity-10 blur-3xl rounded-full" />
+        <div className="absolute right-0 bottom-0 w-[400px] h-[400px] bg-pink-400 opacity-10 blur-3xl rounded-full" />
       </div>
-
-      {/* OPTIONAL: FULL GRID BELOW */}
-      {/* <div className="max-w-6xl mx-auto mt-16">
-        <h2 className="text-xl font-semibold mb-6">All Designs</h2>
-
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {gallery.map((img) => (
-            <div
-              key={img.id}
-              className="group bg-[#111827] rounded-2xl overflow-hidden border border-white/10 hover:border-blue-500 transition"
-            >
-              <img
-                src={img.image_url}
-                className="w-full h-56 object-cover group-hover:scale-110 transition"
-              />
-
-              <div className="p-4">
-                <p className="text-sm text-gray-300 line-clamp-2">
-                  {img.prompt}
-                </p>
-                <p className="text-xs text-gray-500 mt-2">
-                  {new Date(img.created_at).toLocaleString()}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div> */}
     </div>
   );
 }
