@@ -29,7 +29,6 @@ USER IDEA: "${prompt}"
 
 STRICT RULES:
 - Output MUST be a full T-shirt (front view)
-- T-shirt should be plain (white or  color preferred)
 - Place the design centered  on the chest or use whole t-shirt area if needed based on the design
 - Design must look printed on the T-shirt (not floating separately)
 - Keep background simple or plain (light gray or white)
@@ -37,7 +36,6 @@ STRICT RULES:
 DESIGN STYLE:
 - Convert the idea into a clean, minimal, vector-style graphic
 - Use bold outlines and flat colors
-- Centered composition (like a logo or badge)
 - High contrast and print-ready
 
 IMPORTANT:
@@ -124,7 +122,7 @@ Return ONLY a clean T-shirt mockup image with the design printed on it.
 // =============================
 // 🔹 DAILY LIMIT
 // =============================
-const DAILY_LIMIT = 5;
+const DAILY_LIMIT = 10;
 
 // =============================
 // 🔹 API ROUTE
@@ -233,6 +231,7 @@ export async function POST(req) {
         // =============================
         return NextResponse.json({
             success: true,
+            id: record.id,
             imageUrl,
         });
     } catch (error) {

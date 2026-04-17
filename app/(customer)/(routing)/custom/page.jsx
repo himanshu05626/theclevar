@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function TshirtDesignGallery() {
   const [prompt, setPrompt] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [imageId, setImageId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [gallery, setGallery] = useState([]);
@@ -40,6 +42,7 @@ export default function TshirtDesignGallery() {
       if (!data.success) throw new Error(data.message);
 
       setImageUrl(data.imageUrl);
+      setImageId(data.id);
       setRefresh((r) => r + 1);
     } catch (e) {
       setError(e.message);
@@ -133,6 +136,9 @@ export default function TshirtDesignGallery() {
             style={{ background: '#0f0f0f' }}
           />
           <span className="mt-2 text-xs text-cyan-300">Your generated design</span>
+          <Link href={`/custom/next-step/${imageId}`} className="mt-4 px-6 py-2 bg-[#0ea5e9] text-white rounded-xl font-semibold hover:bg-[#38bdf8] transition shadow-[0_0_20px_rgba(14,165,233,0.35)]">
+            Next Step For Buying this design
+          </Link>
         </motion.div>
       )}
     <div className="flex justify-center gap-10 mt-10 text-center">
