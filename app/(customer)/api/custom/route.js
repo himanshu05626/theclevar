@@ -19,38 +19,58 @@ const s3 = new S3Client({
 // =============================
 // 🔹 GEMINI IMAGE GENERATOR
 // =============================
-async function generateTshirtImage(prompt) {
+async function generateTshirtImage(prompt, hasUserImage, imageBase64) {
 const systemPrompt = `
-You are a professional apparel designer.
+You are a professional 3D apparel mockup designer.
 
-Create a high-quality T-shirt mockup image based on the user idea.
+Create a high-quality, realistic 3D T-shirt mockup image.
 
-USER IDEA: "${prompt}"
+INPUT:
+- USER IDEA: "${prompt}"
+- USER DESIGN IMAGE: ${hasUserImage ? "PROVIDED" : "NOT PROVIDED"}
 
-STRICT RULES:
-- Output MUST be a full T-shirt (front view)
-- Place the design centered  on the chest or use whole t-shirt area if needed based on the design
-- Design must look printed on the T-shirt (not floating separately)
-- Keep background simple or plain (light gray or white)
+CORE RULES:
+- ALWAYS generate a realistic 3D T-shirt mockup
+- Default view: FRONT
+- If user asks "back" → show BACK side
+- Slightly angled, natural 3D pose (not flat)
 
-DESIGN STYLE:
-- Convert the idea into a clean, minimal, vector-style graphic
-- Use bold outlines and flat colors
-- High contrast and print-ready
+DESIGN SOURCE LOGIC:
+1. If USER DESIGN IMAGE is PROVIDED:
+   - Use the uploaded image EXACTLY as the print design
+   - DO NOT redesign, modify, or reinterpret it
+   - Preserve original colors, shapes, and layout
+   - Fit it naturally onto the T-shirt fabric
 
-IMPORTANT:
-- NO human models
-- NO real photos
-- NO complex backgrounds
-- NO multiple objects outside T-shirt
-- Focus only on T-shirt + printed design
+2. If NO image is provided:
+   - Generate a clean, minimal, Gen-Z style graphic from the text idea
 
-TEXT RULES:
-- If text is included → make it bold and readable
-- Place text below or integrated with design
+DESIGN PLACEMENT:
+- Center chest by default
+- Scale properly to fit fabric
+- Follow cloth perspective and folds
+
+STYLE:
+- Realistic 3D (Three.js / WebGL look)
+- Premium streetwear aesthetic
+- Soft lighting, subtle shadows
+- Fabric wrinkles + depth
+
+BACKGROUND:
+- Plain (white / gray / soft gradient)
+
+STRICT:
+- ONLY one T-shirt
+- NO humans
+- NO mannequins
+- NO extra objects
+
+TEXT:
+- Bold, clean, readable
+- Integrated properly
 
 OUTPUT:
-Return ONLY a clean T-shirt mockup image with the design printed on it.
+Return ONLY the final 3D T-shirt mockup image.
 `;
     const apiKey = process.env.GEMINI_NANO_API_KEY;
     const apiUrl =
@@ -68,17 +88,30 @@ Return ONLY a clean T-shirt mockup image with the design printed on it.
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-            contents: [
-                {
-                    role: "user",
-                    parts: [{ text: systemPrompt }],
-                },
-            ],
-            generationConfig: {
-                responseModalities: ["IMAGE"]
-            },
-        }),
+body: JSON.stringify({
+  contents: [
+    {
+      role: "user",
+      parts: [
+        { text: systemPrompt },
+        ...(imageBase64
+          ? [{
+              inlineData: {
+                mimeType: "image/png",
+                data: imageBase64,
+              },
+            }]
+          : []),
+      ],
+    },
+  ],
+ generationConfig: {
+  responseModalities: ["IMAGE"],
+  imageConfig: {
+    aspectRatio: "9:16" // 🔥 force portrait
+  }
+}
+}),
     });
 
     clearTimeout(timeout);
@@ -129,7 +162,7 @@ const DAILY_LIMIT = 10;
 // =============================
 export async function POST(req) {
     try {
-        const { prompt } = await req.json();
+        const { prompt, imageBase64 } = await req.json();
 
         if (!prompt) {
             return NextResponse.json(
@@ -170,7 +203,7 @@ export async function POST(req) {
         // =============================
         // 🎨 GENERATE IMAGE
         // =============================
-        const base64 = await generateTshirtImage(prompt);
+    const base64 = await generateTshirtImage(prompt, imageBase64 ? true : false, imageBase64);
 
         // =============================
         // ☁️ UPLOAD TO R2
