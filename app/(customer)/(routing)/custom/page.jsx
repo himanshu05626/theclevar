@@ -15,6 +15,7 @@ export default function TshirtDesignGallery() {
 
   const [uploadedImage, setUploadedImage] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
@@ -66,6 +67,7 @@ export default function TshirtDesignGallery() {
 
   // Handle Reuse / Edit from History
   async function handleReuse(item) {
+    setIsHistoryOpen(false); // Close drawer on mobile when selected
     setPrompt(item.prompt || "");
     if (item.image_url) {
       setPreview(item.image_url);
@@ -132,7 +134,7 @@ export default function TshirtDesignGallery() {
   return (
     <div className="flex h-[100dvh] bg-[#050505] text-white overflow-hidden font-sans selection:bg-cyan-500/30">
       {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col relative h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900/40 via-[#050505] to-[#050505]">
+      <div className="flex-1 flex flex-col relative h-[90dvh] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900/40 via-[#050505] to-[#050505]">
         
         {/* HEADER */}
         <header className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-center z-10 pointer-events-none">
@@ -144,6 +146,14 @@ export default function TshirtDesignGallery() {
               Design AI
             </h1>
           </div>
+          
+          <button 
+            onClick={() => setIsHistoryOpen(true)}
+            className="md:hidden pointer-events-auto flex items-center justify-center p-2.5 bg-neutral-900/80 backdrop-blur-md rounded-full border border-white/10 text-white hover:bg-neutral-800 transition-colors shadow-lg"
+            title="Recent Designs"
+          >
+            <HistoryIcon className="w-5 h-5 text-cyan-400" />
+          </button>
         </header>
 
         {/* IMAGE DISPLAY / HERO AREA */}
@@ -312,16 +322,37 @@ export default function TshirtDesignGallery() {
         </div>
       </div>
 
+      {/* MOBILE HISTORY OVERLAY */}
+      <AnimatePresence>
+        {isHistoryOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+            onClick={() => setIsHistoryOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* RIGHT SIDEBAR - HISTORY */}
-      <div className="hidden md:flex w-80 bg-neutral-950/80 backdrop-blur-3xl border-l border-white/5 flex-col shadow-2xl relative z-20">
+      <div className={`fixed inset-y-0 right-0 z-50 md:static md:z-auto w-80 bg-neutral-950/95 md:bg-neutral-950/80 backdrop-blur-3xl border-l border-white/5 flex flex-col shadow-2xl transition-transform duration-300 ${isHistoryOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
         <div className="p-6 border-b border-white/5 flex items-center justify-between">
           <h3 className="font-semibold text-lg text-white/90 flex items-center gap-2">
             <HistoryIcon className="w-5 h-5 text-cyan-400" />
             Recent Designs
           </h3>
-          <span className="bg-white/10 text-white/60 text-xs px-2 py-1 rounded-md">
-            {gallery.length}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="bg-white/10 text-white/60 text-xs px-2 py-1 rounded-md">
+              {gallery.length}
+            </span>
+            <button 
+              className="md:hidden text-white/60 hover:text-white p-1 rounded-full bg-white/5"
+              onClick={() => setIsHistoryOpen(false)}
+            >
+              <XIcon className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
