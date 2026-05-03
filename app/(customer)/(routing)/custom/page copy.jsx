@@ -81,8 +81,10 @@ export default function TshirtDesignGallery() {
   }, [refresh]);
 
   // Handle Image Upload
-  function processFile(file) {
+  function handleFile(e) {
+    const file = e.target.files?.[0];
     if (!file) return;
+
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64 = reader.result.split(",")[1];
@@ -90,27 +92,7 @@ export default function TshirtDesignGallery() {
       setPreview(reader.result);
     };
     reader.readAsDataURL(file);
-  }
-
-  function handleFile(e) {
-    const file = e.target.files?.[0];
-    processFile(file);
     e.target.value = null; // reset input
-  }
-
-  function handlePaste(e) {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-    for (const item of items) {
-      if (item.type.indexOf("image") === 0) {
-        const file = item.getAsFile();
-        if (file) {
-          // It's an image, process it and don't let it paste as text
-          processFile(file);
-          break;
-        }
-      }
-    }
   }
 
   function removeImage() {
@@ -240,7 +222,7 @@ export default function TshirtDesignGallery() {
     <div className="flex h-[100dvh] bg-[#050505] text-white overflow-hidden font-sans selection:bg-cyan-500/30">
       {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col relative h-[90dvh] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900/40 via-[#050505] to-[#050505]">
-
+        
         {/* HEADER */}
         <header className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-center z-10 pointer-events-none">
           <div className="flex items-center gap-3">
@@ -251,8 +233,8 @@ export default function TshirtDesignGallery() {
               Design AI
             </h1>
           </div>
-
-          <button
+          
+          <button 
             onClick={() => setIsHistoryOpen(true)}
             className="md:hidden pointer-events-auto flex items-center justify-center p-2.5 bg-neutral-900/80 backdrop-blur-md rounded-full border border-white/10 text-white hover:bg-neutral-800 transition-colors shadow-lg"
             title="Recent Designs"
@@ -319,21 +301,21 @@ export default function TshirtDesignGallery() {
                     const isSelected = selectedView === view.id;
 
                     return (
-                      <div key={view.id} className="flex flex-col gap-2 w-24 md:w-full shrink-0">
-                        <span className="text-[10px] md:text-xs font-semibold text-neutral-400 uppercase tracking-wider">{view.label}</span>
+                      <div key={view.id} className="flex flex-col gap-2 min-w-[100px] md:min-w-0">
+                        <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">{view.label}</span>
                         {hasImage ? (
-                          <div
+                          <div 
                             onClick={() => setSelectedView(view.id)}
-                            className={`aspect-square rounded-2xl overflow-hidden cursor-pointer border-2 transition-all bg-neutral-900/40 p-1 md:p-2 flex items-center justify-center ${isSelected ? 'border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'border-transparent hover:border-white/20'}`}
+                            className={`aspect-square rounded-2xl overflow-hidden cursor-pointer border-2 transition-all ${isSelected ? 'border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'border-transparent hover:border-white/20'}`}
                           >
-                            <img src={hasImage} className="w-full h-full object-contain drop-shadow-md hover:scale-105 transition-transform duration-300" alt={view.label} />
+                            <img src={hasImage} className="w-full h-full object-cover" alt={view.label} />
                           </div>
                         ) : isLoading ? (
                           <div className="aspect-square rounded-2xl border-2 border-dashed border-cyan-500/50 bg-cyan-500/5 flex items-center justify-center">
-                            <div className="w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                             <div className="w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
                           </div>
                         ) : (
-                          <div
+                          <div 
                             onClick={() => openGenerateViewModal(view.id)}
                             className="aspect-square rounded-2xl border-2 border-dashed border-white/10 hover:border-cyan-400/50 hover:bg-cyan-500/5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all group"
                           >
@@ -380,9 +362,9 @@ export default function TshirtDesignGallery() {
                                 <ResetIcon className="w-4 h-4" />
                               </button>
                             </div>
-
-                            <TransformComponent
-                              wrapperStyle={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}
+                            
+                            <TransformComponent 
+                              wrapperStyle={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }} 
                               contentStyle={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}
                             >
                               <img
@@ -477,8 +459,7 @@ export default function TshirtDesignGallery() {
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  onPaste={handlePaste}
-                  placeholder="Describe your design... or paste an image here (Ctrl+V)"
+                  placeholder="Describe your design... (e.g., 'Cyberpunk skull')"
                   style={{ fontSize: "16px" }}
                   className="flex-1 bg-transparent border-none outline-none resize-none min-h-[44px] py-3 text-white placeholder-neutral-500 custom-scrollbar"
                   rows={1}
@@ -531,7 +512,7 @@ export default function TshirtDesignGallery() {
               <p className="text-sm text-neutral-400 mb-5 leading-relaxed">
                 Refine the prompt for this specific angle. We will use the front image as a reference to keep the style consistent.
               </p>
-
+              
               <div className="relative mb-5">
                 <textarea
                   value={viewModal.prompt}
@@ -564,7 +545,7 @@ export default function TshirtDesignGallery() {
       {/* MOBILE HISTORY OVERLAY */}
       <AnimatePresence>
         {isHistoryOpen && (
-          <motion.div
+          <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -585,7 +566,7 @@ export default function TshirtDesignGallery() {
             <span className="bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-[10px] font-bold px-2.5 py-1 rounded-full">
               {gallery.length} ITEMS
             </span>
-            <button
+            <button 
               className="md:hidden text-white/60 hover:text-white p-1 rounded-full bg-white/5"
               onClick={() => setIsHistoryOpen(false)}
             >

@@ -224,6 +224,50 @@ export async function POST(req) {
 
         const imageUrl = `${process.env.R2_PUBLIC_URL}/${fileName}`;
 
+        //createproduct 
+        const slug = prompt
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, "-")
+  .replace(/(^-|-$)+/g, "");
+
+const product = await prisma.product_list.create({
+  data: {
+    name: prompt, // ✅ title from prompt
+    slug: `${slug}-${Date.now()}`, // unique
+    sku: `TSHIRT-${Date.now()}`,
+    category_id: 1, // ⚠️ change to your T-shirt category
+    regular_price: 1,
+    sale_price: 1,
+    stock_qty: 1,
+    stepper_value: 1,
+    // ✅ THIS WILL NOW WORK
+    customer_list_id: customer_list_id,
+
+  },
+});
+
+//save imaage 
+await prisma.product_images.create({
+  data: {
+    product_list_id: product.id,
+    image_url: imageUrl,
+    url_720: imageUrl,
+    url_1080: imageUrl,
+    is_primary: true,
+  },
+});
+const sizes = ["S", "M", "L", "XL", "XXL"];
+
+await prisma.product_variant.createMany({
+  data: sizes.map((size) => ({
+    product_list_id: product.id,
+    size,
+    stock_qty: 1, // ✅ default
+    sku: `TSHIRT-${product.id}-${size}`,
+  })),
+});
+
+
         console.log("[R2] Uploaded:", imageUrl);
 
         // =============================
@@ -283,28 +327,79 @@ export async function POST(req) {
     }
 }
 
+// export async function GET(req) {
+//     try {
+//         const user = await requireUser();
+//         const customer_list_id = user.id;
+//         const { searchParams } = new URL(req.url);
+//         const page = parseInt(searchParams.get("page") || "1", 10);
+//         const limit = parseInt(searchParams.get("limit") || "10", 10);
+//         const skip = (page - 1) * limit;
+
+//         const [total, images] = await Promise.all([
+//             prisma.tshirt_image_generation.count({ where: { customer_list_id } }),
+//             prisma.tshirt_image_generation.findMany({
+//                 where: { customer_list_id },
+//                 orderBy: { id: "desc" },
+//                 skip,
+//                 take: limit,
+//             })
+//         ]);
+//         const totalPages = Math.ceil(total / limit) || 1;
+//         return NextResponse.json({
+//             success: true,
+//             data: images,
+//             pagination: {
+//                 total,
+//                 page,
+//                 limit,
+//                 totalPages,
+//             },
+//         });
+//     } catch (error) {
+//         console.error("[API ERROR]:", error);
+//         return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+//     }
+// }
+
 export async function GET(req) {
     try {
         const user = await requireUser();
         const customer_list_id = user.id;
+
         const { searchParams } = new URL(req.url);
         const page = parseInt(searchParams.get("page") || "1", 10);
         const limit = parseInt(searchParams.get("limit") || "10", 10);
         const skip = (page - 1) * limit;
 
-        const [total, images] = await Promise.all([
-            prisma.tshirt_image_generation.count({ where: { customer_list_id } }),
-            prisma.tshirt_image_generation.findMany({
-                where: { customer_list_id },
+        const [total, products] = await Promise.all([
+            prisma.product_list.count({
+                where: {
+                    customer_list_id,
+                    is_deleted: false,
+                },
+            }),
+            prisma.product_list.findMany({
+                where: {
+                    customer_list_id,
+                    is_deleted: false,
+                },
+                include: {
+                    images: true,        // optional
+                    variants: true,      // optional
+                    category: true,      // optional
+                },
                 orderBy: { id: "desc" },
                 skip,
                 take: limit,
-            })
+            }),
         ]);
+
         const totalPages = Math.ceil(total / limit) || 1;
+
         return NextResponse.json({
             success: true,
-            data: images,
+            data: products,
             pagination: {
                 total,
                 page,
@@ -312,8 +407,12 @@ export async function GET(req) {
                 totalPages,
             },
         });
+
     } catch (error) {
         console.error("[API ERROR]:", error);
-        return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+        return NextResponse.json(
+            { success: false, message: error.message },
+            { status: 500 }
+        );
     }
 }

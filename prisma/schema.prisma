@@ -71,6 +71,8 @@
     page_views               page_views[]
     wishlists                wishlist[]
     coupon_usages coupon_usage[]  
+      // 👇 ADD THIS
+  products  product_list[]
   reviews product_reviews[]
   tshirt_image_generations tshirt_image_generation[]
   tshirt_generation_limits tshirt_generation_limit[]
@@ -167,6 +169,9 @@
     images               product_images[]
     category             product_category      @relation(fields: [category_id], references: [id])
     seo                  product_meta_data?
+      // 👇 ADD THIS
+  customer_list_id     Int?       @db.UnsignedInt
+  customer             customer_list? @relation(fields: [customer_list_id], references: [id])
     pricing              product_pricing[]
     variants             product_variant[]
     tier_product_pricing tier_product_pricing?
