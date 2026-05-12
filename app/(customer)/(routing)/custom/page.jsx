@@ -237,9 +237,9 @@ export default function TshirtDesignGallery() {
   };
 
   return (
-    <div className="flex h-[100dvh] bg-[#050505] text-white overflow-hidden font-sans selection:bg-cyan-500/30">
+    <div className="flex  bg-[#050505] text-white overflow-hidden font-sans selection:bg-cyan-500/30 flex-col md:flex-row">
       {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col relative h-[90dvh] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900/40 via-[#050505] to-[#050505] w-full">
+      <div className="flex-1 flex flex-col relative h-[90dvh] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900/40 via-[#050505] to-[#050505] w-full flex-col">
 
         {/* HEADER */}
         <header className="absolute hidden md:block top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-center z-10 pointer-events-none">
@@ -270,7 +270,7 @@ export default function TshirtDesignGallery() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="text-center max-w-2xl px-4"
+                className="text-center max-w-2xl h-[65dvh] m-auto flex items-center justify-center flex-col"
               >
                 <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
                   Imagine your <br />
@@ -480,8 +480,8 @@ export default function TshirtDesignGallery() {
                   onPaste={handlePaste}
                   placeholder="Describe your design... or paste an image here (Ctrl+V)"
                   style={{ fontSize: "16px" }}
-                  className="flex-1 bg-transparent border-none outline-none resize-none min-h-[44px] py-3 text-white placeholder-neutral-500 custom-scrollbar"
-                  rows={1}
+                  className="flex-1 bg-transparent border-none outline-none resize-none min-h-[44px] max-h-[70px] md:h-auto py-3 text-white placeholder-neutral-500 custom-scrollbar"
+                  rows={0}
                 />
 
                 <button
@@ -504,9 +504,44 @@ export default function TshirtDesignGallery() {
               </kbd>{" "}
               to generate. Max 1 attachment.
             </div>
+
+
           </div>
+
         </div>
+
       </div>
+      {/* MOBILE HISTORY SLIDER */}
+      {gallery.length > 0 && (
+        <div className="md:hidden mt-4 pt-2 border-t border-white/10 overflow-x-auto flex gap-3 pb-2 custom-scrollbar">
+          {gallery.map((img) => (
+            <div
+              key={img.id}
+              className="group relative rounded-xl overflow-hidden bg-neutral-900/50 border border-white/10 hover:border-cyan-400 transition-all duration-300 shadow-md shrink-0 w-20 h-20"
+              onClick={() => handleReuse(img)}
+            >
+              <img
+                src={img.image_url}
+                alt={img.prompt || "Generated design"}
+                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"
+                loading="lazy"
+              />
+              <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                <button
+                  className="bg-black/60 backdrop-blur-md text-white p-1 rounded-full hover:bg-cyan-500 hover:text-black transition-colors shadow-lg border border-white/10"
+                  title="Reuse Design"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleReuse(img);
+                  }}
+                >
+                  <EditIcon className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* GENERATE ADDITIONAL VIEW MODAL */}
       <AnimatePresence>
@@ -646,6 +681,7 @@ export default function TshirtDesignGallery() {
             </div>
           )}
         </div>
+
       </div>
 
       {/* Global styles for custom scrollbar */}
