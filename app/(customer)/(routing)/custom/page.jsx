@@ -239,7 +239,7 @@ export default function TshirtDesignGallery() {
   return (
     <div className="flex h-[100dvh] bg-[#050505] text-white overflow-hidden font-sans selection:bg-cyan-500/30">
       {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col relative h-[90dvh] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900/40 via-[#050505] to-[#050505]">
+      <div className="flex-1 flex flex-col relative h-[90dvh] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900/40 via-[#050505] to-[#050505] w-full">
 
         {/* HEADER */}
         <header className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-center z-10 pointer-events-none">
@@ -312,7 +312,7 @@ export default function TshirtDesignGallery() {
                 className="w-full h-full flex flex-col md:flex-row gap-6 max-w-6xl mx-auto"
               >
                 {/* LEFT/TOP PANEL - THUMBNAILS */}
-                <div className="w-full md:w-72 shrink-0 flex flex-row md:grid md:grid-cols-2 gap-4 overflow-x-auto md:overflow-y-auto custom-scrollbar pb-2 md:pb-0 content-start">
+                <div className="w-full md:w-72 shrink-0 flex flex-row md:grid md:grid-cols-2 gap-4 overflow-x-auto md:overflow-y-auto custom-scrollbar pb-2 md:pb-0 content-start overflow-auto w-full md:w-auto">
                   {availableViews.map((view) => {
                     const hasImage = views[view.id];
                     const isLoading = viewLoading === view.id;
