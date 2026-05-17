@@ -262,7 +262,9 @@ export default function TshirtDesignGallery() {
         </header>
 
         {/* IMAGE DISPLAY / HERO AREA */}
-        <div className="flex-1 flex items-center justify-center p-4 md:p-6 md:pt-20 md:pt-24 pb-6 overflow-y-auto custom-scrollbar relative z-0">
+        {/* <div className="flex-1 flex items-center justify-center p-4 md:p-6 md:pt-20 md:pt-24 pb-6 overflow-y-auto custom-scrollbar relative z-0 !h-100 bg-red-300"> */}
+          <div>
+         
           <AnimatePresence mode="wait">
             {!views.front && !loading && (
               <motion.div
@@ -291,7 +293,7 @@ export default function TshirtDesignGallery() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex flex-col items-center gap-6"
+                className="flex flex-col items-center  gap-6"
               >
                 <div className="relative w-24 h-24">
                   <div className="absolute inset-0 rounded-full border-t-2 border-cyan-400/50 animate-spin"></div>
@@ -413,7 +415,7 @@ export default function TshirtDesignGallery() {
         </div>
 
         {/* PROMPT INPUT AREA - FIXED TO BOTTOM OF FLEX COLUMN */}
-        <div className="shrink-0 relative z-20 px-3 md:px-8 pb-4 md:pb-8 pt-2 md:pt-4 bg-gradient-to-t from-[#050505] via-[#050505] to-transparent w-full">
+        <div className="shrink-0 relative z-20  px-3 md:px-8 pb-4 md:pb-8 pt-2 md:pt-4 bg-gradient-to-t from-[#050505] via-[#050505] to-transparent w-full">
           <div className="max-w-4xl mx-auto relative">
             {error && (
               <motion.div
