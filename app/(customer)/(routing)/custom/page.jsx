@@ -288,6 +288,7 @@ export default function TshirtDesignGallery() {
             )}
 
             {loading && (
+              <div className="flex items-center h-[75dvh] justify-center">
               <motion.div
                 key="loading"
                 initial={{ opacity: 0 }}
@@ -304,6 +305,7 @@ export default function TshirtDesignGallery() {
                   Synthesizing design...
                 </p>
               </motion.div>
+              </div>
             )}
 
             {views.front && !loading && (
