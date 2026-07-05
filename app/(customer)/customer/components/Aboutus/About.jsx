@@ -140,23 +140,10 @@ export default function AboutPage() {
               {/* Elegant diagonal shine sweep on hover */}
               <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
 
-              {/* Clean Monospaced Overlay Content */}
-              <div className="absolute bottom-6 inset-x-5 flex flex-col space-y-3 z-20">
-                <div className="flex justify-between items-end border-b border-white/10 pb-2.5">
-                  <div>
-                    <span className="text-[9px] text-cyan-400 font-mono tracking-widest uppercase font-bold">Founder & Visionary</span>
-                    <h3 className="text-xl sm:text-2xl font-black text-white tracking-wide mt-1">Himanshu Sharma</h3>
-                  </div>
-                  <span className="text-[9px] text-gray-500 font-mono hidden sm:inline">CLVR_FNDR_01</span>
-                </div>
-                
-                <div className="flex justify-between items-center text-[9px] text-gray-400 font-mono">
-                  <span>28.6139° N, 77.2090° E</span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                    SYS_ACTIVE
-                  </span>
-                </div>
+              {/* Clean Info Overlay Content */}
+              <div className="absolute bottom-6 inset-x-6 z-20 text-left">
+                <span className="text-[10px] text-cyan-400 tracking-widest uppercase font-bold">Founder & Visionary</span>
+                <h3 className="text-xl sm:text-2xl font-black text-white tracking-wide mt-1">Himanshu Sharma</h3>
               </div>
             </div>
           </motion.div>
