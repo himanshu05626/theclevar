@@ -65,6 +65,7 @@ export default function Footer({ category = [] }) {
           <FooterColumn
             title="SUPPORT"
             links={[
+              { label: "About Us", href: "/about-us" },
               { label: "Sizing Guide", href: "/size-guide" },
               { label: "Shipping Info", href: "/shipping" },
               { label: "Returns & Exchanges", href: "/returns" },
