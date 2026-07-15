@@ -14,6 +14,8 @@ import LetsWorkTogether from "./customer/components/Aboutus/LetsWorkTogether";
 import AnnouncementBar from "./customer/components/home/AnnouncementBar";
 import BannerSlider from "./customer/components/home/BannerSlider";
 import CategoryBanner from "./customer/components/home/CategoryBanner";
+import ArrivalVideoBanner from "./customer/components/home/ArrivalVideoBanner";
+import ServiceLoopVideo from "./customer/components/home/ServiceLoopVideo";
 
 const brands = [
   { path: "/logo/SVG-1.png", alt: "Brand 1" },
@@ -56,31 +58,31 @@ export default async function Page() {
     });
   }
   console.log('skus', skus)
- const products = await prisma.product_list.findMany({
-  where: {
-    is_deleted: false,
-    is_active: true,
-  },
-  orderBy: {
-    created_at: "desc", // latest products first
-  },
-  take: 8, // only 8 items
-  include: {
-    variants: true,
-    images: {
-      where: { is_primary: true },
+  const products = await prisma.product_list.findMany({
+    where: {
+      is_deleted: false,
+      is_active: true,
     },
-    category: true,
+    orderBy: {
+      created_at: "desc", // latest products first
+    },
+    take: 8, // only 8 items
+    include: {
+      variants: true,
+      images: {
+        where: { is_primary: true },
+      },
+      category: true,
 
-    pricing: customer?.customer_group_id
-      ? {
+      pricing: customer?.customer_group_id
+        ? {
           where: { customer_group_id: customer.customer_group_id },
           take: 1,
         }
-      : false,
+        : false,
 
-    tier_product_pricing: isLoggedIn
-      ? {
+      tier_product_pricing: isLoggedIn
+        ? {
           select: {
             tier_1_price: true,
             tier_2_price: true,
@@ -94,60 +96,61 @@ export default async function Page() {
             tier_10_price: true,
           },
         }
-      : false,
-  },
-});
+        : false,
+    },
+  });
 
-const rawCategories = await prisma.product_category.findMany({
-  where: {
-    is_active: true,
-    is_deleted: false,
-  },
-  include: {
-    products: {
-      where: {
-        is_active: true,
-        is_deleted: false,
-      },
-      take: 1, // only 1 product needed
-      orderBy: {
-        created_at: "desc",
-      },
-      include: {
-        images: {
-          where: {
-            is_primary: true,
-            is_deleted: false,
+  const rawCategories = await prisma.product_category.findMany({
+    where: {
+      is_active: true,
+      is_deleted: false,
+    },
+    include: {
+      products: {
+        where: {
+          is_active: true,
+          is_deleted: false,
+        },
+        take: 1, // only 1 product needed
+        orderBy: {
+          created_at: "desc",
+        },
+        include: {
+          images: {
+            where: {
+              is_primary: true,
+              is_deleted: false,
+            },
+            take: 1,
           },
-          take: 1,
         },
       },
     },
-  },
-});
-const categories = rawCategories
-  .filter(cat => cat.products.length > 0) // ❌ skip empty
-  .map(cat => {
-    const product = cat.products[0];
-    const image = product?.images?.[0];
-
-    return {
-      title: cat.name.toUpperCase(),
-      image:
-        image?.url_720 ||
-        image?.image_url ||
-        "/images/not-found.png",
-      href: `/product-category/${cat.slug}`,
-    };
   });
+  const categories = rawCategories
+    .filter(cat => cat.products.length > 0) // ❌ skip empty
+    .map(cat => {
+      const product = cat.products[0];
+      const image = product?.images?.[0];
+
+      return {
+        title: cat.name.toUpperCase(),
+        image:
+          image?.url_720 ||
+          image?.image_url ||
+          "/images/not-found.png",
+        href: `/product-category/${cat.slug}`,
+      };
+    });
   return (
     <>
       <Home />
       <AnnouncementBar />
       {/* <BrandStrip brands={brands} /> */}
       {/* <Category /> */}
-       <BannerSlider />
-       <CategoryBanner categories={categories} />
+      <BannerSlider />
+      <CategoryBanner categories={categories} />
+      <ArrivalVideoBanner />
 
       <BestSellingProducts products={products} customerId={user?.id} isLoggedIn={!!user} />
       {/* <WhyChoosetheclevar />
@@ -156,6 +159,7 @@ const categories = rawCategories
 
       {/* <StatsCounter /> */}
       {/* <Banner products={products} /> */}
+      <ServiceLoopVideo />
       <ServiceHighlights />
     </>
   );
